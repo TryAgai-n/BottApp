@@ -1,14 +1,18 @@
 {
   "version": 3,
   "targets": {
-    "net5.0": {
+    "net6.0": {
       "Newtonsoft.Json/12.0.2": {
         "type": "package",
         "compile": {
-          "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         }
       },
       "Telegram.Bot/18.0.0": {
@@ -17,10 +21,14 @@
           "Newtonsoft.Json": "12.0.2"
         },
         "compile": {
-          "lib/netcoreapp3.1/Telegram.Bot.dll": {}
+          "lib/netcoreapp3.1/Telegram.Bot.dll": {
+            "related": ".pdb;.xml"
+          }
         },
         "runtime": {
-          "lib/netcoreapp3.1/Telegram.Bot.dll": {}
+          "lib/netcoreapp3.1/Telegram.Bot.dll": {
+            "related": ".pdb;.xml"
+          }
         }
       }
     }
@@ -76,36 +84,36 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net5.0": [
+    "net6.0": [
       "telegram.bot >= 18.0.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\LoveYouAgain\\.nuget\\packages\\": {}
+    "C:\\Users\\Администатор\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LoveYouAgain\\source\\repos\\BottApp\\BottApp\\BottApp.csproj",
+      "projectUniqueName": "C:\\Users\\Администатор\\Desktop\\BottApp\\BottApp\\BottApp.csproj",
       "projectName": "BottApp",
-      "projectPath": "C:\\Users\\LoveYouAgain\\source\\repos\\BottApp\\BottApp\\BottApp.csproj",
-      "packagesPath": "C:\\Users\\LoveYouAgain\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LoveYouAgain\\source\\repos\\BottApp\\BottApp\\obj\\",
+      "projectPath": "C:\\Users\\Администатор\\Desktop\\BottApp\\BottApp\\BottApp.csproj",
+      "packagesPath": "C:\\Users\\Администатор\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Администатор\\Desktop\\BottApp\\BottApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\LoveYouAgain\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Администатор\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net5.0"
+        "net6.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net5.0": {
-          "targetAlias": "net5.0",
+        "net6.0": {
+          "targetAlias": "net6.0",
           "projectReferences": {}
         }
       },
@@ -116,8 +124,8 @@
       }
     },
     "frameworks": {
-      "net5.0": {
-        "targetAlias": "net5.0",
+      "net6.0": {
+        "targetAlias": "net6.0",
         "dependencies": {
           "telegram.bot": {
             "target": "Package",
@@ -130,7 +138,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -139,7 +148,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.408\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }
