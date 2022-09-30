@@ -45,8 +45,11 @@ namespace BottApp
 
         public static ReplyKeyboardMarkup WelcomeKeyboard = new(new[]
         {
-            KeyboardButton.WithRequestContact("Share Contact"),
-        });
+            KeyboardButton.WithRequestContact("Поделиться номером"),
+        })
+        {
+            ResizeKeyboard = true
+        };
 
         public static InlineKeyboardMarkup inlineUrlKeyboard = new(new[]
        {

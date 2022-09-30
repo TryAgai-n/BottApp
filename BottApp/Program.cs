@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.IO.Enumeration;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -42,11 +44,12 @@ namespace BottApp
                     var _text = update.Message.Text;
                     var _id = update.Message.Chat.Id;
                     var _username = update.Message.Chat.FirstName;
-                    Console.WriteLine($"TRY PASS: {_username} | {_id} | {_text}");
+                    int? _test = null;
+                    Console.WriteLine($"TRY PASS: {_username} | {_id} | {_text} | {_test}");
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Возникло исключение!");
+                    Console.WriteLine("Возникло исключение! | " + ex);
                     await bot.SendTextMessageAsync(message.Chat.Id, "Ой-ёй, все сломаделось!");
                     return;
                 }
@@ -62,10 +65,19 @@ namespace BottApp
 
                     if (preparedMessage.Contains("привет") || preparedMessage.Contains("/start"))
                     {
-                        isSendContact = false;
-                        await bot.SendTextMessageAsync(id, "Привет! Отправьте ваш контакт для связи", replyMarkup: Keyboards.WelcomeKeyboard);
-                        return;
+                        if (!isSendContact)
+                        {
+                            await bot.SendTextMessageAsync(id, "Привет! Отправьте ваш контакт для связи", replyMarkup: Keyboards.WelcomeKeyboard);
+                            return;
+                        }
+                        else
+                        {
+                            await bot.SendTextMessageAsync(id, $"Спасибо, {username}, но вы уже делились контактом. Все записано, не переживайте!", replyMarkup: Keyboards.DefaultKeyboard);
+                            return;
+                        }
+
                     }
+
 
                     if (preparedMessage.Contains("контакты"))
                     {
@@ -103,8 +115,8 @@ namespace BottApp
                             var _text = update.Message.Text;
                             var _id = update.Message.Chat.Id;
                             var _username = update.Message.Chat.FirstName;
-                            var _phonenumer = userPhone;
-                            Console.WriteLine($"{_username} | {_id} | {_text} | {_phonenumer}");
+                            var _phonenumber = userPhone;
+                            Console.WriteLine($"{_username} | {_id} | {_text} | {_phonenumber}");
                         }
                         catch
                         {
@@ -141,6 +153,13 @@ namespace BottApp
                 if (update.Message.Type == MessageType.Voice)
                 {
                     await bot.SendTextMessageAsync(id, $"{username}, я еще не умею обрабатывать такие команды, но уже учусь!");
+                    // await bot.SendStickerAsync(id)
+                    return;
+                }
+
+                if (update.Message.Type == MessageType.Sticker)
+                {
+                    await bot.SendTextMessageAsync(id, $"{username}, лови айдишник стика!\n {update.Message.Sticker.FileId}");
                     return;
                 }
 
@@ -148,14 +167,21 @@ namespace BottApp
                 {
                     isSendContact = true;
                     userPhone = message.Contact.PhoneNumber;
-                    await bot.SendTextMessageAsync(id, $"Спасибо, {username}, ваш  номер +{userPhone} записан! Теперь выберите необходимый пункт меню, я постарюсь вам помочь!", replyMarkup: Keyboards.DefaultKeyboard);
+                    await bot.SendTextMessageAsync(id, $"Спасибо, {username}, ваш  номер +{userPhone} записан! ");
+                    await Task.Delay(1000);
+                    await bot.SendTextMessageAsync(id, "Теперь выберите необходимый пункт меню, я постарюсь вам помочь!");
+                    await Task.Delay(1000);
+                    await bot.SendStickerAsync(id, Stikers.stiker3.Stiker_ID, replyMarkup: Keyboards.DefaultKeyboard);
                     return;
                 }
                 else
                 {
                     await bot.SendTextMessageAsync(id, $"Спасибо, {username}, но вы уже делились контактом. Все записано, не переживайте!");
+                    await bot.SendStickerAsync(id, Stikers.stiker2.Stiker_ID, replyMarkup: Keyboards.DefaultKeyboard);
                     return;
                 }
+
+                return;
 
 
 
@@ -184,13 +210,27 @@ namespace BottApp
 
             var fileInfo = await botClient.GetFileAsync(field);
             var filePath = fileInfo.FilePath;
-            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа { fileInfo.FileSize} байт.");
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
-            //Enter the path for files
-            string destinationFilePath = $@"C:\Users\LoveYouAgain\Desktop\TelegramBD\{message.Document.FileName}";
+            string destinationFilePath = $@"C:\Users\Администатор\Desktop\TelegramBD\{message.Document.FileName}";
             await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
             await botClient.DownloadFileAsync(filePath, fileStream);
             fileStream.Close();
+
+            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт.");
+            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
+
+            /*
+            var folderName = "Download";
+            var webRootPath = Directory.GetCurrentDirectory() + "/wwwroot/";
+            var newPath = Path.Combine(webRootPath, folderName);
+            if(!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            var extension = Path.GetExtension(fileInfo.FilePath);
+            var fileName = message.Chat.Id + "_" + Guid.NewGuid().ToString("N") + "_" + DateTime.Now;
+            var fullPath = Path.Combine(newPath, fileName);*/
+
+
             return;
 
         }
