@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "2TZcwDYSZskhi6Ay6qLoM/A9Cfv3p0tcu+5WEMiIzOryXK3JTJFD1WnbvKs43dKzgr0FaBBB8jYedyzA15PBLA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\LoveYouAgain\\source\\repos\\BottApp\\BottApp\\BottApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\LoveYouAgain\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
+    "C:\\Users\\LoveYouAgain\\.nuget\\packages\\telegram.bot\\18.0.0\\telegram.bot.18.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
