@@ -8,7 +8,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-//Git resonse test
+
 namespace BottApp
 {
     class Program
@@ -139,8 +139,8 @@ namespace BottApp
 
                 if (update.Message.Type == MessageType.Photo)
                 {
-                    LogViewer(message);
-                    await bot.SendTextMessageAsync(id, "Хорошее фото, но лучше будет, если выслать документом =)");
+                    await bot.SendTextMessageAsync(id, "Пробую грузить)");
+                    DownloadPhoto(bot, message);
                     return;
                 }
 
@@ -181,8 +181,6 @@ namespace BottApp
                     return;
                 }
 
-                return;
-
 
 
             }
@@ -197,10 +195,11 @@ namespace BottApp
 
         async static public void DownloadDocument(ITelegramBotClient botClient, Message message)
         {
-            var field = message.Document.FileId;
+
             try
             {
-                var _fileInfo = await botClient.GetFileAsync(field);
+                var _field = message.Document.FileId;
+                var _fileInfo = await botClient.GetFileAsync(_field);
             }
             catch
             {
@@ -208,28 +207,66 @@ namespace BottApp
                 return;
             }
 
+            var folderName = "Document";
+            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
+            var newPath = Path.Combine(dataPath, folderName);
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+
+            var field = message.Document.FileId;
             var fileInfo = await botClient.GetFileAsync(field);
             var filePath = fileInfo.FilePath;
-            string destinationFilePath = $@"C:\Users\Администатор\Desktop\TelegramBD\{message.Document.FileName}";
+
+            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
+
             await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
             await botClient.DownloadFileAsync(filePath, fileStream);
             fileStream.Close();
 
-            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт.");
+            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
             await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
 
-            /*
-            var folderName = "Download";
-            var webRootPath = Directory.GetCurrentDirectory() + "/wwwroot/";
-            var newPath = Path.Combine(webRootPath, folderName);
-            if(!Directory.Exists(newPath))
+
+
+            return;
+
+        }
+
+
+        async static public void DownloadPhoto(ITelegramBotClient botClient, Message message)
+        {
+            try
+            {
+                var _field = message.Photo[message.Photo.Length - 1].FileId;
+                var _fileInfo = await botClient.GetFileAsync(_field);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error downloading: " + ex.Message);
+            }
+
+            var folderName = "Photo";
+            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
+            var newPath = Path.Combine(dataPath, folderName);
+            if (!Directory.Exists(newPath))
             {
                 Directory.CreateDirectory(newPath);
             }
-            var extension = Path.GetExtension(fileInfo.FilePath);
-            var fileName = message.Chat.Id + "_" + Guid.NewGuid().ToString("N") + "_" + DateTime.Now;
-            var fullPath = Path.Combine(newPath, fileName);*/
 
+            var fielid = message.Photo[message.Photo.Length - 1].FileId;
+            var fileInfo = await botClient.GetFileAsync(fielid);
+            var filePath = fileInfo.FilePath;
+
+            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
+
+            await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
+            await botClient.DownloadFileAsync(filePath, fileStream);
+            fileStream.Close();
+
+            Console.WriteLine($"Документ {fielid} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
+            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
 
             return;
 

@@ -8,9 +8,6 @@ namespace BottApp
     {
        /* public static List<Stiker> StikerList = new List<Stiker>() 
         { 
-       123
-       123
-       123
 
             new Stiker("Подмигивающая вишня", "CAACAgIAAxkBAAIDuWM2xqduy5sePiDXC3v--WpqfQjDAAINAAPANk8TpPnh9NR4jVMqBA") 
         };*/
