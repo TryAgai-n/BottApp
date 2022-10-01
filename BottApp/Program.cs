@@ -139,7 +139,7 @@ namespace BottApp
 
                 if (update.Message.Type == MessageType.Photo)
                 {
-                    await bot.SendTextMessageAsync(id, "Пробую грузить)");
+                    await bot.SendTextMessageAsync(id, "Гружу...");
                     DownloadPhoto(bot, message);
                     return;
                 }
@@ -214,12 +214,12 @@ namespace BottApp
             {
                 Directory.CreateDirectory(newPath);
             }
-
+            var fileName = message.Document.FileName;
             var field = message.Document.FileId;
             var fileInfo = await botClient.GetFileAsync(field);
             var filePath = fileInfo.FilePath;
 
-            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
+            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}__{fileName}";
 
             await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
             await botClient.DownloadFileAsync(filePath, fileStream);
