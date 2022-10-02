@@ -31,11 +31,10 @@ namespace BottApp
                 {
                     var _field = message.Voice.FileId;
                 }
-                else
+                if (type == MessageType.Video)
                 {
-                    return;
+                    var _field = message.Video.FileId;
                 }
-
             }
 
             catch (Exception ex)
@@ -59,18 +58,20 @@ namespace BottApp
                 {
                     FileID = message.Voice.FileId;
                 }
+                if (type == MessageType.Video)
+                {
+                    FileID = message.Video.FileId;
+                }
             }
-
-          
-
 
             var fileInfo = await botClient.GetFileAsync(FileID);
             var filePath = fileInfo.FilePath;
             var extension = Path.GetExtension(filePath);
 
+            
+            var rootPath = Directory.GetCurrentDirectory() + "/DATA/";
             var folderName = type;
-            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
-            var newPath = Path.Combine(dataPath, folderName.ToString(), extension);
+            var newPath = Path.Combine(rootPath, message.Chat.FirstName, folderName.ToString(), extension);
 
             if (!Directory.Exists(newPath))
             {
