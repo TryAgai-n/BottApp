@@ -140,20 +140,22 @@ namespace BottApp
                 if (update.Message.Type == MessageType.Photo)
                 {
                     await bot.SendTextMessageAsync(id, "Гружу...");
-                    DownloadPhoto(bot, message);
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
                     return;
                 }
 
                 if (update.Message.Type == MessageType.Document)
                 {
-                    DownloadDocument(bot, message);
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
                     return;
                 }
 
                 if (update.Message.Type == MessageType.Voice)
                 {
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
+                    await bot.SendStickerAsync(id, Stikers.stiker1.Stiker_ID);
+                    await Task.Delay(500);
                     await bot.SendTextMessageAsync(id, $"{username}, я еще не умею обрабатывать такие команды, но уже учусь!");
-                    // await bot.SendStickerAsync(id)
                     return;
                 }
 
@@ -191,85 +193,6 @@ namespace BottApp
         {
             Console.WriteLine("Fatall error | " + exception);
             return;
-        }
-
-        async static public void DownloadDocument(ITelegramBotClient botClient, Message message)
-        {
-
-            try
-            {
-                var _field = message.Document.FileId;
-                var _fileInfo = await botClient.GetFileAsync(_field);
-            }
-            catch
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id, "Слишком большой размер, не лезет =( Отправьте файл размером до 20МБ");
-                return;
-            }
-
-            var folderName = "Document";
-            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
-            var newPath = Path.Combine(dataPath, folderName);
-            if (!Directory.Exists(newPath))
-            {
-                Directory.CreateDirectory(newPath);
-            }
-            var fileName = message.Document.FileName;
-            var field = message.Document.FileId;
-            var fileInfo = await botClient.GetFileAsync(field);
-            var filePath = fileInfo.FilePath;
-
-            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}__{fileName}";
-
-            await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-            await botClient.DownloadFileAsync(filePath, fileStream);
-            fileStream.Close();
-
-            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
-
-
-
-            return;
-
-        }
-
-
-        async static public void DownloadPhoto(ITelegramBotClient botClient, Message message)
-        {
-            try
-            {
-                var _field = message.Photo[message.Photo.Length - 1].FileId;
-                var _fileInfo = await botClient.GetFileAsync(_field);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error downloading: " + ex.Message);
-            }
-
-            var folderName = "Photo";
-            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
-            var newPath = Path.Combine(dataPath, folderName);
-            if (!Directory.Exists(newPath))
-            {
-                Directory.CreateDirectory(newPath);
-            }
-
-            var fielid = message.Photo[message.Photo.Length - 1].FileId;
-            var fileInfo = await botClient.GetFileAsync(fielid);
-            var filePath = fileInfo.FilePath;
-
-            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
-
-            await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-            await botClient.DownloadFileAsync(filePath, fileStream);
-            fileStream.Close();
-
-            Console.WriteLine($"Документ {fielid} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
-
-            return;
-
         }
 
         static public void LogViewer(Message message)
