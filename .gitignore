@@ -16,6 +16,7 @@ bin/Debug/
 /log4net.config
 /.build/*
 
+appsettings.json
 /Library/*
 /Temp/*
 /Logs/*
