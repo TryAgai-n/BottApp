@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.IO.Enumeration;
+﻿using BottApp.Models;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -11,26 +9,23 @@ using Telegram.Bot.Types.Enums;
 
 namespace BottApp
 {
-    class Program
+    public class Program
     {
-        static public bool isSendContact = false;
-        static string userPhone;
-        static void Main(string[] args)
-        {
-            var bot = new TelegramBotClient("5601343711:AAH6cM03nZkSf0LdHr7YJLYlnk2DHdM5bqo");
 
+        static public bool isSendContact = false;
+
+        public static void initReceiver(TelegramBotClient bot)
+        {
             var receiverOptions = new ReceiverOptions
             {
                 AllowedUpdates = new UpdateType[]
-               {
+                {
                     UpdateType.Message,
                     UpdateType.EditedMessage,
-               }
+                }
             };
 
             bot.StartReceiving(Update, Error);
-
-            Console.ReadLine();
         }
 
         async static Task Update(ITelegramBotClient bot, Update update, CancellationToken CLToken)
@@ -44,8 +39,6 @@ namespace BottApp
                     var _text = update.Message.Text;
                     var _id = update.Message.Chat.Id;
                     var _username = update.Message.Chat.FirstName;
-                    int? _test = null;
-                    Console.WriteLine($"TRY PASS: {_username} | {_id} | {_text} | {_test}");
                 }
                 catch (Exception ex)
                 {
@@ -54,9 +47,9 @@ namespace BottApp
                     return;
                 }
 
-                var text = update.Message.Text;
                 var id = update.Message.Chat.Id;
-                var username = update.Message.Chat.FirstName;
+                var firstName = update.Message.Chat.FirstName;
+                var userName = update.Message.Chat.Username;
 
                 if (update.Message.Type == MessageType.Text)
                 {
@@ -72,7 +65,7 @@ namespace BottApp
                         }
                         else
                         {
-                            await bot.SendTextMessageAsync(id, $"Спасибо, {username}, но вы уже делились контактом. Все записано, не переживайте!", replyMarkup: Keyboards.DefaultKeyboard);
+                            await bot.SendTextMessageAsync(id, $"Спасибо, {firstName}, но вы уже делились контактом. Все записано, не переживайте!", replyMarkup: Keyboards.DefaultKeyboard);
                             return;
                         }
 
@@ -107,6 +100,11 @@ namespace BottApp
                         await bot.SendTextMessageAsync(id, "Раздел отладки", replyMarkup: Keyboards.debuggingKeyboard);
                         return;
                     }
+                    if (preparedMessage.Contains("отправить контакт"))
+                    {
+                        await bot.SendTextMessageAsync(id, "Жду!", replyMarkup: Keyboards.WelcomeKeyboard);
+                        return;
+                    }
 
                     if (preparedMessage.Contains("/stats"))
                     {
@@ -115,8 +113,8 @@ namespace BottApp
                             var _text = update.Message.Text;
                             var _id = update.Message.Chat.Id;
                             var _username = update.Message.Chat.FirstName;
-                            var _phonenumber = userPhone;
-                            Console.WriteLine($"{_username} | {_id} | {_text} | {_phonenumber}");
+                           // var _phonenumber = userPhone;
+                            Console.WriteLine($"{_username} | {_id} | {_text} | {"null"/*_phonenumber*/}");
                         }
                         catch
                         {
@@ -124,7 +122,7 @@ namespace BottApp
                             return;
                         }
 
-                        await bot.SendTextMessageAsync(id, $"Статистика: \nbool - isSendContact: {isSendContact}, Phone {userPhone ?? "null"}");
+                        await bot.SendTextMessageAsync(id, $"Статистика: \nbool - isSendContact: {isSendContact}, Phone {/*userPhone ?? */"null"}");
                         return;
                     }
 
@@ -139,35 +137,42 @@ namespace BottApp
 
                 if (update.Message.Type == MessageType.Photo)
                 {
-                    await bot.SendTextMessageAsync(id, "Пробую грузить)");
-                    DownloadPhoto(bot, message);
+                    await bot.SendTextMessageAsync(id, "Гружу...");
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
                     return;
                 }
 
                 if (update.Message.Type == MessageType.Document)
                 {
-                    DownloadDocument(bot, message);
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
                     return;
                 }
 
                 if (update.Message.Type == MessageType.Voice)
                 {
-                    await bot.SendTextMessageAsync(id, $"{username}, я еще не умею обрабатывать такие команды, но уже учусь!");
-                    // await bot.SendStickerAsync(id)
+                    DownloaManager.DownloadDocument(bot, message, update.Message.Type);
+                    await bot.SendStickerAsync(id, Stikers.stiker1.Stiker_ID);
+                    await Task.Delay(500);
+                    await bot.SendTextMessageAsync(id, $"{firstName}, я еще не умею обрабатывать такие команды, но уже учусь!");
                     return;
                 }
 
                 if (update.Message.Type == MessageType.Sticker)
                 {
-                    await bot.SendTextMessageAsync(id, $"{username}, лови айдишник стика!\n {update.Message.Sticker.FileId}");
+                    await bot.SendTextMessageAsync(id, $"{firstName}, лови айдишник стика!\n {update.Message.Sticker.FileId}");
                     return;
                 }
 
-                if (update.Message.Type == MessageType.Contact && !isSendContact)
+                if (update.Message.Type == MessageType.Contact) //&& !isSendContact
                 {
+                    var userPhone = message.Contact.PhoneNumber;
+
+                    var model = new UserModel(userName, userPhone, id, true);
+                    JsonHelper.SaveUser(model);
+
                     isSendContact = true;
-                    userPhone = message.Contact.PhoneNumber;
-                    await bot.SendTextMessageAsync(id, $"Спасибо, {username}, ваш  номер +{userPhone} записан! ");
+                    
+                    await bot.SendTextMessageAsync(id, $"Спасибо, {firstName}, ваш  номер +{userPhone} записан! ");
                     await Task.Delay(1000);
                     await bot.SendTextMessageAsync(id, "Теперь выберите необходимый пункт меню, я постарюсь вам помочь!");
                     await Task.Delay(1000);
@@ -176,7 +181,7 @@ namespace BottApp
                 }
                 else
                 {
-                    await bot.SendTextMessageAsync(id, $"Спасибо, {username}, но вы уже делились контактом. Все записано, не переживайте!");
+                    await bot.SendTextMessageAsync(id, $"Спасибо, {firstName}, но вы уже делились контактом. Все записано, не переживайте!");
                     await bot.SendStickerAsync(id, Stikers.stiker2.Stiker_ID, replyMarkup: Keyboards.DefaultKeyboard);
                     return;
                 }
@@ -191,85 +196,6 @@ namespace BottApp
         {
             Console.WriteLine("Fatall error | " + exception);
             return;
-        }
-
-        async static public void DownloadDocument(ITelegramBotClient botClient, Message message)
-        {
-
-            try
-            {
-                var _field = message.Document.FileId;
-                var _fileInfo = await botClient.GetFileAsync(_field);
-            }
-            catch
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id, "Слишком большой размер, не лезет =( Отправьте файл размером до 20МБ");
-                return;
-            }
-
-            var folderName = "Document";
-            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
-            var newPath = Path.Combine(dataPath, folderName);
-            if (!Directory.Exists(newPath))
-            {
-                Directory.CreateDirectory(newPath);
-            }
-
-            var field = message.Document.FileId;
-            var fileInfo = await botClient.GetFileAsync(field);
-            var filePath = fileInfo.FilePath;
-
-            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
-
-            await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-            await botClient.DownloadFileAsync(filePath, fileStream);
-            fileStream.Close();
-
-            Console.WriteLine($"Документ {message.Document.FileName} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
-
-
-
-            return;
-
-        }
-
-
-        async static public void DownloadPhoto(ITelegramBotClient botClient, Message message)
-        {
-            try
-            {
-                var _field = message.Photo[message.Photo.Length - 1].FileId;
-                var _fileInfo = await botClient.GetFileAsync(_field);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error downloading: " + ex.Message);
-            }
-
-            var folderName = "Photo";
-            var dataPath = Directory.GetCurrentDirectory() + "/DATA/";
-            var newPath = Path.Combine(dataPath, folderName);
-            if (!Directory.Exists(newPath))
-            {
-                Directory.CreateDirectory(newPath);
-            }
-
-            var fielid = message.Photo[message.Photo.Length - 1].FileId;
-            var fileInfo = await botClient.GetFileAsync(fielid);
-            var filePath = fileInfo.FilePath;
-
-            string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}.jpg";
-
-            await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-            await botClient.DownloadFileAsync(filePath, fileStream);
-            fileStream.Close();
-
-            Console.WriteLine($"Документ {fielid} получен от пользователя {message.Chat.FirstName} ID {message.Chat.Id}, размер документа {fileInfo.FileSize} байт. \nFULLPATH {destinationFilePath}");
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
-
-            return;
-
         }
 
         static public void LogViewer(Message message)

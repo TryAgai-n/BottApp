@@ -8,10 +8,11 @@
 
 # build artifacts
 /bin
+bin/Debug/
 /obj
 **/bin
 **/obj
-/.vs
+/.vs/*
 /log4net.config
 /.build/*
 
@@ -19,3 +20,9 @@ appsettings.json
 /Library/*
 /Temp/*
 /Logs/*
+
+#Test ignore
+*.png
+*.jpg
+*.docx
+/.vs/BottApp/v17/
