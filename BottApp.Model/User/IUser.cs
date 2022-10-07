@@ -4,7 +4,7 @@ public interface IUser
 {
     long Id { get; }
 
-    string Name { get; }
+    string FirstName { get; }
 
     string Phone { get; }
 
