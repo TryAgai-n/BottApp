@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Model", "BottApp.Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Host", "BottApp.Host\BottApp.Host.csproj", "{EE77CBC3-6B5C-4ABD-83EB-DE90ECD79C0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Database", "BottApp.Database\BottApp.Database.csproj", "{707093B2-BD9A-449F-8847-CD06D75D4DDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EE77CBC3-6B5C-4ABD-83EB-DE90ECD79C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE77CBC3-6B5C-4ABD-83EB-DE90ECD79C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE77CBC3-6B5C-4ABD-83EB-DE90ECD79C0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{707093B2-BD9A-449F-8847-CD06D75D4DDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{707093B2-BD9A-449F-8847-CD06D75D4DDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{707093B2-BD9A-449F-8847-CD06D75D4DDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{707093B2-BD9A-449F-8847-CD06D75D4DDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
