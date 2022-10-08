@@ -10,40 +10,34 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace BottApp.Host
 {
-public class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
             var webHost = BuildWebHost(args);
             var commandLineApplication = new CommandLineApplication(false);
 
-            var doMigrate = commandLineApplication.Option
-            (
+            var doMigrate = commandLineApplication.Option(
                 "--ef-migrate",
                 "Apply entity framework migrations and exit",
                 CommandOptionType.NoValue
             );
-            var verifyMigrate = commandLineApplication.Option
-            (
+            var verifyMigrate = commandLineApplication.Option(
                 "--ef-migrate-check",
                 "Check the status of entity framework migrations",
                 CommandOptionType.NoValue
             );
-            var run = commandLineApplication.Option
-            (
+            var run = commandLineApplication.Option(
                 "--run",
                 "Run api Server",
                 CommandOptionType.NoValue
             );
 
             commandLineApplication.HelpOption("-? | -h | --help");
-            commandLineApplication.OnExecute
-            (
+            commandLineApplication.OnExecute(
                 () =>
                 {
                     ExecuteApp(webHost, doMigrate, verifyMigrate, run);
@@ -135,16 +129,10 @@ public class Program
 
         private static async Task<int> InitWebServices(IWebHost webHost)
         {
-            await Task.WhenAll
-            (
-                webHost.RunAsync()
-            );
+            await Task.WhenAll(webHost.RunAsync());
 
             Console.Read();
-            await Task.WhenAll
-            (
-                webHost.StopAsync()
-            );
+            await Task.WhenAll(webHost.StopAsync());
             Environment.Exit(0);
             return 0;
         }

@@ -72,7 +72,7 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            // services.Configure<BotConfig>(Configuration.GetSection("Token"));
+            services.Configure<BotConfig>(Configuration.GetSection("Bot"));
 
             Type typeOfContent = typeof(Startup);
             
