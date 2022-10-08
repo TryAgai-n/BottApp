@@ -14,6 +14,8 @@ public sealed class BotUpdate
 
     public class Response : AbstractResponse
     {
-        
+        public Response()
+        {
+        }
     }
 }
