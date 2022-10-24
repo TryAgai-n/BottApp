@@ -3,16 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp", "BottApp\BottApp.csproj", "{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp.Host", "BottApp.Host\BottApp.Host.csproj", "{4E68E413-7491-43F5-8D6B-E4D7D5D502FA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA} = {9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp.Data", "BottApp.Data\BottApp.Data.csproj", "{9786E3A2-3B3B-451A-B57A-883A2A918F58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Client", "BottApp.Client\BottApp.Client.csproj", "{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp.Client", "BottApp.Client\BottApp.Client.csproj", "{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9926606A-F5AE-40BE-B2ED-92DF4EF5D6FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E68E413-7491-43F5-8D6B-E4D7D5D502FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E68E413-7491-43F5-8D6B-E4D7D5D502FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E68E413-7491-43F5-8D6B-E4D7D5D502FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
