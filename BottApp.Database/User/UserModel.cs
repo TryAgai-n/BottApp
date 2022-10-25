@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BottApp.Database.Message;
 
 namespace BottApp.Database.User;
 
@@ -19,6 +20,8 @@ public class UserModel : AbstractModel
     public string Phone { get; set; }
 
     public bool IsSendContact { get; set; }
+    
+    public List<MessageModel> Messages { get; set; }
 
 
     public static UserModel Create(int uid, string firstName, string phone, bool isSendContact)
