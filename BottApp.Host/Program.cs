@@ -12,7 +12,9 @@ builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 
 //Start Bot
 var token = builder.Configuration.GetSection("Token").Value;
-new BotInit().initReceiver(token);
+var bot = new BotInit();
+
+bot.initReceiver(token);
 
 
 

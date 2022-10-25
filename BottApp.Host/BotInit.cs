@@ -24,7 +24,7 @@ namespace BottApp.Host
                 AllowedUpdates = new UpdateType[]
                 { }
             };
-
+            //Подписываемся на 
             bot.StartReceiving
                (Handlers.HandleUpdateAsync,
                 Handlers.HandleErrorAsync,
