@@ -1,6 +1,6 @@
-﻿using BottApp.Data.User;
+﻿using BottApp.Database.User;
 
-namespace BottApp.Data
+namespace BottApp.Database
 {
     public interface IDatabaseContainer
     {

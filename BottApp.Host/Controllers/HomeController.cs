@@ -1,5 +1,5 @@
-﻿using BottApp.Data;
-using BottApp.Data.User;
+﻿using BottApp.Database;
+using BottApp.Database.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BottApp.Host.Controllers

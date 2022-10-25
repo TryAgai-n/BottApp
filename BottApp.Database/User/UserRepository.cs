@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BottApp.Data.User
+namespace BottApp.Database.User
 {
     public class UserRepository : AbstractRepository<UserModel>, IUserRepository
     {

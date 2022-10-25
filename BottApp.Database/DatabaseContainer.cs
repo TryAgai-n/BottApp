@@ -1,7 +1,7 @@
-﻿using BottApp.Data.User;
+﻿using BottApp.Database.User;
 using Microsoft.Extensions.Logging;
 
-namespace BottApp.Data
+namespace BottApp.Database
 {
 
     public class DatabaseContainer : IDatabaseContainer

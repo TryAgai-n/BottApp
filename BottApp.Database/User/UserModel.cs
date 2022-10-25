@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BottApp.Data.User;
+namespace BottApp.Database.User;
 
 public class UserModel : AbstractModel
 {

@@ -1,4 +1,4 @@
-﻿namespace BottApp.Data.User
+﻿namespace BottApp.Database.User
 {
     public interface IUserRepository
     {

@@ -1,5 +1,5 @@
-﻿using BottApp.Data.User;
-using BottApp.Data;
+﻿using BottApp.Database.User;
+using BottApp.Database;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Polling;

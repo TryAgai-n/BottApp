@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BottApp.Data
+namespace BottApp.Database
 {
     public abstract class AbstractModel
     {

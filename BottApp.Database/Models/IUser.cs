@@ -1,4 +1,4 @@
-namespace BottApp.Data.Models;
+namespace BottApp.Database.Models;
 public interface IUser
 {
     int Id { get; }

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BottApp.Data
+namespace BottApp.Database
 {
     public abstract class AbstractRepository<T>
         where T : AbstractModel
