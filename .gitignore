@@ -26,4 +26,5 @@ appsettings.json
 *.jpg
 *.docx
 /.vs/BottApp/v17/
+BottApp.Host/wwwroot/*
 
