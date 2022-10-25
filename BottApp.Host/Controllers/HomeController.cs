@@ -1,10 +1,6 @@
 ﻿using BottApp.Data;
-using BottApp.Data.Book;
 using BottApp.Data.User;
-using BottApp.Host.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace BottApp.Host.Controllers
 {
@@ -24,12 +20,7 @@ namespace BottApp.Host.Controllers
         // var user = await _databaseContainer.User.CreateUser(firstName,userPhone, isSendContact);
         // return user;
         // }
-
-        public async Task<BookModel> Test2()
-        {
-            var book = await _databaseContainer.Book.CreateBook("Book", "тест");
-            return book;
-        }
+        
 
 
         [HttpGet]
