@@ -8,6 +8,9 @@ public class UserModel : AbstractModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+    
+    [Required]
+    public int UId { get; set; }
 
     [Required]
     public string FirstName { get; set; }
@@ -18,10 +21,11 @@ public class UserModel : AbstractModel
     public bool IsSendContact { get; set; }
 
 
-    public static UserModel Create(string firstName, string phone, bool isSendContact)
+    public static UserModel Create(int uid, string firstName, string phone, bool isSendContact)
     {
         return new UserModel
         {
+            UId = uid,
             FirstName = firstName,
             Phone = phone,
             IsSendContact = isSendContact

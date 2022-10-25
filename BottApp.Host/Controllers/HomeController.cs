@@ -18,12 +18,12 @@ namespace BottApp.Host.Controllers
             _databaseContainer = databaseContainer;
         }
 
-        [HttpGet]
-        public async Task<UserModel> Test(string firstName, string userPhone, bool isSendContact)
-        {
-            var user = await _databaseContainer.User.CreateUser(firstName,userPhone, isSendContact);
-            return user;
-        }
+        // [HttpGet]
+        // public async Task<UserModel> Test(string firstName, string userPhone, bool isSendContact)
+        // {
+        // var user = await _databaseContainer.User.CreateUser(firstName,userPhone, isSendContact);
+        // return user;
+        // }
 
         public async Task<BookModel> Test2()
         {
@@ -40,11 +40,11 @@ namespace BottApp.Host.Controllers
         }
 
 
-        public async void AddUserOnDb(string firstName, string userPhone, bool isSendContact)
-        {
-            _databaseContainer.User.CreateUser(firstName, userPhone, isSendContact);
-            return;
-        }
+        // public async void AddUserOnDb(int uid, string firstName, string userPhone, bool isSendContact)
+        // {
+        //     await _databaseContainer.User.CreateUser(uid, firstName, userPhone, isSendContact);
+        //     return;
+        // }
 
     }
 }

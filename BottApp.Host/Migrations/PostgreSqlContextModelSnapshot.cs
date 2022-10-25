@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BottApp.Data.Migrations
+namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
     partial class PostgreSqlContextModelSnapshot : ModelSnapshot
@@ -21,28 +21,7 @@ namespace BottApp.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("BottApp.Data.Book.BookModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Book");
-                });
-
-            modelBuilder.Entity("BottApp.Data.Models.UserModel", b =>
+            modelBuilder.Entity("BottApp.Data.User.UserModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -61,7 +40,13 @@ namespace BottApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("UId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UId")
+                        .IsUnique();
 
                     b.ToTable("User");
                 });

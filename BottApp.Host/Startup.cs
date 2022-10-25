@@ -18,12 +18,13 @@ namespace BottApp.Host
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        private IWebHostEnvironment CurrentEnvironment{ get; set; }
-        
+
+        private IWebHostEnvironment CurrentEnvironment { get; set; }
+
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
 
-        
+
         public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment, ILoggerFactory loggerFactory)
         {
             Configuration = configuration;
@@ -59,18 +60,20 @@ namespace BottApp.Host
                     );
                 }
             );
-            
+
             ConfigureCoreServices(services, CurrentEnvironment);
-            
+
         }
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
 
             Type typeOfContent = typeof(Startup);
-            
-            services.AddDbContext<PostgreSqlContext>(
-                opt => opt.UseNpgsql(
+
+            services.AddDbContext<PostgreSqlContext>
+            (
+                opt => opt.UseNpgsql
+                (
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
                 )
@@ -97,12 +100,3 @@ namespace BottApp.Host
         }
     }
 }
-
-
-// Start Bot
-// var token = builder.Configuration.GetSection("Token").Value;
-// var bot = new BotInit();
-//
-// bot.initReceiver(token);
-//
-// var app = builder.Build();

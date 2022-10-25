@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using BottApp.Data.Book;
-using BottApp.Data.User;
+﻿using BottApp.Data.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -13,8 +10,6 @@ namespace BottApp.Data
         public readonly DatabaseContainer Db;
 
         public DbSet<UserModel> User { get; set; }
-        public DbSet<BookModel> Book { get; set; }
-
 
 
         public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
@@ -24,8 +19,8 @@ namespace BottApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<UserModel>().HasIndex(x => x.UId).IsUnique();
         }
 
     }
-
 }

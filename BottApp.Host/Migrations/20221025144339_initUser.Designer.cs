@@ -8,11 +8,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BottApp.Data.Migrations
+namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20221023040849_ChangeTypeOfUserId")]
-    partial class ChangeTypeOfUserId
+    [Migration("20221025144339_initUser")]
+    partial class initUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace BottApp.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("BottApp.Data.Models.UserModel", b =>
+            modelBuilder.Entity("BottApp.Data.User.UserModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,7 +42,13 @@ namespace BottApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("UId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UId")
+                        .IsUnique();
 
                     b.ToTable("User");
                 });
