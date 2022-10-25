@@ -17,6 +17,22 @@ namespace BottApp.Host
     {
         public static void Main(string[] args)
         {
+            var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<PostgreSqlContext>(
+                o=> o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
+            builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+
+//Start Bot
+            var token = builder.Configuration.GetSection("Token").Value;
+            var bot = new BotInit();
+
+            bot.initReceiver(token);
+            
+            
+            
             var webHost = BuildWebHost(args);
             var commandLineApplication = new CommandLineApplication(false);
 
@@ -108,7 +124,7 @@ namespace BottApp.Host
             return webHost;
         }
 
-
+        
         private static void _verifyMigrate(PostgreSqlContext context)
         {
             var pendingMigrations = context.Database.GetPendingMigrations();

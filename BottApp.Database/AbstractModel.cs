@@ -1,5 +1,12 @@
-namespace BottApp.Database;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public abstract class AbstractModel
+namespace BottApp.Database
 {
+    public abstract class AbstractModel
+    {
+    }
 }

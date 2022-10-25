@@ -1,8 +1,12 @@
+﻿using BottApp.Database.Message;
 using BottApp.Database.User;
 
-namespace BottApp.Database;
-
-public interface IDatabaseContainer
+namespace BottApp.Database
 {
-    IUserRepository UserRepository { get; }
+    public interface IDatabaseContainer
+    {
+        IUserRepository User { get; }
+        
+        IMessageRepository Message { get; }
+    }
 }

@@ -1,14 +1,24 @@
+﻿using BottApp.Database.Message;
 using BottApp.Database.User;
 using Microsoft.Extensions.Logging;
 
-namespace BottApp.Database;
-
-public class DatabaseContainer : IDatabaseContainer
+namespace BottApp.Database
 {
-    public IUserRepository UserRepository { get; }
 
-    public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
+    public class DatabaseContainer : IDatabaseContainer
     {
-        UserRepository = new UserRepository(db, loggerFactory);
+        public IUserRepository User { get; }
+
+        public IMessageRepository Message { get; }
+
+
+        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
+        {
+            User = new UserRepository(db, loggerFactory);
+            Message = new MessageRepository(db, loggerFactory);
+        }
+
+
     }
+    
 }
