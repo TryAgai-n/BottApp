@@ -1,11 +1,5 @@
 using BottApp;
 using BottApp.Database;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -15,12 +9,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Telegram.Bot.Examples.Polling
 {
-
     public class Handlers
     {
-
-
-        public readonly IDatabaseContainer _databaseContainer;
+        private readonly IDatabaseContainer _databaseContainer;
 
         public Handlers(IDatabaseContainer databaseContainer)
         {
@@ -68,13 +59,10 @@ namespace Telegram.Bot.Examples.Polling
         }
 
 
-     
 
         private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            
-            // var createUser = await _databaseContaineiner.User.CreateUser("", "", true);
-            
+
             #region
             var preparedMessage = message.Text.ToLower();
             var action = preparedMessage.Split('@')[0] switch
