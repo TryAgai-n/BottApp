@@ -72,7 +72,8 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            services.Configure<BotConfig>(Configuration.GetSection("Bot"));
+            var botToken = ConfigValidator.GetConfig<Configs.BotConfig>(Configuration, "Bot");
+            services.AddSingleton(botToken);
 
             Type typeOfContent = typeof(Startup);
             
