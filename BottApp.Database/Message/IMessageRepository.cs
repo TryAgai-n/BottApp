@@ -1,4 +1,6 @@
-﻿namespace BottApp.Database.Message;
+﻿using System.Threading.Tasks;
+
+namespace BottApp.Database.Message;
 
 public interface IMessageRepository
 {

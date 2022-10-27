@@ -1,4 +1,6 @@
-﻿namespace BottApp.Database.User
+﻿using System.Threading.Tasks;
+
+namespace BottApp.Database.User
 {
     public interface IUserRepository
     {

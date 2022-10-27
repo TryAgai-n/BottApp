@@ -160,9 +160,6 @@ public class UserController : AbstractClientController<UserController>
                 {
                     var userPhone = message.Contact.PhoneNumber;
 
-                    var model = new UserModel(id, userName, userPhone, true);
-                    await JsonHelper.SaveUser(model);
-
                     IsSendContact = true;
                     
                     await request.TelegramgBotClient.SendTextMessageAsync(id, $"Спасибо, {firstName}, ваш  номер +{userPhone} записан! ");
