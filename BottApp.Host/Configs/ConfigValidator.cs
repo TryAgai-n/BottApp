@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BottApp.Host.Configs;
 
-internal class ConfigValidator
+internal static class ConfigValidator
 {
     private static void ValidateConfig(IConfig config, string configName)
     {

@@ -1,22 +1,15 @@
-﻿using BottApp.Database.User;
-using BottApp.Database;
-using Microsoft.AspNetCore.Mvc;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using BottApp.Host.Controllers;
 using Telegram.Bot.Examples.Polling;
 
 namespace BottApp.Host
 {
-    public class BotInit
+    public static class BotInit
     {
-
-        public void initReceiver(string token)
+        public static void InitReceiver(Configs.BotConfig config)
         {
-
-            var bot = new TelegramBotClient(token);
+            var bot = new TelegramBotClient(config.Token);
             using var cts = new CancellationTokenSource();
 
             var receiverOptions = new ReceiverOptions
