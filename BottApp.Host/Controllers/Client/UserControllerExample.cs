@@ -1,20 +1,17 @@
-using System;
-using System.Threading.Tasks;
+
 using BottApp.Client.Bot;
-using BottApp.Database.User;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
 namespace BottApp.Host.Controllers.Client;
 
-public class UserController : AbstractClientController<UserController>
+public class UserControllerExample : AbstractClientController<UserControllerExample>
 {
     private bool IsSendContact { get; set; }
 
     
-    public UserController(ILogger<UserController> logger) : base(logger)
+    public UserControllerExample(ILogger<UserControllerExample> logger) : base(logger)
     {
         IsSendContact = false;
     }
@@ -53,12 +50,12 @@ public class UserController : AbstractClientController<UserController>
                     {
                         if (!IsSendContact)
                         {
-                            await request.TelegramgBotClient.SendTextMessageAsync(id, "Привет! Отправьте ваш контакт для связи", replyMarkup: Keyboards.WelcomeKeyboard);
+                            await request.TelegramgBotClient.SendTextMessageAsync(id, "Привет! Отправьте ваш контакт для связи", replyMarkup: KeyboardsExample.WelcomeKeyboard);
                             return;
                         }
                         else
                         {
-                            await request.TelegramgBotClient.SendTextMessageAsync(id, $"Спасибо, {firstName}, но вы уже делились контактом. Все записано, не переживайте!", replyMarkup: Keyboards.DefaultKeyboard);
+                            await request.TelegramgBotClient.SendTextMessageAsync(id, $"Спасибо, {firstName}, но вы уже делились контактом. Все записано, не переживайте!", replyMarkup: KeyboardsExample.DefaultKeyboard);
                             return;
                         }
 
@@ -67,35 +64,35 @@ public class UserController : AbstractClientController<UserController>
 
                     if (preparedMessage.Contains("контакты"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Держи!", replyMarkup: Keyboards.inlineUrlKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Держи!", replyMarkup: KeyboardsExample.inlineUrlKeyboard);
                         return;
                     }
 
                     if (preparedMessage.Contains("голосование"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выбирай", replyMarkup: Keyboards.VotesKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выбирай", replyMarkup: KeyboardsExample.VotesKeyboard);
                         return;
                     }
 
                     if (preparedMessage.Contains("главное меню"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выбирай", replyMarkup: Keyboards.DefaultKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выбирай", replyMarkup: KeyboardsExample.DefaultKeyboard);
                         return;
                     }
 
                     if (preparedMessage.Contains("отправить документ"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выберите документы через скрепку и отправьте в чат. Размер одного документа должен быть до 20 Мб.", replyMarkup: Keyboards.DefaultKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Выберите документы через скрепку и отправьте в чат. Размер одного документа должен быть до 20 Мб.", replyMarkup: KeyboardsExample.DefaultKeyboard);
                         return;
                     }
                     if (preparedMessage.Contains("отладка"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Раздел отладки", replyMarkup: Keyboards.debuggingKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Раздел отладки", replyMarkup: KeyboardsExample.debuggingKeyboard);
                         return;
                     }
                     if (preparedMessage.Contains("отправить контакт"))
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Жду!", replyMarkup: Keyboards.WelcomeKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Жду!", replyMarkup: KeyboardsExample.WelcomeKeyboard);
                         return;
                     }
 
@@ -121,7 +118,7 @@ public class UserController : AbstractClientController<UserController>
 
                     else
                     {
-                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Не совсем понял вас. (возможно раздел еще в разработке)", replyMarkup: Keyboards.DefaultKeyboard);
+                        await request.TelegramgBotClient.SendTextMessageAsync(id, "Не совсем понял вас. (возможно раздел еще в разработке)", replyMarkup: KeyboardsExample.DefaultKeyboard);
                         return;
                     }
 
@@ -166,13 +163,13 @@ public class UserController : AbstractClientController<UserController>
                     await Task.Delay(1000);
                     await request.TelegramgBotClient.SendTextMessageAsync(id, "Теперь выберите необходимый пункт меню, я постарюсь вам помочь!");
                     await Task.Delay(1000);
-                    await request.TelegramgBotClient.SendStickerAsync(id, Stikers.stiker3.Stiker_ID, replyMarkup: Keyboards.DefaultKeyboard);
+                    await request.TelegramgBotClient.SendStickerAsync(id, Stikers.stiker3.Stiker_ID, replyMarkup: KeyboardsExample.DefaultKeyboard);
                     return;
                 }
                 else
                 {
                     await request.TelegramgBotClient.SendTextMessageAsync(id, $"Спасибо, {firstName}, но вы уже делились контактом. Все записано, не переживайте!");
-                    await request.TelegramgBotClient.SendStickerAsync(id, Stikers.stiker2.Stiker_ID, replyMarkup: Keyboards.DefaultKeyboard);
+                    await request.TelegramgBotClient.SendStickerAsync(id, Stikers.stiker2.Stiker_ID, replyMarkup: KeyboardsExample.DefaultKeyboard);
                     return;
                 }
 

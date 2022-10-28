@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot.Types.ReplyMarkups;
+﻿using Telegram.Bot.Types.ReplyMarkups;
+
 //Codestyle left the chat...
-namespace BottApp
+namespace BottApp.Host.Keyboards
 {
-    public class Keyboards
+    public class KeyboardCase
     {
 
         public static ReplyKeyboardMarkup WelcomeKeyboard = new(new[]

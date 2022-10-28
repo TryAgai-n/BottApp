@@ -10,8 +10,4 @@
 
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\BottApp.Model\BottApp.Model.csproj" />
-    </ItemGroup>
-
 </Project>

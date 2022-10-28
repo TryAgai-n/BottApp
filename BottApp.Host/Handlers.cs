@@ -1,9 +1,8 @@
 using BottApp;
 using BottApp.Database;
 using BottApp.Database.User;
-using BottApp.Host;
-using Microsoft.EntityFrameworkCore;
-using Npgsql.Replication.TestDecoding;
+using BottApp.Host.Keyboards;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,7 +10,7 @@ using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Telegram.Bot.Examples.Polling
+namespace BottApp.Host
 {
     public class Handlers
     {
@@ -95,7 +94,7 @@ namespace Telegram.Bot.Examples.Polling
             {
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                                            text: "Hello",
-                                                           replyMarkup: Keyboards.WelcomeKeyboard);
+                                                           replyMarkup: KeyboardCase.WelcomeKeyboard);
             }
 
             static async Task<Message> VotesInlineKeyboard(ITelegramBotClient botClient, Message message)
