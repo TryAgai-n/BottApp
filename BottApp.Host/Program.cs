@@ -25,7 +25,6 @@ namespace BottApp.Host
                 o=> o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
             builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 
-//Start Bot
             var token = builder.Configuration.GetSection("Token").Value;
             var bot = new BotInit();
 
