@@ -1,5 +1,9 @@
 using BottApp;
 using BottApp.Database;
+using BottApp.Database.User;
+using BottApp.Host;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.Replication.TestDecoding;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,13 +15,13 @@ namespace Telegram.Bot.Examples.Polling
 {
     public class Handlers
     {
-        private readonly IDatabaseContainer _databaseContainer;
+        
+        public readonly IDatabaseContainer _databaseContainer;
 
         public Handlers(IDatabaseContainer databaseContainer)
         {
             _databaseContainer = databaseContainer;
         }
-
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             var ErrorMessage = exception switch
@@ -59,11 +63,16 @@ namespace Telegram.Bot.Examples.Polling
         }
 
 
-
+        public async Task<UserModel> Test(int uid, string firstName, string userPhone, bool isSendContact)
+        {
+            var user = await _databaseContainer.User.CreateUser(uid, firstName,userPhone, isSendContact);
+            return user;
+        }
         private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
+             //Test(message.MessageId, message.Chat.Username,message.Contact.PhoneNumber,true);
 
-            #region
+             #region
             var preparedMessage = message.Text.ToLower();
             var action = preparedMessage.Split('@')[0] switch
             {

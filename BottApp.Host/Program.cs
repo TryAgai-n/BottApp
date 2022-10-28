@@ -28,8 +28,8 @@ namespace BottApp.Host
 //Start Bot
             var token = builder.Configuration.GetSection("Token").Value;
             var bot = new BotInit();
-
             bot.initReceiver(token);
+
             
             
             
