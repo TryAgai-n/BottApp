@@ -1,30 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BottApp.Database;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+﻿using BottApp.Database;
+using BottApp.Host.Configs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace BottApp.Host
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
-        private IWebHostEnvironment CurrentEnvironment { get; set; }
-
+        private IWebHostEnvironment CurrentEnvironment{ get; set; }
+        
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
 
-
+        
         public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment, ILoggerFactory loggerFactory)
         {
             Configuration = configuration;
@@ -60,20 +49,26 @@ namespace BottApp.Host
                     );
                 }
             );
-
+            
             ConfigureCoreServices(services, CurrentEnvironment);
 
+            
+            services.AddSwaggerGen(
+                c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "BottApp.Host", Version = "v1"}); }
+            );
         }
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
+            var botConfig = ConfigValidator.GetConfig<BotConfig>(Configuration, "Bot");
+            services.AddSingleton(botConfig);
+            
+            BotInit.InitReceiver(botConfig);
 
             Type typeOfContent = typeof(Startup);
-
-            services.AddDbContext<PostgreSqlContext>
-            (
-                opt => opt.UseNpgsql
-                (
+            
+            services.AddDbContext<PostgreSqlContext>(
+                opt => opt.UseNpgsql(
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
                 )
@@ -88,6 +83,8 @@ namespace BottApp.Host
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BottApp.Host v1"));
             }
 
             app.UseHttpsRedirection();

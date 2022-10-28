@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+  dbBottApp:
+    image: postgres:11.2
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: bottapp_server
+    ports:
+      - 5432:5432
