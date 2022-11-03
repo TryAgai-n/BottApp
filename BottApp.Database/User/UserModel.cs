@@ -13,17 +13,15 @@ public class UserModel : AbstractModel
     
     [Required]
     public long UId { get; set; }
-
-    [Required]
-    public string FirstName { get; set; }
-
-    [Required]
-    public string Phone { get; set; }
+    
+    public string? FirstName { get; set; }
+    
+    public string? Phone { get; set; }
     
     public List<MessageModel> Messages { get; set; }
 
 
-    public static UserModel Create(long uid, string firstName, string phone)
+    public static UserModel Create(long uid, string? firstName, string? phone)
     {
         return new UserModel
         {

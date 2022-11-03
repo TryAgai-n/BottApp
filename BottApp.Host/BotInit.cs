@@ -23,8 +23,8 @@ namespace BottApp.Host
                 receiverOptions,
                 cts.Token);
 
-            Console.WriteLine($"Bot {bot.BotId} is running");
-            Console.ReadLine();
+            Console.WriteLine($"Bot {bot.BotId} is running"); 
+            // Console.ReadLine();
            
             // Send cancellation request to stop bot
             cts.Cancel();

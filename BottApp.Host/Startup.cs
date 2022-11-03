@@ -63,7 +63,7 @@ namespace BottApp.Host
             var botConfig = ConfigValidator.GetConfig<BotConfig>(Configuration, "Bot");
             services.AddSingleton(botConfig);
             
-            BotInit.InitReceiver(botConfig);
+            // botConfiBotInit.InitReceiver(botConfig);
 
             Type typeOfContent = typeof(Startup);
             

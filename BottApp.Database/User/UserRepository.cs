@@ -17,7 +17,7 @@ namespace BottApp.Database.User
         }
 
 
-        public async Task<UserModel> CreateUser(long uid, string firstName, string phone)
+        public async Task<UserModel> CreateUser(long uid, string? firstName, string? phone)
         {
 
             var model = UserModel.Create(uid, firstName, phone);
@@ -40,7 +40,7 @@ namespace BottApp.Database.User
             var model = await FindOne(id);
             if(model == null)
             {
-                throw new Exception("User model is not found");
+                throw new Exception($"User model by id: {id} is not found");
             }
             return model;
         }

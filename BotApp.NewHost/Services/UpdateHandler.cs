@@ -64,9 +64,7 @@ public class UpdateHandler : IUpdateHandler
                 text: "Записал в базу!",
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
-        }
-        else
-        {
+        } else {
             await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: "Ты уже есть в базе!",
@@ -77,6 +75,14 @@ public class UpdateHandler : IUpdateHandler
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
+
+        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+        if (user == null)
+        {
+            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, "");
+        }
+        
+        var messageModel = await _databaseContainer.Message.CreateModel(user.Id, message.Text);
         if (message.Contact != null)
         {
             SaveUser(message, _botClient, cancellationToken);
