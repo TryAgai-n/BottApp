@@ -19,20 +19,17 @@ public class UserModel : AbstractModel
 
     [Required]
     public string Phone { get; set; }
-
-    public bool IsSendContact { get; set; }
     
     public List<MessageModel> Messages { get; set; }
 
 
-    public static UserModel Create(long uid, string firstName, string phone, bool isSendContact)
+    public static UserModel Create(long uid, string firstName, string phone)
     {
         return new UserModel
         {
             UId = uid,
             FirstName = firstName,
             Phone = phone,
-            IsSendContact = isSendContact
         };
     }
 }

@@ -12,7 +12,7 @@ namespace BottApp.Database
 
         public DbSet<UserModel> User { get; set; }
         
-        public DbSet<MessageModel> Message { get; set; }
+         public DbSet<MessageModel> Message { get; set; }
         
 
 

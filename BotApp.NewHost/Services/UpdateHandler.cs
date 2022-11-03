@@ -1,5 +1,4 @@
 using BottApp.Database;
-using BottApp.Database.User;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -49,17 +48,31 @@ public class UpdateHandler : IUpdateHandler
     private async Task SaveUser(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
 
     {
-        var uid = Convert.ToInt32(message.MessageId);//Если указывать Chat.ID - при повторой записи в базу сыпятся ошибки
+        var uid = Convert.ToInt32(message.Chat.Id);//Если указывать Chat.ID - при повторой записи в базу сыпятся ошибки
         var firstName = message.Chat.FirstName;
         var userPhone = message.Contact.PhoneNumber;
-        var isSendContact = true;
-        await _databaseContainer.User.CreateUser(uid, firstName, userPhone, isSendContact);
-        
-        await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id,
-            text: "Записал в базу!",
-            replyMarkup: new ReplyKeyboardRemove(),
-            cancellationToken: cancellationToken);
+
+
+        var findOneUserById = await _databaseContainer.User.FindOneById(uid);
+
+        if (findOneUserById == null)
+        {
+            await _databaseContainer.User.CreateUser(uid, firstName, userPhone);
+            
+            await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: "Записал в базу!",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+        }
+        else
+        {
+            await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: "Ты уже есть в базе!",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+        }
     }
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
