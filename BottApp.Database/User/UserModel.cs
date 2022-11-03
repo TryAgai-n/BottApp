@@ -12,7 +12,7 @@ public class UserModel : AbstractModel
     public int Id { get; set; }
     
     [Required]
-    public int UId { get; set; }
+    public long UId { get; set; }
 
     [Required]
     public string FirstName { get; set; }
@@ -25,7 +25,7 @@ public class UserModel : AbstractModel
     public List<MessageModel> Messages { get; set; }
 
 
-    public static UserModel Create(int uid, string firstName, string phone, bool isSendContact)
+    public static UserModel Create(long uid, string firstName, string phone, bool isSendContact)
     {
         return new UserModel
         {

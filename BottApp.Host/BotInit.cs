@@ -25,7 +25,7 @@ namespace BottApp.Host
 
             Console.WriteLine($"Bot {bot.BotId} is running");
             Console.ReadLine();
-
+           
             // Send cancellation request to stop bot
             cts.Cancel();
             Console.WriteLine($"Bot {bot.BotId} stopped");

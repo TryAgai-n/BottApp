@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp.Database", "BottApp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottApp.Client", "BottApp.Client\BottApp.Client.csproj", "{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram.Bot.Examples.Polling", "BotApp.NewHost\Telegram.Bot.Examples.Polling.csproj", "{7F0FE4BF-46E0-4F45-A1E1-351BF725223B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1} = {AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +32,10 @@ Global
 		{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA5413FD-E8B7-426B-BCCB-DDE3C936E6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F0FE4BF-46E0-4F45-A1E1-351BF725223B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F0FE4BF-46E0-4F45-A1E1-351BF725223B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F0FE4BF-46E0-4F45-A1E1-351BF725223B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F0FE4BF-46E0-4F45-A1E1-351BF725223B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

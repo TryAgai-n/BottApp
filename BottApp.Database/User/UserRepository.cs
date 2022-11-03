@@ -16,7 +16,7 @@ namespace BottApp.Database.User
         }
 
 
-        public async Task<UserModel> CreateUser(int uid, string firstName, string phone, bool isSendContact)
+        public async Task<UserModel> CreateUser(long uid, string firstName, string phone, bool isSendContact)
         {
 
             var model = UserModel.Create(uid, firstName, phone, isSendContact);

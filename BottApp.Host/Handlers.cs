@@ -1,6 +1,7 @@
 using BottApp;
 using BottApp.Database;
 using BottApp.Database.User;
+using BottApp.Host.Controllers;
 using BottApp.Host.Keyboards;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -67,11 +68,14 @@ namespace BottApp.Host
             var user = await _databaseContainer.User.CreateUser(uid, firstName,userPhone, isSendContact);
             return user;
         }
+        
         private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-             //Test(message.MessageId, message.Chat.Username,message.Contact.PhoneNumber,true);
+            // Test(message.MessageId, message.Chat.Username,message.Contact.PhoneNumber,true);
+            
+            
 
-             #region
+            #region
             var preparedMessage = message.Text.ToLower();
             var action = preparedMessage.Split('@')[0] switch
             {
