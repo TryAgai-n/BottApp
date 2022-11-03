@@ -55,15 +55,12 @@ namespace BottApp.Host.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsSendContact")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UId")
-                        .HasColumnType("integer");
+                    b.Property<long>("UId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

@@ -5,40 +5,36 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BottApp.Host.Migrations
 {
-    public partial class Message : Migration
+    public partial class initUser : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Message",
+                name: "User",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false)
+                    UId = table.Column<long>(type: "bigint", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Message", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Message_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Message_UserId",
-                table: "Message",
-                column: "UserId");
+                name: "IX_User_UId",
+                table: "User",
+                column: "UId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Message");
+                name: "User");
         }
     }
 }

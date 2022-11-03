@@ -21,5 +21,9 @@
     <ProjectReference Include="..\BottApp.Client\BottApp.Client.csproj" />
     <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations" />
+  </ItemGroup>
   
 </Project>
