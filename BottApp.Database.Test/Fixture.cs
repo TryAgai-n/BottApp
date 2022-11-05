@@ -35,8 +35,14 @@ internal sealed class Fixture : IDisposable
     }
 
     public void Dispose()
-    { 
-        _postgreSqlContext.Dispose();
-     //   _postgreSqlContext.Database.EnsureDeleted();
+    {
+        if (_postgreSqlContext == null)
+        {
+            return;
+        }
+        
+        _postgreSqlContext.Database.EnsureDeleted();
+
+        _postgreSqlContext?.Dispose();
     }
 }
