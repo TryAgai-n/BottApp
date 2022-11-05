@@ -1,4 +1,5 @@
 using BottApp.Database;
+using BottApp.Utils;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -81,7 +82,7 @@ public class UpdateHandler : IUpdateHandler
         
         user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
 
-        await _databaseContainer.Message.CreateModel(user.Id, message.Text);
+        await _databaseContainer.Message.CreateModel(user.Id, message.Text, Timestamp.Now);
         
         if (message.Contact != null)
         {

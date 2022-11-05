@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.User;
+using BottApp.Utils;
 
 namespace BottApp.Database.Message;
 
@@ -17,14 +19,19 @@ public class MessageModel : AbstractModel
     
     
     public string? Description { get; set; }
+    
+    [Required]
+    [DataType(DataType.Date)]
+    public DateTime CreatedAt { get; set; }
 
 
-    public static MessageModel CreateModel(int userId, string? description)
+    public static MessageModel CreateModel(int userId, string? description, Timestamp createdAt)
     {
         return new MessageModel
         {
             UserId = userId,
-            Description = description
+            Description = description,
+            CreatedAt = createdAt.ToUtc()
         };
     }
 }
