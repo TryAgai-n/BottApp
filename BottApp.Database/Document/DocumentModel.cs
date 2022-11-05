@@ -4,37 +4,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.User;
 using BottApp.Utils;
 
-namespace BottApp.Database.Message;
+namespace BottApp.Database.Document;
 
-public class MessageModel : AbstractModel
+public class DocumentModel : AbstractModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    
     public int UserId { get; set; }
     
     [ForeignKey("UserId")]
     public UserModel UserModel { get; set; }
     
+    public string? DocumentType { get; set; }
     
-    public string? Description { get; set; }
+    public string? DocumentExtension { get; set; }
     
-    public  string? Type { get; set; }
+    public  string? Path { get; set; }
+    
     
     [Required]
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
-
-
-    public static MessageModel CreateModel(int userId, string? description, string? type, DateTime createdAt)
+    
+    public static DocumentModel CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path)
     {
-        return new MessageModel
+        return new DocumentModel
         {
             UserId = userId,
-            Description = description,
-            Type = type,
-            CreatedAt = createdAt
+            DocumentExtension = documentExtension,
+            DocumentType = documentType,
+            CreatedAt = createdAt,
+            Path = path
         };
     }
 }

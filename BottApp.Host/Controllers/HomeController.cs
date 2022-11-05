@@ -1,5 +1,6 @@
 ﻿using BottApp.Database;
 using BottApp.Database.User;
+using BottApp.Host.Controllers.Client;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BottApp.Host.Controllers
@@ -14,12 +15,18 @@ namespace BottApp.Host.Controllers
             _databaseContainer = databaseContainer;
         }
 
-        // [HttpGet]
-        // public async Task<UserModel> Test(string firstName, string userPhone, bool isSendContact)
-        // {
-        // var user = await _databaseContainer.User.CreateUser(firstName,userPhone, isSendContact);
-        // return user;
-        // }
+        [HttpGet]
+        public async Task<UserModel> Test(int uid, string firstName, string userPhone)
+        {
+        var user = await _databaseContainer.User.CreateUser(uid, firstName,userPhone);
+        return user;
+        }
+
+        public void Createuser(int uid, string firstName, string userPhone, bool isSendContact)
+        {
+            Test(uid, firstName, userPhone);
+            return;
+        }
         
 
 

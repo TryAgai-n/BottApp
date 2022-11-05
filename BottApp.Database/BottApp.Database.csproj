@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BottApp.Model\BottApp.Model.csproj" />
+      <ProjectReference Include="..\BottApp.Utils\BottApp.Utils.csproj" />
     </ItemGroup>
 
 </Project>

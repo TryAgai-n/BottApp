@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot.Types.ReplyMarkups;
-namespace BottApp.Host
+namespace BottApp.Host.Controllers.Client
 {
-    public class Keyboards
+    public class KeyboardsExample
     {
         public static ReplyKeyboardMarkup DefaultKeyboard =
             new(new[]

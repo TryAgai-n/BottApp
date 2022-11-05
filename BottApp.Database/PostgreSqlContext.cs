@@ -1,4 +1,5 @@
-﻿using BottApp.Database.Message;
+﻿using BottApp.Database.Document;
+using BottApp.Database.Message;
 using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace BottApp.Database
 
         public DbSet<UserModel> User { get; set; }
         
-        public DbSet<MessageModel> Message { get; set; }
+         public DbSet<MessageModel> Message { get; set; }
         
 
 
@@ -27,6 +28,10 @@ namespace BottApp.Database
             modelBuilder.Entity<MessageModel>()
                 .HasOne(x => x.UserModel)
                 .WithMany(x => x.Messages);
+            
+            modelBuilder.Entity<DocumentModel>()
+                .HasOne(x => x.UserModel)
+                .WithMany(x => x.Documents);
         }
 
     }
