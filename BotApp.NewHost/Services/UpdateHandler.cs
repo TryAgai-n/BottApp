@@ -44,50 +44,16 @@ public class UpdateHandler : IUpdateHandler
 
         await handler;
     }
-
-
-    private async Task UpdateContact(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
-
-    {
-
-        var user = await _databaseContainer.User.FindOneById((int)message.Chat.Id);
-
-        if (user.Phone == null)
-        {
-            await _databaseContainer.User.UpdateUserPhone(user,  message.Contact.PhoneNumber);
-            await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "Записал в базу!",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken);
-        } else {
-            await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "Ты уже есть в базе!",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken);
-        }
-
-
-    }
-
+    
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
-
-        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
-        if (user == null)
-        {
-            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, null);
-        }
         
-        user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
-
-        await _databaseContainer.Message.CreateModel(user.Id, message.Text, Timestamp.Now);
+        await    UserManager.Save (_databaseContainer, message);
+        await MessageManager.Save (_databaseContainer, message);
         
         if (message.Contact != null)
-        {
-            UpdateContact(message, _botClient, cancellationToken);
-        }
+            await MessageManager.UpdateContact(message, _botClient, cancellationToken,_databaseContainer);
+        
         
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         if (message.Text is not { } messageText)
