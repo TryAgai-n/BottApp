@@ -49,5 +49,15 @@ namespace BottApp.Database.User
         {
             return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
         }
+        
+
+        public async Task<bool> UpdateUserPhone(UserModel model, string phone)
+        {
+            model.Phone = phone; 
+            var result = await UpdateModelAsync(model);
+
+            return result > 0;
+        }
+
     }
 }

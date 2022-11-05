@@ -45,20 +45,15 @@ public class UpdateHandler : IUpdateHandler
     }
 
 
-    private async Task SaveUser(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    private async Task UpdateContact(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
 
     {
-        var uid = Convert.ToInt32(message.Chat.Id);//Если указывать Chat.ID - при повторой записи в базу сыпятся ошибки
-        var firstName = message.Chat.FirstName;
-        var userPhone = message.Contact.PhoneNumber;
 
+        var user = await _databaseContainer.User.FindOneById((int)message.Chat.Id);
 
-        var findOneUserById = await _databaseContainer.User.FindOneById(uid);
-
-        if (findOneUserById == null)
+        if (user.Phone == null)
         {
-            await _databaseContainer.User.CreateUser(uid, firstName, userPhone);
-            
+            await _databaseContainer.User.UpdateUserPhone(user,  message.Contact.PhoneNumber);
             await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: "Записал в базу!",
@@ -71,6 +66,8 @@ public class UpdateHandler : IUpdateHandler
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
         }
+
+
     }
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
@@ -85,9 +82,10 @@ public class UpdateHandler : IUpdateHandler
         user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
 
         await _databaseContainer.Message.CreateModel(user.Id, message.Text);
+        
         if (message.Contact != null)
         {
-            SaveUser(message, _botClient, cancellationToken);
+            UpdateContact(message, _botClient, cancellationToken);
         }
         
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
