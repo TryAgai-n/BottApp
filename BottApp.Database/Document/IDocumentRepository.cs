@@ -5,5 +5,5 @@ namespace BottApp.Database.Document;
 
 public interface IDocumentRepository
 {
-    Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt);
+    Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path);
 }

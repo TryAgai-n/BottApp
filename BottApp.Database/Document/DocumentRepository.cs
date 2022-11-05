@@ -11,9 +11,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
     }
     
-    public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt)
+    public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path)
     {
-        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt);
+        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt, path);
 
         var result = await CreateModelAsync(model);
         if (result == null)

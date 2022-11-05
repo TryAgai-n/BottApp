@@ -20,19 +20,22 @@ public class DocumentModel : AbstractModel
     
     public string? DocumentExtension { get; set; }
     
+    public  string? Path { get; set; }
+    
     
     [Required]
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
     
-    public static DocumentModel CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt)
+    public static DocumentModel CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path)
     {
         return new DocumentModel
         {
             UserId = userId,
             DocumentExtension = documentExtension,
             DocumentType = documentType,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            Path = path
         };
     }
 }

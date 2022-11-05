@@ -11,9 +11,9 @@ public class MessageRepository : AbstractRepository<MessageModel>, IMessageRepos
     {
     }
 
-    public async Task<MessageModel> CreateModel(int userId, string? description, DateTime createdAt)
+    public async Task<MessageModel> CreateModel(int userId, string? description, string? type, DateTime createdAt)
     {
-        var model = MessageModel.CreateModel(userId, description, createdAt);
+        var model = MessageModel.CreateModel(userId, description, type, createdAt);
 
         var result = await CreateModelAsync(model);
         if (result == null)

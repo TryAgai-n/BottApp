@@ -15,7 +15,7 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
    
         
-        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now);
+        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa");
         
         Assert.NotNull(document);
        // Assert.Equal(user.Id, document.UserId);

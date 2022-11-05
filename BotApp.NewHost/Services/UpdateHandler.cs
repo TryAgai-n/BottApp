@@ -54,6 +54,9 @@ public class UpdateHandler : IUpdateHandler
         if (message.Contact != null)
             await MessageManager.UpdateContact(message, _botClient, cancellationToken,_databaseContainer);
         
+        if (message.Document != null || message.Photo !=null)
+            await DocumentManager.Save(_databaseContainer, message, _botClient);
+        
         
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         if (message.Text is not { } messageText)
