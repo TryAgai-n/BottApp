@@ -1,4 +1,5 @@
 ﻿using BottApp.Database.Message;
+using BottApp.Database.Document;
 using BottApp.Database.User;
 
 namespace BottApp.Database
@@ -8,5 +9,7 @@ namespace BottApp.Database
         IUserRepository User { get; }
         
         IMessageRepository Message { get; }
+        
+        IDocumentRepository Document { get; }
     }
 }

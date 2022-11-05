@@ -1,5 +1,4 @@
-﻿using BottApp.Utils;
-using Xunit;
+﻿using Xunit;
 
 namespace BottApp.Database.Test.Message;
 
@@ -11,9 +10,9 @@ public class MessageRepositoryTest : DbTestCase
         var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
 
 
-        // var message = DatabaseContainer.Message.CreateModel(user.Id, "Message!!!").Result;
+         var message = DatabaseContainer.Message.CreateModel(user.Id, "Message!!!", DateTime.Now).Result;
         
         
-        // Assert.Equal(user.Id, message.UserId);
+        Assert.Equal(user.Id, message.UserId);
     }
 }
