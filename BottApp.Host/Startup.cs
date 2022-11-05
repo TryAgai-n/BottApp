@@ -1,25 +1,22 @@
 ﻿using BottApp.Database;
 using BottApp.Host.Configs;
+using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Telegram.Bot;
 
 namespace BottApp.Host
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        private IWebHostEnvironment CurrentEnvironment{ get; set; }
-        
-        private ILogger _logger;
-        private ILoggerFactory _loggerFactory;
+        private IWebHostEnvironment CurrentEnvironment{ get; }
 
         
-        public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment, ILoggerFactory loggerFactory)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment)
         {
             Configuration = configuration;
             CurrentEnvironment = hostEnvironment;
-            _logger = loggerFactory.CreateLogger<Startup>();
-            _loggerFactory = loggerFactory;
         }
 
 
@@ -60,11 +57,18 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            var botConfig = ConfigValidator.GetConfig<BotConfig>(Configuration, "Bot");
-            services.AddSingleton(botConfig);
-            
-            BotInit.InitReceiver(botConfig);
+            services.AddHostedService<ConfigureWebhook>();
 
+            var botConfig = Configuration.GetSection("Bot").Get<BotConfig>();
+            services.AddSingleton(botConfig);
+
+            services.AddHttpClient("tgwebhook")
+                .AddTypedClient<ITelegramBotClient>(
+                    httpClient => 
+                        new TelegramBotClient(botConfig.Token, httpClient)
+                );
+
+            
             Type typeOfContent = typeof(Startup);
             
             services.AddDbContext<PostgreSqlContext>(
@@ -74,6 +78,9 @@ namespace BottApp.Host
                 )
             );
 
+            services.AddScoped<HandleUpdateService>();
+
+            
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
         }
 

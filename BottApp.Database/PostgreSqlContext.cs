@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database
 {
-
     public class PostgreSqlContext : DbContext
     {
         public readonly DatabaseContainer Db;
