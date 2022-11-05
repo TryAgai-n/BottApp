@@ -4,7 +4,7 @@ namespace BottApp.Database.User
 {
     public interface IUserRepository
     {
-        Task<UserModel> CreateUser(long uid, string firstName, string phone);
+        Task<UserModel> CreateUser(long uid, string firstName, string? phone);
 
         Task<UserModel> GetOne(int id);
 

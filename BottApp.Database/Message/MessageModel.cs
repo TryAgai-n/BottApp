@@ -16,11 +16,10 @@ public class MessageModel : AbstractModel
     public UserModel UserModel { get; set; }
     
     
-    [Required]
     public string? Description { get; set; }
 
 
-    public static MessageModel CreateModel(int userId, string description)
+    public static MessageModel CreateModel(int userId, string? description)
     {
         return new MessageModel
         {

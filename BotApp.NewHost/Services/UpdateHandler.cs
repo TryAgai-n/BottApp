@@ -79,10 +79,12 @@ public class UpdateHandler : IUpdateHandler
         var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
         if (user == null)
         {
-            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, "");
+            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, null);
         }
         
-        var messageModel = await _databaseContainer.Message.CreateModel(user.Id, message.Text);
+        user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+
+        await _databaseContainer.Message.CreateModel(user.Id, message.Text);
         if (message.Contact != null)
         {
             SaveUser(message, _botClient, cancellationToken);

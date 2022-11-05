@@ -10,7 +10,7 @@ public class MessageRepository : AbstractRepository<MessageModel>, IMessageRepos
     {
     }
 
-    public async Task<MessageModel> CreateModel(int userId, string description)
+    public async Task<MessageModel> CreateModel(int userId, string? description)
     {
         var model = MessageModel.CreateModel(userId, description);
 

@@ -30,4 +30,5 @@ public class UserModel : AbstractModel
             Phone = phone,
         };
     }
+    
 }
