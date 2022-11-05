@@ -25,13 +25,13 @@ public class MessageModel : AbstractModel
     public DateTime CreatedAt { get; set; }
 
 
-    public static MessageModel CreateModel(int userId, string? description, Timestamp createdAt)
+    public static MessageModel CreateModel(int userId, string? description, DateTime createdAt)
     {
         return new MessageModel
         {
             UserId = userId,
             Description = description,
-            CreatedAt = createdAt.ToUtc()
+            CreatedAt = createdAt
         };
     }
 }

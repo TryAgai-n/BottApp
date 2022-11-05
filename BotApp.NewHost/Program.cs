@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Services;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
@@ -24,6 +26,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             options.UseNpgsql(context.Configuration.GetConnectionString("PostgreSqlConnection")));
         
         services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+       
         services.AddScoped<UpdateHandler>();
         services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
