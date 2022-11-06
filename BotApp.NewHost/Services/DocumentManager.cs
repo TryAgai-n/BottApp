@@ -1,5 +1,8 @@
 ﻿using BottApp.Database;
+using Telegram.Bot.Examples.Polling.Keyboards;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 
 namespace Telegram.Bot.Services;
 
@@ -34,6 +37,25 @@ public static class DocumentManager
         
 
         await _botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
- 
+    }
+
+    public static async Task<Message> SendVotesDocument(IDatabaseContainer _databaseContainer, CallbackQuery callbackQuery, ITelegramBotClient _botClient, CancellationToken cancellationToken)
+    {
+        await _botClient.SendChatActionAsync(
+            callbackQuery.Message.Chat.Id,
+            ChatAction.UploadPhoto,
+            cancellationToken: cancellationToken);
+        const string filePath = @"Files/stich.jpg";
+        await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
+       
+
+        return await _botClient.SendPhotoAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            photo: new InputOnlineFile(fileStream, fileName),
+            caption: "Голосуем за кандидата?",
+            replyMarkup: Keyboard.VotesKeyboardMarkup,
+            cancellationToken: cancellationToken);
+        
     }
 }

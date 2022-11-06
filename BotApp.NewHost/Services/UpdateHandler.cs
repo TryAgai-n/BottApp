@@ -1,5 +1,4 @@
 using BottApp.Database;
-using BottApp.Utils;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -7,6 +6,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Examples.Polling.Keyboards;
 
 namespace Telegram.Bot.Services;
 
@@ -36,7 +36,7 @@ public class UpdateHandler : IUpdateHandler
             // UpdateType.Poll:
             { Message: { } message }                       => BotOnMessageReceived(message, cancellationToken),
             { EditedMessage: { } message }                 => BotOnMessageReceived(message, cancellationToken),
-            { CallbackQuery: { } callbackQuery }           => BotOnCallbackQueryReceived(callbackQuery, cancellationToken),
+            { CallbackQuery: { } callbackQuery }           => BotOnCallbackQueryReceived(_,callbackQuery, cancellationToken),
             { InlineQuery: { } inlineQuery }               => BotOnInlineQueryReceived(inlineQuery, cancellationToken),
             { ChosenInlineResult: { } chosenInlineResult } => BotOnChosenInlineResultReceived(chosenInlineResult, cancellationToken),
             _                                              => UnknownUpdateHandlerAsync(update, cancellationToken)
@@ -49,7 +49,7 @@ public class UpdateHandler : IUpdateHandler
     {
         
         await    UserManager.Save (_databaseContainer, message);
-        await MessageManager.Save (_databaseContainer, message);
+        await MessageManager.SaveMessage(_databaseContainer, message);
         
         if (message.Contact != null)
             await MessageManager.UpdateContact(message, _botClient, cancellationToken,_databaseContainer);
@@ -64,7 +64,7 @@ public class UpdateHandler : IUpdateHandler
 
         var action = messageText.Split(' ')[0] switch
         {
-            "/inline_keyboard" => SendInlineKeyboard(_botClient, message, cancellationToken),
+            "/votes"           => SendInlineVotesKeyboard(_botClient, message, cancellationToken),
             "/keyboard"        => SendReplyKeyboard(_botClient, message, cancellationToken),
             "/remove"          => RemoveKeyboard(_botClient, message, cancellationToken),
             "/photo"           => SendFile(_botClient, message, cancellationToken),
@@ -81,7 +81,7 @@ public class UpdateHandler : IUpdateHandler
         
         // Send inline keyboard
         // You can process responses in BotOnCallbackQueryReceived handler
-        static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        static async Task<Message> SendInlineVotesKeyboard(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await botClient.SendChatActionAsync(
                 chatId: message.Chat.Id,
@@ -90,28 +90,11 @@ public class UpdateHandler : IUpdateHandler
 
             // Simulate longer running task
             await Task.Delay(500, cancellationToken);
-
-            InlineKeyboardMarkup inlineKeyboard = new(
-                new[]
-                {
-                    // first row
-                    new []
-                    {
-                        InlineKeyboardButton.WithCallbackData("1.1", "11"),
-                        InlineKeyboardButton.WithCallbackData("1.2", "12"),
-                    },
-                    // second row
-                    new []
-                    {
-                        InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                        InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                    },
-                });
-
+            
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "Choose",
-                replyMarkup: inlineKeyboard,
+                text: "Голосование",
+                replyMarkup: Keyboard.VotesKeyboardMarkup,
                 cancellationToken: cancellationToken);
         }
 
@@ -179,19 +162,9 @@ public class UpdateHandler : IUpdateHandler
 
         static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            const string usage = "Usage:\n" +
-                                 "/inline_keyboard - send inline keyboard\n" +
-                                 "/keyboard    - send custom keyboard\n" +
-                                 "/remove      - remove custom keyboard\n" +
-                                 "/photo       - send a photo\n" +
-                                 "/request     - request location or contact\n" +
-                                 "/inline_mode - send keyboard with Inline Query\n" +
-                                 "/help        - Раздел в разработке";
-            
-
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: usage,
+                text: Keyboard.usage,
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
         }
@@ -215,32 +188,36 @@ public class UpdateHandler : IUpdateHandler
     }
     
     
-    
-    
-    
- 
-    
-    
-    
-    
-    
-    
-    
 
     // Process Inline Keyboard callback data
-    private async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    private async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-
+        
+        var action = callbackQuery.Data.Split(' ')[0] switch
+        {
+            "ButtonRight"    => await DocumentManager.SendVotesDocument(_databaseContainer, callbackQuery, _botClient, cancellationToken),
+            "ButtonLeft"     => await DocumentManager.SendVotesDocument(_databaseContainer, callbackQuery, _botClient, cancellationToken),
+            
+            "ButtonBack"     =>  await botClient.SendTextMessageAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            text: Keyboard.usage,
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken)
+            
+        };
+        
+        
+        
         await _botClient.AnswerCallbackQueryAsync(
             callbackQueryId: callbackQuery.Id,
             text: $"Received {callbackQuery.Data}",
             cancellationToken: cancellationToken);
 
-        await _botClient.SendTextMessageAsync(
-            chatId: callbackQuery.Message!.Chat.Id,
-            text: $"Received {callbackQuery.Data}",
-            cancellationToken: cancellationToken);
+        // await _botClient.SendTextMessageAsync(
+            // chatId: callbackQuery.Message!.Chat.Id,
+            // text: $"Received {callbackQuery.Data}",
+            // cancellationToken: cancellationToken);
     }
 
     #region Inline Mode

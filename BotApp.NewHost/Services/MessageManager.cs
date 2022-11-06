@@ -7,11 +7,16 @@ namespace Telegram.Bot.Services;
 
 public static class MessageManager
 {
-    public static async Task Save(IDatabaseContainer _databaseContainer, Message message)
+    public static async Task SaveMessage(IDatabaseContainer _databaseContainer, Message message)
     {
         var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
         string type = message.Type.ToString();
         await _databaseContainer.Message.CreateModel(user.Id, message.Text, type, DateTime.Now);
+    }
+    
+    public static async Task SaveInlineMessage(IDatabaseContainer _databaseContainer, Message message)
+    {
+     
     }
     
     public static async Task UpdateContact(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken, IDatabaseContainer _databaseContainer)
