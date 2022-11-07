@@ -4,6 +4,23 @@ namespace Telegram.Bot.Examples.Polling.Keyboards;
 
 public static class Keyboard
 {
+    
+    public static InlineKeyboardMarkup MainKeyboardMarkup = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Votes", "ButtonVotes"),
+                InlineKeyboardButton.WithCallbackData("Request contact", "ButtonRequestContact"),
+            },
+            // second row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
+            },
+        });
+    
     public static InlineKeyboardMarkup VotesKeyboardMarkup = new(
         new[]
         {
@@ -24,6 +41,21 @@ public static class Keyboard
                 InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
             },
         });
+    
+    
+   public static ReplyKeyboardMarkup RequestLocationAndContactKeyboard = new(
+        new[]
+        {
+            KeyboardButton.WithRequestContact("Поделиться контактом"),})
+           // KeyboardButton.WithRequestLocation("Location"),})
+
+    {
+        ResizeKeyboard = true,
+        //OneTimeKeyboard = true
+    };
+        
+       
+    
     
     public const string usage = "Usage:\n" +
                          "/votes       - send votes keyboard\n" +
