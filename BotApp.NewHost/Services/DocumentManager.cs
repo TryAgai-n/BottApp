@@ -1,8 +1,10 @@
-﻿using BottApp.Database;
+﻿using System.Net;
+using BottApp.Database;
 using Telegram.Bot.Examples.Polling.Keyboards;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Telegram.Bot.Services;
 
@@ -45,7 +47,8 @@ public static class DocumentManager
             callbackQuery.Message.Chat.Id,
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
-        const string filePath = @"Files/stich.jpg";
+        Random rnd = new Random();
+        string filePath = @"Files/TestPicture"+rnd.Next(3)+".jpg";
         await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
        
@@ -56,6 +59,6 @@ public static class DocumentManager
             caption: "Голосуем за кандидата?",
             replyMarkup: Keyboard.VotesKeyboardMarkup,
             cancellationToken: cancellationToken);
-        
+   
     }
 }
