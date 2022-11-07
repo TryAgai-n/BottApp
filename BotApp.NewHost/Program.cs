@@ -3,13 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Services;
 
+namespace BottApp.Host;
+
 class Program
 {
     public static async Task Main(string[] args)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-        IHost host = Host.CreateDefaultBuilder(args)
+        IHost host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
                 // Register Bot configuration
