@@ -2,7 +2,7 @@ namespace BottApp.Host.Configs;
 
 public sealed class BotConfig
 {
-    public string Token { get; set; }
-    
+    public static readonly string Configuration = "BotConfiguration";
+    public string BotToken { get; set; } = "";
     public string HostAddress { get; init; } = default!;
 }

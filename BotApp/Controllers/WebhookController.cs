@@ -1,9 +1,9 @@
-using BottApp.Host.Controllers;
-using BottApp.Host.Services;
+using BottApp.Host.Exp.Controllers;
+using BottApp.Host.Exp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Controllers;
+namespace BottApp.Host.Exp.Controllers;
 
 public class WebhookController : AbstractBaseController<WebhookController>
 {

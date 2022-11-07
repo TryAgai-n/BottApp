@@ -1,11 +1,12 @@
 ﻿using BottApp.Database;
-using BottApp.Host.Example.Configs;
-using BottApp.Host.Example.Services;
+using BottApp.Host.Exp.Configs;
+using BottApp.Host.Exp.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Telegram.Bot;
+using Telegram.Bot.Services;
 
-namespace BottApp.Host.Example
+namespace BottApp.Host.Exp
 {
     public class Startup
     {
@@ -59,17 +60,7 @@ namespace BottApp.Host.Example
         {
             services.AddHostedService<ConfigureWebhook>();
 
-            var botConfig = Configuration.GetSection("Bot").Get<BotConfig>();
-            services.AddSingleton(botConfig);
-
-            services.AddHttpClient("tgwebhook")
-                .AddTypedClient<ITelegramBotClient>(
-                    httpClient => 
-                        new TelegramBotClient(botConfig.Token, httpClient)
-                );
-
-            
-            Type typeOfContent = typeof(Startup);
+            var typeOfContent = typeof(Startup);
             
             services.AddDbContext<PostgreSqlContext>(
                 opt => opt.UseNpgsql(
@@ -79,9 +70,11 @@ namespace BottApp.Host.Example
             );
 
             services.AddScoped<HandleUpdateService>();
-
-            
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+
+            services.AddScoped<UpdateHandler>();
+            services.AddScoped<ReceiverService>();
+            services.AddHostedService<PollingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

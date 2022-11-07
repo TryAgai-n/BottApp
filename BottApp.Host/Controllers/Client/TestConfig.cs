@@ -17,6 +17,6 @@ public class TestConfig : AbstractClientController<TestConfig>
     [HttpGet]
     public void GetBotConfig()
     {
-        Console.WriteLine(_botConfig.Token);
+        Console.WriteLine(_botConfig.BotToken);
     }
 }

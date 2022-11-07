@@ -4,6 +4,7 @@ using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Telegram.Bot;
+using BottApp.Host.Services;
 
 namespace BottApp.Host
 {
@@ -51,35 +52,25 @@ namespace BottApp.Host
 
             
             services.AddSwaggerGen(
-                c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "BottApp.Host", Version = "v1"}); }
+                c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "BottApp.Host.Exp", Version = "v1"}); }
             );
         }
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            services.AddHostedService<ConfigureWebhook>();
-
-            var botConfig = Configuration.GetSection("Bot").Get<BotConfig>();
-            services.AddSingleton(botConfig);
-
-            services.AddHttpClient("tgwebhook")
-                .AddTypedClient<ITelegramBotClient>(
-                    httpClient => 
-                        new TelegramBotClient(botConfig.Token, httpClient)
-                );
-
             
-            Type typeOfContent = typeof(Startup);
+             TelegramBotStartup.ConfigureServices(services, Configuration);
             
+            var typeOfContent = typeof(Startup);
+
             services.AddDbContext<PostgreSqlContext>(
                 opt => opt.UseNpgsql(
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
                 )
             );
-
-            services.AddScoped<HandleUpdateService>();
-
+            
+            // services.AddHostedService<ConfigureWebhook>();
             
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
         }
@@ -91,7 +82,7 @@ namespace BottApp.Host
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BottApp.Host v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BottApp.Host.Exp v1"));
             }
 
             app.UseHttpsRedirection();

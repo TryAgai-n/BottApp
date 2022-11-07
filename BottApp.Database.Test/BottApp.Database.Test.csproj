@@ -22,7 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
-      <ProjectReference Include="..\BottApp.Host.Example\BottApp.Host.Example.csproj" />
+      <ProjectReference Include="..\BottApp.Host\BottApp.Host.csproj" />
     </ItemGroup>
 
 </Project>

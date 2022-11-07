@@ -1,4 +1,4 @@
-﻿using BottApp.Host.Example;
+﻿using BottApp.Host;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
