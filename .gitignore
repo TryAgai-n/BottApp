@@ -27,4 +27,6 @@ appsettings.json
 *.docx
 /.vs/BottApp/v17/
 BottApp.Host/wwwroot/*
+BottApp.NewHost/DATA/*
 
+*.HEIC

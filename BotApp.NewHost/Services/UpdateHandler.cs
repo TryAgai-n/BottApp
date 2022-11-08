@@ -44,15 +44,17 @@ public class UpdateHandler : IUpdateHandler
 
         await handler;
     }
-    
+
     #region Inline Mode
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
         await MessageManager.SaveInlineMessage(_databaseContainer, callbackQuery);
+        var guid = Guid.NewGuid().ToString("N");
         
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
+
             "ButtonRight"          => await DocumentManager.SendVotesDocument(_databaseContainer, callbackQuery, _botClient, cancellationToken),
             "ButtonLeft"           => await DocumentManager.SendVotesDocument(_databaseContainer, callbackQuery, _botClient, cancellationToken),
             "ButtonVotes"          => await SendInlineVotesKeyboard(botClient,callbackQuery,cancellationToken),
@@ -72,7 +74,7 @@ public class UpdateHandler : IUpdateHandler
             _                      =>  await botClient.EditMessageTextAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
-                text: "Такой команды еще нет",
+                text: "Такой команды еще нет" + guid,
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken)
         };
@@ -141,9 +143,7 @@ public class UpdateHandler : IUpdateHandler
            await RequestContactAndLocation(_botClient, message, cancellationToken);
            return;
         }
-
-       
-
+        
         if (message.Document != null || message.Photo !=null)
             await DocumentManager.Save(_databaseContainer, message, _botClient);
         
@@ -170,8 +170,6 @@ public class UpdateHandler : IUpdateHandler
                 cancellationToken: cancellationToken);
         }
         
-        
-        
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         if (message.Text is not { } messageText)
             return;
@@ -190,11 +188,7 @@ public class UpdateHandler : IUpdateHandler
         
         Message sentMessage = await action;
         _logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.MessageId);
-
-
         
-        // Send inline keyboard
-        // You can process responses in BotOnCallbackQueryReceived handler
         static async Task<Message> SendInlineVotesKeyboard(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await botClient.SendChatActionAsync(
