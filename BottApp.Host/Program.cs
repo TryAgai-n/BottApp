@@ -8,6 +8,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        
         var webHost = BuildWebHost(args);
         var commandLineApplication = new CommandLineApplication(false);
 
