@@ -11,23 +11,30 @@ public class DocumentModel : AbstractModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+
     public int UserId { get; set; }
-    
+
     [ForeignKey("UserId")]
     public UserModel UserModel { get; set; }
-    
+
     public string? DocumentType { get; set; }
-    
+
     public string? DocumentExtension { get; set; }
-    
-    public  string? Path { get; set; }
-    
-    
+
+    public string? Path { get; set; }
+
+
     [Required]
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
-    
-    public static DocumentModel CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path)
+
+    public static DocumentModel CreateModel(
+        int userId,
+        string? documentType,
+        string? documentExtension,
+        DateTime createdAt,
+        string? path
+    )
     {
         return new DocumentModel
         {

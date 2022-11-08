@@ -49,7 +49,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DocumentModel");
+                    b.ToTable("Document");
                 });
 
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
