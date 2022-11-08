@@ -20,6 +20,7 @@ public class UserModel : AbstractModel
     public string? Phone { get; set; }
     
     public List<MessageModel> Messages { get; set; }
+    
     public List<DocumentModel> Documents { get; set; }
 
 

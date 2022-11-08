@@ -12,10 +12,12 @@ namespace BottApp.Database
 
         public DbSet<UserModel> User { get; set; }
         
-         public DbSet<MessageModel> Message { get; set; }
+        public DbSet<MessageModel> Message { get; set; }
         
-
-
+        public DbSet<DocumentModel> Document { get; set; }
+        
+        
+        
         public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
         {
             Db = new DatabaseContainer(this, loggerFactory);

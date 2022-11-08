@@ -8,6 +8,8 @@ public sealed class BotUpdate
     public ITelegramBotClient TelegramgBotClient { get; set; }
 
     public Update Update { get; set; }
+    
+    public Message Message { get; set; }
 
     public CancellationToken CLToken { get; set; }
 
@@ -16,6 +18,7 @@ public sealed class BotUpdate
     {
         public Response()
         {
+            Console.WriteLine("Ты создан! А значит, я Бог!");
         }
     }
 }

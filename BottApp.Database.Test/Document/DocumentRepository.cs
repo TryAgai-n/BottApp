@@ -15,12 +15,12 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
    
         
-        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa");
+        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa").Result;
         
         Assert.NotNull(document);
        // Assert.Equal(user.Id, document.UserId);
       //  Assert.Equal(document.documentType, "Photo");
 
-        Assert.Equal(3435, user.UId);
+        Assert.Equal(user.Id, document.UserModel.UId);
     }
 }
