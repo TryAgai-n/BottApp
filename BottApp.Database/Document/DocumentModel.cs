@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
 using BottApp.Utils;
 
@@ -27,7 +28,11 @@ public class DocumentModel : AbstractModel
     [Required]
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
+    
+    
+    public DocumentStatisticModel DocumentStatisticModel { get; set; }
 
+    
     public static DocumentModel CreateModel(
         int userId,
         string? documentType,
@@ -42,7 +47,8 @@ public class DocumentModel : AbstractModel
             DocumentExtension = documentExtension,
             DocumentType = documentType,
             CreatedAt = createdAt,
-            Path = path
+            Path = path,
+            DocumentStatisticModel = DocumentStatisticModel.CreateEmpty()
         };
     }
 }

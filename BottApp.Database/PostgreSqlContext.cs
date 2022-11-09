@@ -1,4 +1,5 @@
 ﻿using BottApp.Database.Document;
+using BottApp.Database.Document.Statistic;
 using BottApp.Database.Message;
 using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,10 @@ namespace BottApp.Database
         
         public DbSet<DocumentModel> Document { get; set; }
         
-        
-        
+        public DbSet<DocumentStatisticModel> DocumentStatistic { get; set; }
+
+
+
         public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
         {
             Db = new DatabaseContainer(this, loggerFactory);
@@ -34,6 +37,12 @@ namespace BottApp.Database
             modelBuilder.Entity<DocumentModel>()
                 .HasOne(x => x.UserModel)
                 .WithMany(x => x.Documents);
+
+
+            modelBuilder.Entity<DocumentModel>()
+                .HasOne(x => x.DocumentStatisticModel)
+                .WithOne(x => x.DocumentModel)
+                .IsRequired();
         }
 
     }
