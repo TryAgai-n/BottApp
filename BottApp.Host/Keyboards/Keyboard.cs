@@ -39,6 +39,7 @@ public static class Keyboard
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
+                InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
             },
         });
     
