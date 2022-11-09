@@ -1,5 +1,6 @@
 using BottApp.Database;
 using BottApp.Host.Keyboards;
+using Humanizer;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -47,7 +48,79 @@ public class UpdateHandler : IUpdateHandler
         await handler;
     }
 
+
     #region Inline Mode
+    
+    public static string GetTimeEmooji()
+    {
+        string[] emooji = {"🕐","🕑","🕒","🕓","🕔","🕕","🕖","🕗","🕘","🕙","🕚","🕛","🕐 ","🕑 ",};
+        // char dot = '.';
+        
+        var rand = new Random();
+        
+        var preparedString = emooji[rand.Next(0, emooji.Length)];
+        
+        // var countEmptyChar = rand.Next(0, 5);
+        
+        // for(var i = countEmptyChar; i > 0; i-- )
+        // {
+             // preparedString += dot;
+        // }
+      
+        return preparedString;
+       
+    }
+
+    public static async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    {
+        var viewText = "Такой команды еще нет ";
+        var viewExceptionText = "Все сломаделось : ";
+        
+        var editText = viewText + GetTimeEmooji();
+
+        try
+        {
+            try
+            {
+                return await botClient.EditMessageTextAsync
+                (
+                    chatId: callbackQuery.Message.Chat.Id,
+                    messageId: callbackQuery.Message.MessageId,
+                    text: editText,
+                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    cancellationToken: cancellationToken
+                );
+            }
+            catch
+            {
+                editText = viewText + GetTimeEmooji()
+                    ;
+                return await botClient.EditMessageTextAsync
+                (
+                    chatId: callbackQuery.Message.Chat.Id,
+                    messageId: callbackQuery.Message.MessageId,
+                    text: editText,
+                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    cancellationToken: cancellationToken
+                );
+            }
+        }
+        catch (Exception e)
+        {
+            return await botClient.SendTextMessageAsync
+            (
+            chatId: callbackQuery.Message.Chat.Id,
+            text: viewExceptionText+"\n"+e,
+            replyMarkup: Keyboard.MainKeyboardMarkup,
+            cancellationToken: cancellationToken
+            );
+        }
+
+
+
+        
+    }
+
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
@@ -73,12 +146,9 @@ public class UpdateHandler : IUpdateHandler
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken),
             
-            _                      =>  await botClient.EditMessageTextAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                messageId: callbackQuery.Message.MessageId,
-                text: "Такой команды еще нет" + guid,
-                replyMarkup: Keyboard.MainKeyboardMarkup,
-                cancellationToken: cancellationToken)
+            _                      =>  await TryEditMessage(botClient, callbackQuery, cancellationToken)
+                
+               
         };
         
         await _botClient.AnswerCallbackQueryAsync(
