@@ -16,11 +16,16 @@ public class DocumentRepository: DbTestCase
    
         
         var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa").Result;
+        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa").Result;
         
         Assert.NotNull(document);
+        Assert.NotNull(document2);
        // Assert.Equal(user.Id, document.UserId);
       //  Assert.Equal(document.documentType, "Photo");
 
-        Assert.Equal(user.Id, document.UserModel.UId);
+        Assert.Equal(user.UId, document.UserModel.UId);
+        Assert.NotNull(document.DocumentStatisticModel);
+        
+        Assert.Equal(0, document.DocumentStatisticModel.LikeCount);
     }
 }

@@ -18,6 +18,7 @@ internal sealed class Fixture : IDisposable
 
     public static Fixture Create()
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         var guid = Guid.NewGuid().ToString("N");
         var option = new DbContextOptionsBuilder<PostgreSqlContext>()
