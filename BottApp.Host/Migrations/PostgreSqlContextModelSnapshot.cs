@@ -52,6 +52,31 @@ namespace BottApp.Host.Migrations
                     b.ToTable("Document");
                 });
 
+            modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId")
+                        .IsUnique();
+
+                    b.ToTable("DocumentStatistic");
+                });
+
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
                 {
                     b.Property<int>("Id")
@@ -115,6 +140,17 @@ namespace BottApp.Host.Migrations
                     b.Navigation("UserModel");
                 });
 
+            modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
+                {
+                    b.HasOne("BottApp.Database.Document.DocumentModel", "DocumentModel")
+                        .WithOne("DocumentStatisticModel")
+                        .HasForeignKey("BottApp.Database.Document.Statistic.DocumentStatisticModel", "DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DocumentModel");
+                });
+
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
                 {
                     b.HasOne("BottApp.Database.User.UserModel", "UserModel")
@@ -124,6 +160,12 @@ namespace BottApp.Host.Migrations
                         .IsRequired();
 
                     b.Navigation("UserModel");
+                });
+
+            modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
+                {
+                    b.Navigation("DocumentStatisticModel")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
