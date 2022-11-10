@@ -28,7 +28,7 @@ public static class DocumentManager
         string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}__{extension}";
         
         ///
-        var user = await _databaseContainer.User.FindOneById((int)message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
         await _databaseContainer.Document.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath);
         ///
 

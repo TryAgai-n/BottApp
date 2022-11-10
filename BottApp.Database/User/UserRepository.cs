@@ -35,17 +35,17 @@ namespace BottApp.Database.User
             return result;
         }
 
-        public async Task<UserModel> GetOne(int id)
+        public async Task<UserModel> GetOneByUid(long uid)
         {
-            var model = await FindOne(id);
+            var model = await DbModel.Where(x => x.UId == uid).FirstAsync();
             if(model == null)
             {
-                throw new Exception($"User model by id: {id} is not found");
+                throw new Exception($"User with Uid: {uid} is not found");
             }
             return model;
         }
 
-        public async Task<UserModel?> FindOneById(int userId)
+        public async Task<UserModel?> FindOneByUid(int userId)
         {
             return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
         }

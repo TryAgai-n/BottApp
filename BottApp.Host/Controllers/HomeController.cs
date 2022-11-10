@@ -33,7 +33,7 @@ namespace BottApp.Host.Controllers
         [HttpGet]
         public async Task<UserModel> GetOneById(int id)
         {
-           return await _databaseContainer.User.GetOne(id);
+           return await _databaseContainer.User.GetOneByUid(id);
 
         }
 

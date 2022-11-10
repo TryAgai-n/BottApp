@@ -10,7 +10,7 @@ public static class UserManager
 {
     public static async Task Save(IDatabaseContainer _databaseContainer, Message message)
     {
-        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user == null)
         {
             await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, null);
@@ -19,7 +19,7 @@ public static class UserManager
 
     public static async Task<bool> UserPhoneHasOnDb(IDatabaseContainer _databaseContainer, Message message)
     {
-        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user.Phone == null)
              return false;
         
@@ -28,7 +28,7 @@ public static class UserManager
     
     public static async Task UpdateContact(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken, IDatabaseContainer _databaseContainer)
     {
-        var user = await _databaseContainer.User.FindOneById((int)message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
 
         if (user.Phone == null)
         {
