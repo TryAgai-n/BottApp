@@ -7,9 +7,15 @@ public class UserRepositoryTest : DbTestCase
     [Fact]
     public void CreateUserTest()
     {
-        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
-        
-        Assert.Equal(3435, user.UId);
+        var user = DatabaseContainer.User.CreateUser(123, "Hello", null).Result;
+        Assert.NotNull(user);
+        Assert.Equal(123, user.UId);
+        Assert.Equal("Hello", user.FirstName);
+        Assert.Null(user.Phone);
+
+        var userByUid = DatabaseContainer.User.GetOneByUid(user.UId).Result;
+        Assert.NotNull(userByUid);
+        Assert.Equal(123, userByUid.UId);
     }
 
     [Fact]
