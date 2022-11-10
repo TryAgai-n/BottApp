@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BottApp.Database.Message;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -26,11 +25,20 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
         return result;
     }
+    
 
-
-    public async Task<List<DocumentModel>> ListTopDocuments(int skip, int take = 10)
+    [Obsolete("Obsolete")]
+    public Task IncrementViewById(int id, int viewCountIncrement = 1)
     {
-        return await DbModel
+        var commandText =
+            $"UPDATE \"DocumentStatisticModel\" SET \"ViewCount\" = \"ViewCount\" + {{1}} WHERE \"DocumentId\" = {{0}}";
+        return Context.Database.ExecuteSqlCommandAsync(commandText, id, viewCountIncrement);
+    }
+
+
+    public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
+    {
+        return DbModel
             .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
