@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
 using BottApp.Utils;
@@ -23,14 +25,13 @@ public class DocumentModel : AbstractModel
     public string? DocumentExtension { get; set; }
 
     public string? Path { get; set; }
-
-
-    [Required]
+    
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
-    
-    
+
     public DocumentStatisticModel DocumentStatisticModel { get; set; }
+    
+    public List<LikedDocumentModel> Likes { get; set; }
 
     
     public static DocumentModel CreateModel(
@@ -48,7 +49,8 @@ public class DocumentModel : AbstractModel
             DocumentType = documentType,
             CreatedAt = createdAt,
             Path = path,
-            DocumentStatisticModel = DocumentStatisticModel.CreateEmpty()
+            DocumentStatisticModel = DocumentStatisticModel.CreateEmpty(),
+            Likes = new List<LikedDocumentModel>()
         };
     }
 }
