@@ -13,6 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
         <PackageReference Include="Microsoft.OpenApi" Version="1.4.3" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
+        <PackageReference Include="Stateless" Version="5.12.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
         <PackageReference Include="Telegram.Bot" Version="18.0.0" />
     </ItemGroup>

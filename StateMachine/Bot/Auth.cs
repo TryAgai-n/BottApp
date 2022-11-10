@@ -5,9 +5,9 @@ namespace StateMachine.Bot;
 
  public static class Auth
 {
-    public static async Task RunAuth (StateMachine<MyBot.State,MyBot.Action> bot)
+    public static async Task RunAuth (StateMachine<MState,MAction> bot)
     {
         Console.WriteLine($"TASK RUN:  {bot.State} \n");
-        await bot.FireAsync(MyBot.Action.GetMainMenu);
+        await bot.FireAsync(MAction.GetMainMenu);
     }
 }

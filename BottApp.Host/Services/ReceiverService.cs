@@ -1,16 +1,17 @@
 using BottApp.Host.Abstract;
+using BottApp.Host.Services.Handlers;
 using Telegram.Bot;
 
 namespace BottApp.Host.Services;
 
-// Compose Receiver and UpdateHandler implementation
-public class ReceiverService : ReceiverServiceBase<UpdateHandler>
+// Compose Receiver and MainMenuHandler implementation
+public class ReceiverService : ReceiverServiceBase<MainMenuHandler>
 {
     public ReceiverService(
         ITelegramBotClient botClient,
-        UpdateHandler updateHandler,
-        ILogger<ReceiverServiceBase<UpdateHandler>> logger)
-        : base(botClient, updateHandler, logger)
+        MainMenuHandler mainMenuHandler,
+        ILogger<ReceiverServiceBase<MainMenuHandler>> logger)
+        : base(botClient, mainMenuHandler, logger)
     {
     }
 }

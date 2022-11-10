@@ -1,7 +1,6 @@
-﻿using Stateless.Graph;
-using Stateless;
+﻿using Stateless;
 
-namespace StateMachine.Bot;
+namespace BottApp.Host.StateMachine;
 
 public static class Votes
 {
