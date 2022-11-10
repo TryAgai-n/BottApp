@@ -54,19 +54,8 @@ public class UpdateHandler : IUpdateHandler
     public static string GetTimeEmooji()
     {
         string[] emooji = {"🕐","🕑","🕒","🕓","🕔","🕕","🕖","🕗","🕘","🕙","🕚","🕛","🕐 ","🕑 ",};
-        // char dot = '.';
-        
         var rand = new Random();
-        
         var preparedString = emooji[rand.Next(0, emooji.Length)];
-        
-        // var countEmptyChar = rand.Next(0, 5);
-        
-        // for(var i = countEmptyChar; i > 0; i-- )
-        // {
-             // preparedString += dot;
-        // }
-      
         return preparedString;
        
     }
@@ -93,8 +82,8 @@ public class UpdateHandler : IUpdateHandler
             }
             catch
             {
-                editText = viewText + GetTimeEmooji()
-                    ;
+                editText = viewText + GetTimeEmooji();
+                
                 return await botClient.EditMessageTextAsync
                 (
                     chatId: callbackQuery.Message.Chat.Id,
@@ -115,10 +104,6 @@ public class UpdateHandler : IUpdateHandler
             cancellationToken: cancellationToken
             );
         }
-
-
-
-        
     }
 
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -151,10 +136,10 @@ public class UpdateHandler : IUpdateHandler
                
         };
         
-        await _botClient.AnswerCallbackQueryAsync(
-            callbackQueryId: callbackQuery.Id,
-            text: $"Received {callbackQuery.Data } Action {action} ",
-            cancellationToken: cancellationToken);
+        // await _botClient.AnswerCallbackQueryAsync(
+            // callbackQueryId: callbackQuery.Id,
+            // text: $"Received {callbackQuery.Data } Action {action} ",
+            // cancellationToken: cancellationToken);
 
          async Task<Message> SendInlineVotesKeyboard(ITelegramBotClient botClient,CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
