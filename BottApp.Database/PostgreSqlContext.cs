@@ -1,4 +1,5 @@
 ﻿using BottApp.Database.Document;
+using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.Message;
 using BottApp.Database.User;
@@ -18,6 +19,8 @@ namespace BottApp.Database
         public DbSet<DocumentModel> Document { get; set; }
         
         public DbSet<DocumentStatisticModel> DocumentStatistic { get; set; }
+        
+        public DbSet<LikedDocumentModel> LikedDocument { get; set; }
 
 
 
@@ -38,11 +41,15 @@ namespace BottApp.Database
                 .HasOne(x => x.UserModel)
                 .WithMany(x => x.Documents);
 
-
             modelBuilder.Entity<DocumentModel>()
                 .HasOne(x => x.DocumentStatisticModel)
                 .WithOne(x => x.DocumentModel)
                 .IsRequired();
+
+            modelBuilder.Entity<DocumentModel>()
+                .HasMany(x => x.Likes)
+                .WithOne(x => x.DocumentModel)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }
