@@ -12,6 +12,7 @@ public class UserRepositoryTest : DbTestCase
         Assert.Equal(123, user.UId);
         Assert.Equal("Hello", user.FirstName);
         Assert.Null(user.Phone);
+        
 
         var userByUid = DatabaseContainer.User.GetOneByUid(user.UId).Result;
         Assert.NotNull(userByUid);

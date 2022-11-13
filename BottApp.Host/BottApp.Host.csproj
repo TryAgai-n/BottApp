@@ -16,6 +16,7 @@
         <PackageReference Include="Stateless" Version="5.12.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
         <PackageReference Include="Telegram.Bot" Version="18.0.0" />
+        <PackageReference Include="Telegram.Bot.Extensions.StateMachine" Version="1.0.12" />
     </ItemGroup>
 
     <ItemGroup>

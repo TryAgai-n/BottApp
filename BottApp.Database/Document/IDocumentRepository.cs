@@ -7,5 +7,5 @@ public interface IDocumentRepository
 {
     Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path);
 
-    Task IncrementViewById(int id, int viewCountIncrement = 1);
+    Task IncrementViewById(int documentId, int viewCountIncrement = 1);
 }

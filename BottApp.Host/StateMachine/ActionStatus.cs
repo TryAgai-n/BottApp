@@ -1,6 +1,6 @@
 ﻿namespace BottApp.Host.StateMachine;
 
-public enum MAction
+public enum ActionStatus
 {
     GetAuth,
     GetMainMenu,

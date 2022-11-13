@@ -12,17 +12,18 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace BottApp.Host.Services.Handlers;
 
 
-public class VotesUpdate : IUpdateHandler
+public class VotesHandler : IUpdateHandler
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly ILogger<MainMenuHandler> _logger;
+    private readonly ILogger<VotesHandler> _logger;
     public readonly IDatabaseContainer _databaseContainer;
 
-    public VotesUpdate(ITelegramBotClient botClient, ILogger<MainMenuHandler> logger, IDatabaseContainer databaseContainer)
+    public VotesHandler(ITelegramBotClient botClient, ILogger<VotesHandler> logger, IDatabaseContainer databaseContainer)
     {
         _botClient = botClient;
         _logger = logger;
         _databaseContainer = databaseContainer;
+        Console.WriteLine("\n class VotesHandler is Start\n");
 
     }
 
@@ -109,6 +110,7 @@ public class VotesUpdate : IUpdateHandler
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
+        _logger.LogInformation($"Message: {callbackQuery.Data}, --------)");
         await MessageManager.SaveInlineMessage(_databaseContainer, callbackQuery);
         var guid = Guid.NewGuid().ToString("N");
         
@@ -175,6 +177,7 @@ public class VotesUpdate : IUpdateHandler
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         
+        _logger.LogCritical("---------------------------------------------------------");
         await MessageManager.SaveMessage(_databaseContainer, message);
         
         if (message.Contact != null)

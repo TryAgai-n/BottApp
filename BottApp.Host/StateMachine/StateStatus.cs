@@ -1,6 +1,6 @@
 ﻿namespace BottApp.Host.StateMachine;
 
-public enum MState
+public enum StateStatus
 {
     Auth,
     MainMenu,

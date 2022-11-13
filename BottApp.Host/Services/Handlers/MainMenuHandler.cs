@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using BottApp.Database;
 using BottApp.Host.Keyboards;
 using BottApp.Host.StateMachine;
@@ -19,14 +20,14 @@ public class MainMenuHandler : IUpdateHandler
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<MainMenuHandler> _logger;
     public readonly IDatabaseContainer _databaseContainer;
-    private readonly StateMachine<MState,MAction> _stateMachine;
 
-    public MainMenuHandler(ITelegramBotClient botClient, ILogger<MainMenuHandler> logger, IDatabaseContainer databaseContainer, IServiceScopeFactory scopeFactory)
+    public MainMenuHandler(ITelegramBotClient botClient, ILogger<MainMenuHandler> logger, IDatabaseContainer databaseContainer)
     {
         _botClient = botClient;
         _logger = logger;
         _databaseContainer = databaseContainer;
-        _stateMachine = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<StateMachine<MState,MAction>>();
+        Console.WriteLine("\n class MainMenuHandler is Start\n");
+     
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
@@ -117,8 +118,11 @@ public class MainMenuHandler : IUpdateHandler
 
         if (callbackQuery.Data == "ButtonVotes")
         {
-            await _stateMachine.FireAsync(MAction.GetVotes);
+            await TelegramBotStartup.FSM.FireAsync(ActionStatus.GetVotes);
+            
+            // return;
         }
+        
         
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
@@ -221,7 +225,7 @@ public class MainMenuHandler : IUpdateHandler
                 cancellationToken: cancellationToken);
         }
         
-        _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        // _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         if (message.Text is not { } messageText)
             return;
 

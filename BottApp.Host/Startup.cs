@@ -70,8 +70,6 @@ namespace BottApp.Host
                 )
             );
             
-            // services.AddHostedService<ConfigureWebhook>();
-            
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
         }
 

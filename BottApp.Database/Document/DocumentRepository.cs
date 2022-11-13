@@ -28,11 +28,11 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     
 
     [Obsolete("Obsolete")]
-    public Task IncrementViewById(int id, int viewCountIncrement = 1)
+    public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
     {
         var commandText =
             $"UPDATE \"DocumentStatisticModel\" SET \"ViewCount\" = \"ViewCount\" + {{1}} WHERE \"DocumentId\" = {{0}}";
-        return Context.Database.ExecuteSqlCommandAsync(commandText, id, viewCountIncrement);
+        return Context.Database.ExecuteSqlCommandAsync(commandText, documentId, viewCountIncrement);
     }
 
 

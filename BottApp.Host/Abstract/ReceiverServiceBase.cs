@@ -12,16 +12,16 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
     where TUpdateHandler : IUpdateHandler
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IUpdateHandler _mainMenuHandlers;
+    private readonly IUpdateHandler _updateHandlers;
     private readonly ILogger<ReceiverServiceBase<TUpdateHandler>> _logger;
 
     public ReceiverServiceBase(
         ITelegramBotClient botClient,
-        TUpdateHandler mainMenuHandler,
+        TUpdateHandler updateHandler,
         ILogger<ReceiverServiceBase<TUpdateHandler>> logger)
     {
         _botClient = botClient;
-        _mainMenuHandlers = mainMenuHandler;
+        _updateHandlers = updateHandler;
         _logger = logger;
     }
 
@@ -40,11 +40,11 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
         };
 
         var me = await _botClient.GetMeAsync(stoppingToken);
-        _logger.LogInformation("Start receiving updates for {BotName}", me.Username ?? "My Awesome Bot");
+        // _logger.LogInformation("Start receiving updates for {BotName}", me.Username ?? "My Awesome Bot");
 
         // Start receiving updates
         await _botClient.ReceiveAsync(
-            updateHandler: _mainMenuHandlers,
+            updateHandler: _updateHandlers,
             receiverOptions: receiverOptions,
             cancellationToken: stoppingToken);
     }

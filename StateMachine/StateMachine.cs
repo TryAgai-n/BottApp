@@ -50,11 +50,11 @@ public class StateMachine
         // string graph = UmlDotGraph.Format(bot.GetInfo());
         // Console.WriteLine("GPAPH||||||||||  \n" + graph + "\n||||||||||");
 
-        bot.Fire(MAction.GetMainMenu);
-        Console.WriteLine($"CurrentState: {bot.State}\n");
+        // bot.Fire(MAction.GetMainMenu);
+        // Console.WriteLine($"CurrentState: {bot.State}\n");
 
-        bot.FireAsync(_show.ShowTextMessage("HelloWorld"));
-        Console.WriteLine($"CurrentState: {bot.State}\n");
+        // bot.FireAsync(_show.ShowTextMessage("HelloWorld"));
+        // Console.WriteLine($"CurrentState: {bot.State}\n");
     }
 
 
