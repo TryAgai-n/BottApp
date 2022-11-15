@@ -40,7 +40,7 @@ namespace BottApp.Host.Controllers
 
         // public async void AddUserOnDb(int uid, string firstName, string userPhone, bool isSendContact)
         // {
-        //     await _databaseContainer.User.CreateUser(uid, firstName, userPhone, isSendContact);
+        //     await _dbContainer.User.CreateUser(uid, firstName, userPhone, isSendContact);
         //     return;
         // }
 

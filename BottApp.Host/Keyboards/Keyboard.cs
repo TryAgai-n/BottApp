@@ -13,6 +13,8 @@ public static class Keyboard
             {
                 InlineKeyboardButton.WithCallbackData("Votes", "ButtonVotes"),
                 InlineKeyboardButton.WithCallbackData("Request contact", "ButtonRequestContact"),
+                InlineKeyboardButton.WithCallbackData("Say Hi", "ButtonHi"),
+                
             },
             // second row
             new []
@@ -40,6 +42,17 @@ public static class Keyboard
             {
                 InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
                 InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
+            },
+        });
+    
+    public static InlineKeyboardMarkup ApproveDeclineKeyboardMarkup = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Approve", "ButtonApprove"),
+                InlineKeyboardButton.WithCallbackData("Decline", "ButtonDecline"),
             },
         });
     
