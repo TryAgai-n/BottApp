@@ -20,36 +20,28 @@ namespace BottApp.Host.Services.Handlers
 
         public async Task BotOnMessageReceived(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer, long AdminChatID)
         {
-
             if ((message.Contact != null))
             {
                 await botClient.SendTextMessageAsync
                 (
                     chatId: message.Chat.Id,
                     text: "Ваши данные проходят модерацию",
-                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
-                    cancellationToken: cancellationToken
-                );
-                
-                await botClient.SendTextMessageAsync
-                (
-                    chatId: AdminChatID,
-                    text: $"Пользователь  {message.Chat.FirstName} с номером {message.Contact.PhoneNumber} хочет авторизоваться в системе",
-                    replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup,
+                    replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: cancellationToken
                 );
 
-                    
-                // if (await UserManager.UserHasOnDb(_dbContainer, message))
-                // {
-                //    await AuthComplete(FSM, botClient, message, cancellationToken);
-                //    return;
-                // }
-                // await UserManager.Save(_dbContainer, message);
-                // await AuthComplete(FSM, botClient, message, cancellationToken);
+                var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
+                var photo = getPhotoAsync.Result.Photos[1];
+                
+                await botClient.SendPhotoAsync(
+                    chatId: AdminChatID,
+                    photo: photo[0].FileId ,
+                    caption: $" Пользователь {message.Chat.FirstName}\n {message.From}\n Моб.тел. {message.Contact.PhoneNumber}\n Хочет авторизоваться в системе " +
+                             $"{message.Caption}",
+                    replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup,
+                    cancellationToken: cancellationToken);
                 return;
             }
-            
             if(message.Text == "/start")
             {
                 await RequestContactAndLocation(botClient, message, cancellationToken);
@@ -63,7 +55,7 @@ namespace BottApp.Host.Services.Handlers
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
                     cancellationToken: cancellationToken
                 );
-                
+
                 await Task.Delay(2000);
                 
                 await RequestContactAndLocation(botClient, message, cancellationToken);
@@ -95,28 +87,6 @@ namespace BottApp.Host.Services.Handlers
                 chatId: message.Chat.Id,
                 text: "Нажми на кнопку 'Поделиться контактом' ниже",
                 replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
-                cancellationToken: cancellationToken
-            );
-        }
-
-        public static async Task AuthComplete(SimpleFSM FSM, ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
-        {
-            FSM.SetState(State.Menu);
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Вы авторизованы!",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken
-            );
-                
-            await Task.Delay(1000);
-                
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Главное Меню",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }

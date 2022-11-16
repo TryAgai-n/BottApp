@@ -57,25 +57,24 @@ public class UpdateHandler : IUpdateHandler
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
         Task? handler;
-
-
-
-
-        if (update.Message?.Chat.Id == _adminChatID)
+        
+        if (update.Message?.Chat.Id == _adminChatID || update.CallbackQuery?.Message?.Chat.Id == _adminChatID)
         {
             handler = update switch
             {
                 {Message: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _dbContainer),
                 {EditedMessage: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _dbContainer),
+                {CallbackQuery: { } callbackQuery} => _adminChatHandler.BotOnCallbackQueryReceived
+                    (_fsm, _, callbackQuery, cancellationToken, _dbContainer),
                 _ => _adminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
             await handler;
         }
         else
         {
-            switch (_fsm.GetCurrentState())
+            switch (_dbContainer.User.GetStateByUid(update.Message.Chat.Id).Result)
             {
-                case State.Auth:
+                case "Auth":
                     handler = update switch
                     {
                         {Message: { } message} => _authHandler.BotOnMessageReceived
@@ -85,7 +84,7 @@ public class UpdateHandler : IUpdateHandler
                     await handler;
                     break;
 
-                case State.Menu:
+                case "Menu":
                     handler = update switch
                     {
                         {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
@@ -99,7 +98,7 @@ public class UpdateHandler : IUpdateHandler
                     await handler;
                     break;
 
-                case State.Votes:
+                case "Votes":
                     handler = update switch
                     {
                         {Message: { } message} => _mainMenuHandler.BotOnMessageReceived

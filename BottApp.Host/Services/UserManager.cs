@@ -1,5 +1,6 @@
 ﻿using BottApp.Database;
 using BottApp.Host.Keyboards;
+using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -13,7 +14,7 @@ public static class UserManager
         var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user == null)
         {
-            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, message.Contact.PhoneNumber);
+            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, message.Contact.PhoneNumber, UserState.Menu.ToString());
         }
     }
 

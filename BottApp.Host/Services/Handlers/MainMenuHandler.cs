@@ -82,7 +82,7 @@ public class MainMenuHandler
 
        if (callbackQuery.Data == "ButtonVotes")
         {
-            FSM.SetState(State.Votes);
+            FSM.SetState(UserState.Votes);
             await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
             return;
         }

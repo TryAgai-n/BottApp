@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using BottApp.Host.SimpleStateMachine;
+using Xunit;
 
 namespace BottApp.Database.Test.Document;
 
@@ -8,7 +9,7 @@ public class DocumentRepository: DbTestCase
     [Fact]
     public void CreateDocumentTest()
     {
-        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
+        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null, UserState.Auth.ToString()).Result;
         
 
 

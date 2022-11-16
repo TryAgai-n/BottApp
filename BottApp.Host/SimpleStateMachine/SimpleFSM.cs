@@ -2,15 +2,15 @@
 
 public class SimpleFSM
 {
-    private State state = State.Auth;
+    private UserState _userState = UserState.Auth;
     
-    public void SetState(State value)
+    public void SetState(UserState value)
     {
-        state = value;
+        _userState = value;
     }
     
-    public State GetCurrentState()
+    public UserState GetCurrentState()
     {
-        return state;
+        return _userState;
     }
 }

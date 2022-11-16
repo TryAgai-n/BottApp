@@ -1,6 +1,7 @@
 ﻿using BottApp.Database;
 using BottApp.Database.User;
 using BottApp.Host.Controllers.Client;
+using BottApp.Host.SimpleStateMachine;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BottApp.Host.Controllers
@@ -18,7 +19,7 @@ namespace BottApp.Host.Controllers
         [HttpGet]
         public async Task<UserModel> Test(int uid, string firstName, string userPhone)
         {
-        var user = await _databaseContainer.User.CreateUser(uid, firstName,userPhone);
+        var user = await _databaseContainer.User.CreateUser(uid, firstName, userPhone, UserState.Auth.ToString());
         return user;
         }
 

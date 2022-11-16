@@ -1,3 +1,3 @@
 ﻿namespace BottApp.Host.SimpleStateMachine;
 
-public enum State {Auth, Menu, Votes }
+public enum UserState {Auth, Menu, Votes }

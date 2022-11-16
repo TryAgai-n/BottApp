@@ -145,6 +145,10 @@ namespace BottApp.Host.Migrations
                     b.Property<long>("UId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("UserState")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UId")
