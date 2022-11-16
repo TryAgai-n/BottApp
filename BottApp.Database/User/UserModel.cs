@@ -18,7 +18,7 @@ public class UserModel : AbstractModel
     public long UId { get; set; }
     public string? FirstName { get; set; }
     public string? Phone { get; set; }
-    public string UserState { get; set; }
+    public string? UserState { get; set; }
   
     
     public List<MessageModel> Messages { get; set; }
