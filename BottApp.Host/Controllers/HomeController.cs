@@ -19,7 +19,10 @@ namespace BottApp.Host.Controllers
         [HttpGet]
         public async Task<UserModel> Test(int uid, string firstName, string userPhone)
         {
-        var user = await _databaseContainer.User.CreateUser(uid, firstName, userPhone, UserState.Auth.ToString());
+        var user = await _databaseContainer.User.CreateUser(uid, firstName, userPhone);
+
+        await _databaseContainer.User.ChangeOnState(user, OnState.Menu);
+        
         return user;
         }
 

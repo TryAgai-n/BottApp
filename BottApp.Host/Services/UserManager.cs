@@ -9,12 +9,12 @@ namespace BottApp.Host.Services;
 
 public static class UserManager
 {
-    public static async Task Save(IDatabaseContainer _databaseContainer, Message message)
+    public static async Task CreateUser(IDatabaseContainer _databaseContainer, Message message)
     {
         var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user == null)
         {
-            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, message.Contact.PhoneNumber, UserState.Menu.ToString());
+            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, message.Contact.PhoneNumber);
         }
     }
 

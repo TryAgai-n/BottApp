@@ -9,7 +9,7 @@ public class DocumentRepository: DbTestCase
     [Fact]
     public void CreateDocumentTest()
     {
-        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null, UserState.Auth.ToString()).Result;
+        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
         
 
 
