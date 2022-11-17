@@ -25,7 +25,7 @@ namespace BottApp.Host.Services.Handlers
             return Task.CompletedTask;
         }
 
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             var prepString = message.Text.ToLower();
             if (prepString.Contains("/start"))
@@ -38,17 +38,6 @@ namespace BottApp.Host.Services.Handlers
                     cancellationToken: cancellationToken
                 );
             }
-            // else
-            // {
-            //     await botClient.SendTextMessageAsync
-            //     (
-            //         chatId: message.Chat.Id,
-            //         text: "Что-то пошло не так :( Давай попробуем еще раз?. Напишите \n /start",
-            //         cancellationToken: cancellationToken
-            //     );
-            //
-            //     await Task.Delay(2000);
-            // }
         }
 
         public async Task BotOnCallbackQueryReceived
@@ -98,7 +87,6 @@ namespace BottApp.Host.Services.Handlers
             );
             
         }
-        
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
               await botClient.SendTextMessageAsync
@@ -108,34 +96,13 @@ namespace BottApp.Host.Services.Handlers
                 cancellationToken: cancellationToken
             );
               
-            var declineID = 875152571; //ToDo: Нужна логика обработки ID юзера из callbackQuery.Message.Caption
+              var subs = callbackQuery.Message.Caption.Split('|');
+              var declineId = Convert.ToInt64(subs[3]);
             
             return await botClient.SendTextMessageAsync
             (
-                chatId: declineID,
+                chatId: declineId,
                 text: "Вы не авторизованы в системе, попробуйте позже!",
-                cancellationToken: cancellationToken
-            );
-        }
-        
-        public static async Task AuthComplete(SimpleFSM FSM, ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
-        {
-            FSM.SetState(UserState.Menu);
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Вы авторизованы!",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken
-            );
-                
-            await Task.Delay(1000);
-                
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Главное Меню",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }
