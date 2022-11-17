@@ -4,21 +4,24 @@
 
 namespace BottApp.Host.Migrations
 {
-    public partial class addStatesForUser : Migration
+    public partial class addUserOnState : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "UserState",
+            migrationBuilder.AddColumn<int>(
+                name: "OnState",
                 table: "User",
-                type: "text",
-                nullable: true);
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+            
+            migrationBuilder.Sql("UPDATE \"User\" SET \"OnState\" = 0");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "UserState",
+                name: "OnState",
                 table: "User");
         }
     }

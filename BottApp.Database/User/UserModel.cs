@@ -18,23 +18,23 @@ public class UserModel : AbstractModel
     public long UId { get; set; }
     public string? FirstName { get; set; }
     public string? Phone { get; set; }
-    public string? UserState { get; set; }
-  
     
+    [Required]
+    public OnState OnState { get; set; }
+
     public List<MessageModel> Messages { get; set; }
     
     public List<DocumentModel> Documents { get; set; }
 
 
-    public static UserModel Create(long uid, string? firstName, string? phone, string state)
+    public static UserModel Create(long uid, string? firstName, string? phone)
     {
         return new UserModel
         {
             UId = uid,
             FirstName = firstName,
             Phone = phone,
-            UserState = state,
+            OnState = OnState.Auth,
         };
     }
-    
 }

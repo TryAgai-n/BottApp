@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20221116125630_addStatesForUser")]
-    partial class addStatesForUser
+    [Migration("20221117083818_addUserOnState")]
+    partial class addUserOnState
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -141,14 +141,14 @@ namespace BottApp.Host.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
 
+                    b.Property<int>("OnState")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
                     b.Property<long>("UId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("UserState")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
