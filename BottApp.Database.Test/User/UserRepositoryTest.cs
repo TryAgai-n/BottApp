@@ -1,4 +1,5 @@
-﻿using BottApp.Host.SimpleStateMachine;
+﻿using BottApp.Database.User;
+using BottApp.Host.SimpleStateMachine;
 using Xunit;
 
 namespace BottApp.Database.Test.User;
@@ -8,7 +9,7 @@ public class UserRepositoryTest : DbTestCase
     [Fact]
     public void CreateUserTest()
     {
-        var user = DatabaseContainer.User.CreateUser(123, "Hello", null, UserState.Auth.ToString()).Result;
+        var user = DatabaseContainer.User.CreateUser(123, "Hello", null).Result;
         Assert.NotNull(user);
         Assert.Equal(123, user.UId);
         Assert.Equal("Hello", user.FirstName);
@@ -22,15 +23,14 @@ public class UserRepositoryTest : DbTestCase
 
 
     [Fact]
-    public void GetSetStateForUserTest()
+    public void ChangeUserOnStateTest()
     {
-        var user = DatabaseContainer.User.CreateUser(123, "Hello", null, UserState.Auth.ToString()).Result;
-          
-        Assert.Equal("Auth", user.UserState);
-        DatabaseContainer.User.SetState(user, UserState.Menu.ToString());
-        Assert.Equal("Menu", user.UserState);
-        var state = DatabaseContainer.User.GetStateByUid(123).Result;
-        Assert.Equal("Menu", state);
+        var user = DatabaseContainer.User.CreateUser(123, "Hello", null).Result;
+        Assert.Equal(OnState.Auth, user.OnState);
+
+        var changeUserOnState = DatabaseContainer.User.ChangeOnState(user, OnState.Menu).Result;
+        
+        Assert.Equal(OnState.Menu, user.OnState);
     }
     // [Fact]
     // public void UpdateUserPhoneTest()

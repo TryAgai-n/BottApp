@@ -5,7 +5,7 @@ namespace BottApp.Database.User
 {
     public interface IUserRepository
     {
-        Task<UserModel> CreateUser(long uid, string firstName, string? phone, string state);
+        Task<UserModel> CreateUser(long uid, string firstName, string? phone);
 
         Task<UserModel> GetOneByUid(long uid);
 
@@ -13,9 +13,6 @@ namespace BottApp.Database.User
 
         Task<bool> UpdateUserPhone(UserModel model, string phone);
 
-        Task<bool> SetState(UserModel model, string state);
-        
-        Task<string> GetStateByUid(long uid);
-        
+        Task<bool> ChangeOnState(UserModel model, OnState onState);
     }
 }
