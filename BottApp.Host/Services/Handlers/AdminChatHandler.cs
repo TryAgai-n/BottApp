@@ -60,9 +60,7 @@ namespace BottApp.Host.Services.Handlers
         )
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-            // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
-
-
+            
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
                 "ButtonApprove" => await Approve(botClient, callbackQuery, cancellationToken),
@@ -82,28 +80,18 @@ namespace BottApp.Host.Services.Handlers
                 text: "Заявка принята",
                 cancellationToken: cancellationToken
             );
-
-            string s = callbackQuery.Message.Caption;
-
-            string[] subs = s.Split('|');
-            string[] DotSubs = s.Split('.');
-
-            foreach (var sub in subs)
-            {
-                Console.WriteLine($"Substring: {sub}");
-            }
             
-            long approveID = Convert.ToInt64(subs[3]); 
-            var approveFirstName = subs[1]; 
+            var subs = callbackQuery.Message.Caption.Split('|');
+            var approveId = Convert.ToInt64(subs[3]);
             var approvePhone = subs[5]; 
           
-            var findUserByUid = await _databaseContainer.User.FindOneByUid(approveID);
+            var findUserByUid = await _databaseContainer.User.FindOneByUid(approveId);
             await _databaseContainer.User.UpdateUserPhone(findUserByUid, approvePhone);
             await _databaseContainer.User.ChangeOnState(findUserByUid, OnState.Menu);
             
             return await botClient.SendTextMessageAsync
             (
-                chatId: approveID,
+                chatId: approveId,
                 text: "Вы авторизованы!",
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
