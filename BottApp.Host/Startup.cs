@@ -58,7 +58,8 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            
+            services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+
              TelegramBotStartup.ConfigureServices(services, Configuration);
             
             var typeOfContent = typeof(Startup);
@@ -70,7 +71,6 @@ namespace BottApp.Host
                 )
             );
             
-            services.AddScoped<IDatabaseContainer, DatabaseContainer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

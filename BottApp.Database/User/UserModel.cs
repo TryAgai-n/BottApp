@@ -35,6 +35,8 @@ public class UserModel : AbstractModel
             FirstName = firstName,
             Phone = phone,
             OnState = OnState.Auth,
+            Messages = new List<MessageModel>(),
+            Documents = new List<DocumentModel>()
         };
     }
 }

@@ -1,18 +1,24 @@
+using System.Globalization;
 using BottApp.Database;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Services;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BottApp.Host.Services.Handlers
 {
     public class AdminChatHandler
     {
+        private readonly IDatabaseContainer _databaseContainer;
+
+        public AdminChatHandler(IDatabaseContainer databaseContainer)
+        {
+            _databaseContainer = databaseContainer;
+        }
+
         public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
         {
             // _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
@@ -47,9 +53,10 @@ namespace BottApp.Host.Services.Handlers
 
         public async Task BotOnCallbackQueryReceived
         (
-            SimpleFSM FSM, ITelegramBotClient? botClient, CallbackQuery callbackQuery,
-            CancellationToken cancellationToken,
-            IDatabaseContainer _dbContainer
+            SimpleFSM FSM,
+            ITelegramBotClient? botClient,
+            CallbackQuery callbackQuery,
+            CancellationToken cancellationToken
         )
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
@@ -58,7 +65,7 @@ namespace BottApp.Host.Services.Handlers
 
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
-                "ButtonApprove" => await Approve(botClient, callbackQuery, cancellationToken, _dbContainer),
+                "ButtonApprove" => await Approve(botClient, callbackQuery, cancellationToken),
                 "ButtonDecline" => await Decline(botClient, callbackQuery, cancellationToken),
                 
                 _ => await MessageManager.TryEditInlineMessage(botClient, callbackQuery, cancellationToken, new Keyboard())
@@ -67,7 +74,7 @@ namespace BottApp.Host.Services.Handlers
 
         }
 
-        public async Task<Message> Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
+        public async Task<Message> Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             await botClient.SendTextMessageAsync
             (
@@ -76,11 +83,23 @@ namespace BottApp.Host.Services.Handlers
                 cancellationToken: cancellationToken
             );
 
-            var approveID = 875152571; // ToDo: Нужна логика обработки ID FirstName и Phone юзера из callbackQuery.Message.Caption
-            var approveFirstName = " Тест"; 
-            var approvePhone = "+7809001923"; 
-            _dbContainer.User.CreateUser(approveID, approveFirstName, approvePhone, UserState.Menu.ToString());
+            string s = callbackQuery.Message.Caption;
+
+            string[] subs = s.Split('|');
+            string[] DotSubs = s.Split('.');
+
+            foreach (var sub in subs)
+            {
+                Console.WriteLine($"Substring: {sub}");
+            }
             
+            long approveID = Convert.ToInt64(subs[3]); 
+            var approveFirstName = subs[1]; 
+            var approvePhone = subs[5]; 
+          
+            var findUserByUid = await _databaseContainer.User.FindOneByUid(approveID);
+            await _databaseContainer.User.UpdateUserPhone(findUserByUid, approvePhone);
+            await _databaseContainer.User.ChangeOnState(findUserByUid, OnState.Menu);
             
             return await botClient.SendTextMessageAsync
             (
@@ -89,6 +108,7 @@ namespace BottApp.Host.Services.Handlers
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
+            
         }
         
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -106,7 +126,6 @@ namespace BottApp.Host.Services.Handlers
             (
                 chatId: declineID,
                 text: "Вы не авторизованы в системе, попробуйте позже!",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }

@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using BottApp.Database;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using BottApp.Host.StateMachine;
@@ -20,7 +21,7 @@ public class UpdateHandler : IUpdateHandler
 {
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandler> _logger;
-    private readonly IDatabaseContainer _dbContainer;
+    private readonly IDatabaseContainer _databaseContainer;
     private readonly SimpleFSM _fsm;
     private readonly MainMenuHandler _mainMenuHandler;
     private readonly VotesHandler _votesHandler;
@@ -34,7 +35,7 @@ public class UpdateHandler : IUpdateHandler
     (
         ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
-        IDatabaseContainer dbContainer,
+        IDatabaseContainer databaseContainer,
         SimpleFSM fsm,
         MainMenuHandler mainMenuHandler,
         VotesHandler votesHandler,
@@ -44,7 +45,7 @@ public class UpdateHandler : IUpdateHandler
     {
         _botClient = botClient;
         _logger = logger;
-        _dbContainer = dbContainer;
+        _databaseContainer = databaseContainer;
         _fsm = fsm;
         _mainMenuHandler = mainMenuHandler;
         _votesHandler = votesHandler;
@@ -58,65 +59,76 @@ public class UpdateHandler : IUpdateHandler
     {
         Task? handler;
         
-        if (update.Message?.Chat.Id == _adminChatID || update.CallbackQuery?.Message?.Chat.Id == _adminChatID)
+        var updateMessage  = update.Message;
+
+        if (updateMessage == null)
+        {
+            updateMessage = update.CallbackQuery.Message;
+        }
+        
+        if (updateMessage.Chat.Id == _adminChatID)
         {
             handler = update switch
             {
-                {Message: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _dbContainer),
-                {EditedMessage: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _dbContainer),
+                {Message: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _databaseContainer),
+                {EditedMessage: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _databaseContainer),
                 {CallbackQuery: { } callbackQuery} => _adminChatHandler.BotOnCallbackQueryReceived
-                    (_fsm, _, callbackQuery, cancellationToken, _dbContainer),
+                    (_fsm, _, callbackQuery, cancellationToken),
                 _ => _adminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
             await handler;
         }
         else
         {
-            switch (_dbContainer.User.GetStateByUid(update.Message.Chat.Id).Result)
+            var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id);
+            if (findUserByUid == null)
             {
-                case "Auth":
+                findUserByUid = await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
+            }
+            
+            await MessageManager.SaveMessage(_databaseContainer, updateMessage);
+
+            switch (findUserByUid.OnState)
+            {
+                case OnState.Auth:
                     handler = update switch
                     {
                         {Message: { } message} => _authHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _dbContainer, _adminChatID),
+                            (_fsm, _, message, cancellationToken, _databaseContainer, _adminChatID),
                         _ => throw new Exception()
                     };
                     await handler;
                     break;
 
-                case "Menu":
+                case OnState.Menu:
                     handler = update switch
                     {
                         {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _dbContainer),
+                            (_fsm, _, message, cancellationToken, _databaseContainer),
                         {EditedMessage: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _dbContainer),
+                            (_fsm, _, message, cancellationToken, _databaseContainer),
                         {CallbackQuery: { } callbackQuery} => _mainMenuHandler.BotOnCallbackQueryReceived
-                            (_fsm, _, callbackQuery, cancellationToken, _dbContainer),
+                            (_fsm, _, callbackQuery, cancellationToken, _databaseContainer),
                         _ => _mainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;
 
-                case "Votes":
+                case OnState.Votes:
                     handler = update switch
                     {
                         {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _dbContainer),
+                            (_fsm, _, message, cancellationToken, _databaseContainer),
                         {EditedMessage: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _dbContainer),
+                            (_fsm, _, message, cancellationToken, _databaseContainer),
                         {CallbackQuery: { } callbackQuery} => _mainMenuHandler.BotOnCallbackQueryReceived
-                            (_fsm, _, callbackQuery, cancellationToken, _dbContainer),
+                            (_fsm, _, callbackQuery, cancellationToken, _databaseContainer),
                         _ => _mainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;
             }
         }
-       
-        
-        
-      
     }
 
 

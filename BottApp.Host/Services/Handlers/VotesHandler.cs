@@ -74,7 +74,6 @@ public class VotesHandler
     public async Task BotOnCallbackQueryReceived(SimpleFSM FSM, ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken,  IDatabaseContainer _dbContainer)
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
         var guid = Guid.NewGuid().ToString("N");
 
         if (callbackQuery.Data == "ButtonVotes")

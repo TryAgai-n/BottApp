@@ -8,7 +8,7 @@ namespace Telegram.Bot.Services;
 
 public static class MessageManager
 {
-    public static async Task SaveMessage(IDatabaseContainer _databaseContainer, Message message)
+    public static async Task SaveMessage(IDatabaseContainer _databaseContainer, Message? message)
     {
         var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
         string type = message.Type.ToString();

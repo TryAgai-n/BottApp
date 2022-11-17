@@ -19,6 +19,22 @@ public class UserRepositoryTest : DbTestCase
         var userByUid = DatabaseContainer.User.GetOneByUid(user.UId).Result;
         Assert.NotNull(userByUid);
         Assert.Equal(123, userByUid.UId);
+        
+        
+        var findUserByUid =  DatabaseContainer.User.FindOneByUid(20).Result;
+        if (findUserByUid == null)
+        {
+            findUserByUid = DatabaseContainer.User.CreateUser(20, "First", null).Result;
+        }
+        
+        
+        Assert.NotNull(findUserByUid);
+        Assert.Equal(20, findUserByUid.UId);
+        Assert.NotEqual(50, findUserByUid.UId);
+        Assert.Equal("First", findUserByUid.FirstName);
+        Assert.Null(findUserByUid.Phone);
+        Assert.Equal(OnState.Auth, findUserByUid.OnState);
+
     }
 
 

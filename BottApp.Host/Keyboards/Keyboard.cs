@@ -12,7 +12,6 @@ public class Keyboard
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Votes", "ButtonVotes"),
-                InlineKeyboardButton.WithCallbackData("Request contact", "ButtonRequestContact"),
                 InlineKeyboardButton.WithCallbackData("Say Hi", "ButtonHi"),
                 
             },

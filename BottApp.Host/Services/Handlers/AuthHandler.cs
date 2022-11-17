@@ -36,7 +36,8 @@ namespace BottApp.Host.Services.Handlers
                 await botClient.SendPhotoAsync(
                     chatId: AdminChatID,
                     photo: photo[0].FileId ,
-                    caption: $" Пользователь {message.Chat.FirstName}\n {message.From}\n Моб.тел. {message.Contact.PhoneNumber}\n Хочет авторизоваться в системе " +
+                    caption: $" Пользователь |{message.Chat.FirstName}|\n @{message.From.Username} |{message.From.Id}|\n Моб.тел. |{message.Contact.PhoneNumber}|\n Хочет авторизоваться в системе " +
+                    
                              $"{message.Caption}",
                     replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup,
                     cancellationToken: cancellationToken);

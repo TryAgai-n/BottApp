@@ -43,7 +43,7 @@ namespace BottApp.Database.User
             return model;
         }
 
-        public async Task<UserModel?> FindOneByUid(int userId)
+        public async Task<UserModel?> FindOneByUid(long userId)
         {
             return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
         }
