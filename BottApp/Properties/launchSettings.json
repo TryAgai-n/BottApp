@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "BottApp": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:56424;http://localhost:56425"
+    }
+  }
+}

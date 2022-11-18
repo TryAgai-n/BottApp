@@ -5,13 +5,13 @@ namespace StateMachine.Bot;
 
 public static class Votes
 {
-    public static async Task RunVotes (StateMachine<MyBot.State,MyBot.Action> bot, bool condition)
+    public static async Task RunVotes (StateMachine<MState,MAction> bot, bool condition)
     { 
         Console.WriteLine($"TASK RUN: {bot.State} \n");
         if (condition)
-            await bot.FireAsync(MyBot.Action.GetMainMenu);
+            await bot.FireAsync(MAction.GetMainMenu);
         else
-            await bot.FireAsync(MyBot.Action.GetAuth); //Excpetion потому что мы не можем перейти из Votes в GetAuth
+            await bot.FireAsync(MAction.GetAuth); //Excpetion потому что мы не можем перейти из Votes в GetAuth
  
     }
 }

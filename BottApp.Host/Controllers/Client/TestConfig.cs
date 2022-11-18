@@ -30,7 +30,7 @@ public class TestConfig : AbstractClientController<TestConfig>
     [ProducesResponseType(typeof(BotUpdate.Response), 200)]
     public async Task<BotUpdate.Response> CreateUser([FromBody] BotUpdate request)
     {
-        var user = await _databaseContainer.User.FindOneById((int) request.Message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int) request.Message.Chat.Id);
 
 
         return new BotUpdate.Response();

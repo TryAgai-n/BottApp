@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using BottApp.Host.SimpleStateMachine;
+using Xunit;
 
 namespace BottApp.Database.Test.Message;
 

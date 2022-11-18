@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace BottApp.Database.User
 {
@@ -6,10 +7,14 @@ namespace BottApp.Database.User
     {
         Task<UserModel> CreateUser(long uid, string firstName, string? phone);
 
-        Task<UserModel> GetOne(int id);
+        Task<UserModel> GetOneByUid(long uid);
 
-        Task<UserModel?> FindOneById(int userId);
+        Task<UserModel?> FindOneByUid(long userId);
 
         Task<bool> UpdateUserPhone(UserModel model, string phone);
+
+        Task<bool> ChangeOnState(UserModel model, OnState onState);
+        
+        Task<bool> ChangeOnStateByUID(long uid, OnState onState);
     }
 }
