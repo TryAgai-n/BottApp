@@ -49,7 +49,31 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Document", (string)null);
+                });
+
+            modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("isLiked")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.ToTable("LikedDocument", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -74,7 +98,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("DocumentId")
                         .IsUnique();
 
-                    b.ToTable("DocumentStatistic");
+                    b.ToTable("DocumentStatistic", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
@@ -101,7 +125,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
@@ -115,6 +139,9 @@ namespace BottApp.Host.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
 
+                    b.Property<int>("OnState")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
@@ -126,7 +153,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("UId")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
@@ -138,6 +165,17 @@ namespace BottApp.Host.Migrations
                         .IsRequired();
 
                     b.Navigation("UserModel");
+                });
+
+            modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
+                {
+                    b.HasOne("BottApp.Database.Document.DocumentModel", "DocumentModel")
+                        .WithMany("Likes")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DocumentModel");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -166,6 +204,8 @@ namespace BottApp.Host.Migrations
                 {
                     b.Navigation("DocumentStatisticModel")
                         .IsRequired();
+
+                    b.Navigation("Likes");
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>

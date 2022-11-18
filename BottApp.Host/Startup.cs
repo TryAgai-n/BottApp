@@ -1,10 +1,8 @@
 ﻿using BottApp.Database;
-using BottApp.Host.Configs;
 using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Telegram.Bot;
-using BottApp.Host.Services;
+using BottApp.Host.Services.Handlers;
 
 namespace BottApp.Host
 {
@@ -58,8 +56,10 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            
-             TelegramBotStartup.ConfigureServices(services, Configuration);
+            services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+            services.AddScoped<IHandlerContainer>(x => Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+
+            TelegramBotStartup.ConfigureServices(services, Configuration);
             
             var typeOfContent = typeof(Startup);
 
@@ -70,9 +70,6 @@ namespace BottApp.Host
                 )
             );
             
-            // services.AddHostedService<ConfigureWebhook>();
-            
-            services.AddScoped<IDatabaseContainer, DatabaseContainer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

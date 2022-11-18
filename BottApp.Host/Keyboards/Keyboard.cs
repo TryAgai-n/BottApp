@@ -2,9 +2,9 @@
 
 namespace BottApp.Host.Keyboards;
 
-public static class Keyboard
+public class Keyboard
 {
-    
+
     public static InlineKeyboardMarkup MainKeyboardMarkup = new(
         new[]
         {
@@ -12,7 +12,8 @@ public static class Keyboard
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Votes", "ButtonVotes"),
-                InlineKeyboardButton.WithCallbackData("Request contact", "ButtonRequestContact"),
+                InlineKeyboardButton.WithCallbackData("Say Hi", "ButtonHi"),
+                
             },
             // second row
             new []
@@ -20,7 +21,6 @@ public static class Keyboard
                 InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
             },
         });
-    
     public static InlineKeyboardMarkup VotesKeyboardMarkup = new(
         new[]
         {
@@ -40,6 +40,17 @@ public static class Keyboard
             {
                 InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
                 InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
+            },
+        });
+    
+    public static InlineKeyboardMarkup ApproveDeclineKeyboardMarkup = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Approve", "ButtonApprove"),
+                InlineKeyboardButton.WithCallbackData("Decline", "ButtonDecline"),
             },
         });
     

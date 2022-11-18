@@ -40,7 +40,7 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
         };
 
         var me = await _botClient.GetMeAsync(stoppingToken);
-        _logger.LogInformation("Start receiving updates for {BotName}", me.Username ?? "My Awesome Bot");
+        // _logger.LogInformation("Start receiving updates for {BotName}", me.Username ?? "My Awesome Bot");
 
         // Start receiving updates
         await _botClient.ReceiveAsync(

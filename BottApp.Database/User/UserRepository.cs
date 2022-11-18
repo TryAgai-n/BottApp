@@ -15,8 +15,6 @@ namespace BottApp.Database.User
         {
 
         }
-
-
         public async Task<UserModel> CreateUser(long uid, string? firstName, string? phone)
         {
 
@@ -35,17 +33,9 @@ namespace BottApp.Database.User
             return result;
         }
 
-        public async Task<UserModel> GetOne(int id)
-        {
-            var model = await FindOne(id);
-            if(model == null)
-            {
-                throw new Exception($"User model by id: {id} is not found");
-            }
-            return model;
-        }
+      
 
-        public async Task<UserModel?> FindOneById(int userId)
+        public async Task<UserModel?> FindOneByUid(long userId)
         {
             return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
         }
@@ -59,5 +49,31 @@ namespace BottApp.Database.User
             return result > 0;
         }
 
+        public async Task<bool> ChangeOnState(UserModel model, OnState onState)
+        {
+            if (model.OnState == onState)
+            {
+                throw new Exception($"User on the same state. State: {onState}");
+            }
+
+
+            model.OnState = onState;
+            var result = await UpdateModelAsync(model);
+
+            return result > 0;
+        }
+        
+        public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
+        {
+            var user = await GetOneByUid(uid);
+            
+            if (user.OnState == onState) 
+                throw new Exception($"User on the same state. State: {onState}");
+            
+            user.OnState = onState;
+            var result = await UpdateModelAsync(user);
+
+            return result > 0;
+        }
     }
 }

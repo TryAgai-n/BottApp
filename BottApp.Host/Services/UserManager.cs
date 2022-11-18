@@ -1,5 +1,6 @@
 ﻿using BottApp.Database;
 using BottApp.Host.Keyboards;
+using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -8,27 +9,36 @@ namespace BottApp.Host.Services;
 
 public static class UserManager
 {
-    public static async Task Save(IDatabaseContainer _databaseContainer, Message message)
+    public static async Task CreateUser(IDatabaseContainer _databaseContainer, Message message)
     {
-        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user == null)
         {
-            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, null);
+            await _databaseContainer.User.CreateUser(message.Chat.Id, message.Chat.FirstName, message.Contact.PhoneNumber);
         }
     }
 
     public static async Task<bool> UserPhoneHasOnDb(IDatabaseContainer _databaseContainer, Message message)
     {
-        var user = await _databaseContainer.User.FindOneById((int) message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
         if (user.Phone == null)
              return false;
         
         return true;
     }
     
+    public static async Task<bool> UserHasOnDb(IDatabaseContainer _databaseContainer, Message message)
+    {
+        var user = await _databaseContainer.User.FindOneByUid((int) message.Chat.Id);
+        if (user == null)
+            return false;
+        
+        return true;
+    }
+    
     public static async Task UpdateContact(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken, IDatabaseContainer _databaseContainer)
     {
-        var user = await _databaseContainer.User.FindOneById((int)message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
 
         if (user.Phone == null)
         {

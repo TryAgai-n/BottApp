@@ -1,12 +1,13 @@
-using BottApp.Database;
 using BottApp.Host.Configs;
 using BottApp.Host.Services;
-using Microsoft.EntityFrameworkCore;
+using BottApp.Host.Services.Handlers;
+using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 
 namespace BottApp.Host;
 
-internal class TelegramBotStartup
+internal static class TelegramBotStartup
 {
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -22,9 +23,10 @@ internal class TelegramBotStartup
                 return new TelegramBotClient(options, httpClient);
             });
 
-
-        services.AddScoped<UpdateHandler>();
-        services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
+        services.AddScoped<ReceiverService>();
+        
+        services.AddScoped<IUpdateHandler, UpdateHandler>();
+        services.AddScoped<SimpleFSM>();
     }
 }

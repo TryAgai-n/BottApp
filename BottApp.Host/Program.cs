@@ -139,7 +139,6 @@ public class Program
     {
         await Task.WhenAll(webHost.RunAsync());
 
-        Console.Read();
         await Task.WhenAll(webHost.StopAsync());
         Environment.Exit(0);
         return 0;
