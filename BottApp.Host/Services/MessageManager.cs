@@ -1,25 +1,35 @@
-﻿using BottApp.Database;
+﻿using BottApp.Database.Message;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Telegram.Bot.Services;
 
-public static class MessageManager
+public  class MessageManager
 {
-    public static async Task SaveMessage(IDatabaseContainer _databaseContainer, Message? message)
+    private readonly IUserRepository _userRepository;
+    private readonly IMessageRepository _messageRepository;
+
+
+    public MessageManager(IUserRepository userRepository, IMessageRepository messageRepository)
     {
-        var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
-        string type = message.Type.ToString();
-        await _databaseContainer.Message.CreateModel(user.Id, message.Text, type, DateTime.Now);
+        _userRepository = userRepository;
+        _messageRepository = messageRepository;
     }
 
-    public static async Task SaveInlineMessage(IDatabaseContainer _databaseContainer, CallbackQuery callbackQuery)
+
+    public async Task SaveMessage(Message? message)
     {
-        var user = await _databaseContainer.User.FindOneByUid((int)callbackQuery.Message.Chat.Id);
+        var user = await _userRepository.FindOneByUid((int)message.Chat.Id);
+        string type = message.Type.ToString();
+        await _messageRepository.CreateModel(user.Id, message.Text, type, DateTime.Now);
+    }
+
+    public async Task SaveInlineMessage(CallbackQuery callbackQuery)
+    {
+        var user = await _userRepository.FindOneByUid((int)callbackQuery.Message.Chat.Id);
         string type = callbackQuery.GetType().ToString();
-        await _databaseContainer.Message.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
+        await _messageRepository.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
     }
 
     public static async Task<Message> TryEditInlineMessage

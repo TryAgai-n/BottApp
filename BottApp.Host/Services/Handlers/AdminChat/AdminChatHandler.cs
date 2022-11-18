@@ -1,4 +1,3 @@
-using System.Globalization;
 using BottApp.Database;
 using BottApp.Database.User;
 using BottApp.Host.Keyboards;
@@ -8,15 +7,15 @@ using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace BottApp.Host.Services.Handlers
+namespace BottApp.Host.Services.Handlers.AdminChat
 {
-    public class AdminChatHandler
+    public class AdminChatHandler : IAdminChatHandler
     {
-        private readonly IDatabaseContainer _databaseContainer;
+        private readonly IUserRepository _userRepository;
 
-        public AdminChatHandler(IDatabaseContainer databaseContainer)
+        public AdminChatHandler(IUserRepository userRepository)
         {
-            _databaseContainer = databaseContainer;
+            _userRepository = userRepository;
         }
 
         public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
@@ -25,7 +24,7 @@ namespace BottApp.Host.Services.Handlers
             return Task.CompletedTask;
         }
 
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             var prepString = message.Text.ToLower();
             if (prepString.Contains("/start"))
@@ -97,9 +96,9 @@ namespace BottApp.Host.Services.Handlers
             var approveFirstName = subs[1]; 
             var approvePhone = subs[5]; 
           
-            var findUserByUid = await _databaseContainer.User.FindOneByUid(approveID);
-            await _databaseContainer.User.UpdateUserPhone(findUserByUid, approvePhone);
-            await _databaseContainer.User.ChangeOnState(findUserByUid, OnState.Menu);
+            var findUserByUid = await _userRepository.FindOneByUid(approveID);
+            await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
+            await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
             
             return await botClient.SendTextMessageAsync
             (
@@ -130,7 +129,7 @@ namespace BottApp.Host.Services.Handlers
             );
         }
         
-        public static async Task AuthComplete(SimpleFSM FSM, ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
+        public async Task AuthComplete(SimpleFSM FSM, ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
         {
             FSM.SetState(UserState.Menu);
             await botClient.SendTextMessageAsync

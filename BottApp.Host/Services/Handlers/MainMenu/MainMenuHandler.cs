@@ -3,20 +3,19 @@ using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace BottApp.Host.Services.Handlers;
+namespace BottApp.Host.Services.Handlers.MainMenu;
 
-public class MainMenuHandler 
+public class MainMenuHandler : IMainMenuHandler
 {
     
     #region Inline Mode
 
-    public static string GetTimeEmooji()
+    public string GetTimeEmooji()
     {
         string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ",};
         var rand = new Random();
@@ -24,8 +23,12 @@ public class MainMenuHandler
         return preparedString;
     }
 
-    public static async Task<Message> TryEditMessage
-        (ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+
+    public async Task<Message> TryEditMessage(
+        ITelegramBotClient? botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken
+    )
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
@@ -71,10 +74,12 @@ public class MainMenuHandler
         }
     }
 
-    public async Task BotOnCallbackQueryReceived
-    (
-        SimpleFSM FSM, ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken,
-        IDatabaseContainer _dbContainer
+
+    public async Task BotOnCallbackQueryReceived(
+        SimpleFSM FSM,
+        ITelegramBotClient? botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken
     )
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
@@ -90,9 +95,9 @@ public class MainMenuHandler
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
             "ButtonRight" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
+                (callbackQuery, botClient, cancellationToken),
             "ButtonLeft" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
+                (callbackQuery, botClient, cancellationToken),
             
             "ButtonHi" => await botClient.SendTextMessageAsync
             (
@@ -112,11 +117,13 @@ public class MainMenuHandler
         };
 
 
-        async Task<Message> SendInlineVotesKeyboard
-            (ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        async Task<Message> SendInlineVotesKeyboard(
+            ITelegramBotClient botClient,
+            CallbackQuery callbackQuery,
+            CancellationToken cancellationToken
+        )
         {
-            await botClient.SendChatActionAsync
-            (
+            await botClient.SendChatActionAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 chatAction: ChatAction.Typing,
                 cancellationToken: cancellationToken
@@ -133,19 +140,19 @@ public class MainMenuHandler
             );
 
             return await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken);
+                (callbackQuery, botClient, cancellationToken);
         }
     }
 
     #endregion
 
     #region Simple Message Mode
-    private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
+    public async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
     }
 
-    public async Task BotOnMessageReceived(SimpleFSM FSM,ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
+    public async Task BotOnMessageReceived(SimpleFSM FSM,ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
        await Usage(botClient, message, cancellationToken);
         
@@ -173,7 +180,7 @@ public class MainMenuHandler
             );
         }
 
-        static async Task<Message> Usage
+         static async Task<Message> Usage
             (ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             return await botClient.SendTextMessageAsync
