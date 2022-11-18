@@ -1,10 +1,7 @@
 ﻿using BottApp.Database;
-using BottApp.Host.Configs;
-using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Telegram.Bot;
-using BottApp.Host.Services;
+using BottApp.Host.Services.Handlers;
 
 namespace BottApp.Host
 {
@@ -58,9 +55,11 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
+            
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+            services.AddScoped<IHandlerContainer>(x => Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
 
-             TelegramBotStartup.ConfigureServices(services, Configuration);
+            TelegramBotStartup.ConfigureServices(services, Configuration);
             
             var typeOfContent = typeof(Startup);
 
