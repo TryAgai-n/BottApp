@@ -4,25 +4,19 @@ using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace BottApp.Host.Services.Handlers;
+namespace BottApp.Host.Services.Handlers.MainMenu;
 
-public class MainMenuHandler 
-{  private readonly IDatabaseContainer _databaseContainer;
-    
-    public MainMenuHandler(IDatabaseContainer databaseContainer)
-    {
-        _databaseContainer = databaseContainer;
-    }
+public class MainMenuHandler : IMainMenuHandler
+{
     
     #region Inline Mode
 
-    public static string GetTimeEmooji()
+    public string GetTimeEmooji()
     {
         string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ",};
         var rand = new Random();
@@ -30,7 +24,12 @@ public class MainMenuHandler
         return preparedString;
     }
 
-    public static async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+
+    public async Task<Message> TryEditMessage(
+        ITelegramBotClient? botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken
+    )
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
@@ -112,11 +111,13 @@ public class MainMenuHandler
         };
 
 
-        async Task<Message> SendInlineVotesKeyboard
-            (ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        async Task<Message> SendInlineVotesKeyboard(
+            ITelegramBotClient botClient,
+            CallbackQuery callbackQuery,
+            CancellationToken cancellationToken
+        )
         {
-            await botClient.SendChatActionAsync
-            (
+            await botClient.SendChatActionAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 chatAction: ChatAction.Typing,
                 cancellationToken: cancellationToken
@@ -133,15 +134,14 @@ public class MainMenuHandler
             );
 
             return await DocumentManager.SendVotesDocument
-                (_databaseContainer, callbackQuery, botClient, cancellationToken);
+                (callbackQuery, botClient, cancellationToken);
         }
     }
 
     #endregion
 
     #region Simple Message Mode
-
-    public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    public async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         if (message.Document != null)
         {
@@ -172,7 +172,7 @@ public class MainMenuHandler
             );
         }
 
-        static async Task<Message> Usage
+         static async Task<Message> Usage
             (ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             return await botClient.SendTextMessageAsync

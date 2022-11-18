@@ -2,18 +2,14 @@ using BottApp.Database;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace BottApp.Host.Services.Handlers
+namespace BottApp.Host.Services.Handlers.Auth
 {
-    public class AuthHandler
+    public class AuthHandler : IAuthHandler
     {
-        private async Task BotOnMessageReceivedVotes(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        public async Task BotOnMessageReceivedVotes(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await RequestContactAndLocation(botClient, message, cancellationToken);
         }
@@ -66,7 +62,7 @@ namespace BottApp.Host.Services.Handlers
             }
         }
         
-        public static async Task RequestContactAndLocation( ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
+        public async Task RequestContactAndLocation( ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
         {
             await botClient.SendTextMessageAsync
             (

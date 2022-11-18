@@ -1,58 +1,38 @@
-using System.Net.Mime;
 using BottApp.Database;
 using BottApp.Database.User;
-using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
-using BottApp.Host.StateMachine;
-using Microsoft.Extensions.Logging.Abstractions;
-using Stateless;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Services;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BottApp.Host.Services.Handlers;
 
-public class UpdateHandler : IUpdateHandler
+public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
 {
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IDatabaseContainer _databaseContainer;
     private readonly SimpleFSM _fsm;
-    private readonly MainMenuHandler _mainMenuHandler;
-    private readonly VotesHandler _votesHandler;
-    private readonly AuthHandler _authHandler;
-    private readonly AdminChatHandler _adminChatHandler;
+    
 
-    private const long AdminChatId = -1001824488986;
+    
+    private readonly long _adminChatID = -1001824488986;
 
 
-    public UpdateHandler
-    (
+    public UpdateHandler(
         ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
         IDatabaseContainer databaseContainer,
         SimpleFSM fsm,
-        MainMenuHandler mainMenuHandler,
-        VotesHandler votesHandler,
-        AuthHandler authHandler,
-        AdminChatHandler adminChatHandler
-    )
+        IHandlerContainer handlerContainer
+    ) : base(handlerContainer)
     {
         _botClient = botClient;
         _logger = logger;
         _databaseContainer = databaseContainer;
         _fsm = fsm;
-        _mainMenuHandler = mainMenuHandler;
-        _votesHandler = votesHandler;
-        _authHandler = authHandler;
-        _adminChatHandler = adminChatHandler;
-        
-        Console.WriteLine("\nUpdateHandler is Start\n");
     }
 
 
@@ -65,26 +45,30 @@ public class UpdateHandler : IUpdateHandler
         {
             handler = update switch
             {
-                {Message: { } message}             => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
-                {EditedMessage: { } message}       => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
-                {CallbackQuery: { } callbackQuery} => _adminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken),
-                _                                  => _adminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                {Message: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {EditedMessage: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {CallbackQuery: { } callbackQuery} => _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived
+                    (_fsm, _, callbackQuery, cancellationToken),
+                _ => _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
             await handler;
         }
         else
         {
-            var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
-                                ??
-                                await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
+            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) ?? await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
 
-            switch (findUserByUid.OnState)
+            string type = updateMessage.Type.ToString();
+            await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+            
+
+            switch (user.OnState)
             {
                 case OnState.Auth:
                     handler = update switch
                     {
-                        {Message: { } message} => _authHandler.BotOnMessageReceived
-                            (_, message, cancellationToken, AdminChatId),
+                        {
+                            Message: { } message
+                        } => _handlerContainer.AuthHandler.BotOnMessageReceived(_fsm, _, message, cancellationToken, _adminChatID),
                         _ => throw new Exception()
                     };
                     await handler;
@@ -93,13 +77,13 @@ public class UpdateHandler : IUpdateHandler
                 case OnState.Menu:
                     handler = update switch
                     {
-                        {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
-                        {EditedMessage: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
-                        {CallbackQuery: { } callbackQuery} => _mainMenuHandler.BotOnCallbackQueryReceived
-                            (_, callbackQuery, cancellationToken),
-                        _ => _mainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                        {Message: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived
+                            (_fsm, _, message, cancellationToken),
+                        {EditedMessage: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived
+                            (_fsm, _, message, cancellationToken),
+                        {CallbackQuery: { } callbackQuery} => _handlerContainer.MainMenuHandler.BotOnCallbackQueryReceived
+                            (_fsm, _, callbackQuery, cancellationToken),
+                        _ => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;
@@ -107,13 +91,13 @@ public class UpdateHandler : IUpdateHandler
                 case OnState.Votes:
                     handler = update switch
                     {
-                        {Message: { } message} => _votesHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
-                        {EditedMessage: { } message} => _votesHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
-                        {CallbackQuery: { } callbackQuery} => _votesHandler.BotOnCallbackQueryReceived
-                            (_, callbackQuery, cancellationToken),
-                        _ => _votesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                        {Message: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived
+                            (_fsm, _, message, cancellationToken),
+                        {EditedMessage: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived
+                            (_fsm, _, message, cancellationToken),
+                        {CallbackQuery: { } callbackQuery} => _handlerContainer.MainMenuHandler.BotOnCallbackQueryReceived
+                            (_fsm, _, callbackQuery, cancellationToken),
+                        _ => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;
