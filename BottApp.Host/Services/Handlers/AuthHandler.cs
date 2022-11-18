@@ -13,12 +13,12 @@ namespace BottApp.Host.Services.Handlers
 {
     public class AuthHandler
     {
-        private async Task BotOnMessageReceivedVotes(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        private async Task BotOnMessageReceivedVotes(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await RequestContactAndLocation(botClient, message, cancellationToken);
         }
 
-        public async Task BotOnMessageReceived(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer, long AdminChatID)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, long AdminChatID)
         {
             if ((message.Contact != null))
             {
@@ -36,8 +36,10 @@ namespace BottApp.Host.Services.Handlers
                 await botClient.SendPhotoAsync(
                     chatId: AdminChatID,
                     photo: photo[0].FileId ,
-                    caption: $" Пользователь |{message.Chat.FirstName}|\n @{message.From.Username} |{message.From.Id}|\n Моб.тел. |{message.Contact.PhoneNumber}|\n Хочет авторизоваться в системе " +
-                    
+                    caption: $" Пользователь |{message.Chat.FirstName}|\n" +
+                             $" @{message.From.Username} |{message.From.Id}|\n" +
+                             $" Моб.тел. |{message.Contact.PhoneNumber}|\n" +
+                             $" Хочет авторизоваться в системе " +
                              $"{message.Caption}",
                     replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup,
                     cancellationToken: cancellationToken);

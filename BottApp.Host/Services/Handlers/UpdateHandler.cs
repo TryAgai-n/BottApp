@@ -27,8 +27,8 @@ public class UpdateHandler : IUpdateHandler
     private readonly VotesHandler _votesHandler;
     private readonly AuthHandler _authHandler;
     private readonly AdminChatHandler _adminChatHandler;
-    
-    private readonly long _adminChatID = -1001824488986;
+
+    private const long AdminChatId = -1001824488986;
 
 
     public UpdateHandler
@@ -51,17 +51,17 @@ public class UpdateHandler : IUpdateHandler
         _votesHandler = votesHandler;
         _authHandler = authHandler;
         _adminChatHandler = adminChatHandler;
-        Console.WriteLine("\n class UpdateHandler is Start\n");
+        
+        Console.WriteLine("\nUpdateHandler is Start\n");
     }
 
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
         Task? handler;
-        
         var updateMessage  = update.Message ?? update.CallbackQuery?.Message;
         
-        if (updateMessage.Chat.Id == _adminChatID)
+        if (updateMessage.Chat.Id == AdminChatId)
         {
             handler = update switch
             {
@@ -75,7 +75,7 @@ public class UpdateHandler : IUpdateHandler
         else
         {
             var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
-                                ?? 
+                                ??
                                 await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
             
             await MessageManager.SaveMessage(_databaseContainer, updateMessage);
@@ -86,7 +86,7 @@ public class UpdateHandler : IUpdateHandler
                     handler = update switch
                     {
                         {Message: { } message} => _authHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _databaseContainer, _adminChatID),
+                            (_, message, cancellationToken, AdminChatId),
                         _ => throw new Exception()
                     };
                     await handler;
