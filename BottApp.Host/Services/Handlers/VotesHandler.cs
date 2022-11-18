@@ -99,7 +99,7 @@ public class VotesHandler
         return await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
-            text: "Перходим в главное меню!",
+            text: "Главное меню",
             replyMarkup: Keyboard.MainKeyboardMarkup,
             cancellationToken: cancellationToken
         );

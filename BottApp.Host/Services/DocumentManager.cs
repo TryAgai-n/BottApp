@@ -28,7 +28,7 @@ public static class DocumentManager
         string destinationFilePath = newPath + $"/{message.Chat.FirstName}__{Guid.NewGuid().ToString("N")}__{message.Chat.Id}__{extension}";
         
         ///
-        var user = await _databaseContainer.User.FindOneByUid((int)message.Chat.Id);
+        var user = await _databaseContainer.User.FindOneByUid(message.Chat.Id);
         await _databaseContainer.Document.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath);
         ///
 
@@ -47,7 +47,7 @@ public static class DocumentManager
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
         Random rnd = new Random();
-        string filePath = @"Files/TestPicture"+rnd.Next(3)+".png";
+        string filePath = @"Files/TestPicture"+rnd.Next(5)+".jpg";
         await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
        

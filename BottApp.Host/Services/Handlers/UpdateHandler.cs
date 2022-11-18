@@ -77,8 +77,6 @@ public class UpdateHandler : IUpdateHandler
             var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
                                 ??
                                 await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
-            
-            await MessageManager.SaveMessage(_databaseContainer, updateMessage);
 
             switch (findUserByUid.OnState)
             {

@@ -140,17 +140,17 @@ public class MainMenuHandler
     #endregion
 
     #region Simple Message Mode
-    private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
-    {
-        // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-    }
 
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
+        if (message.Document != null)
+        {
+           await DocumentManager.Save(_databaseContainer, message, botClient);
+        }
+        
        await Usage(botClient, message, cancellationToken);
-        
-        
-        static async Task<Message> SendFile(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+       
+       static async Task<Message> SendFile(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await botClient.SendChatActionAsync
             (

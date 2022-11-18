@@ -30,8 +30,9 @@ namespace BottApp.Host.Services.Handlers
                     cancellationToken: cancellationToken
                 );
 
+                //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
                 var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
-                var photo = getPhotoAsync.Result.Photos[1];
+                var photo = getPhotoAsync.Result.Photos[0];
                 
                 await botClient.SendPhotoAsync(
                     chatId: AdminChatID,
@@ -61,7 +62,7 @@ namespace BottApp.Host.Services.Handlers
 
                 await Task.Delay(2000);
                 
-                await RequestContactAndLocation(botClient, message, cancellationToken);
+                //await RequestContactAndLocation(botClient, message, cancellationToken);
             }
         }
         
@@ -79,7 +80,7 @@ namespace BottApp.Host.Services.Handlers
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере =)",
+                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере.",
                 cancellationToken: cancellationToken
             );
 
@@ -88,7 +89,7 @@ namespace BottApp.Host.Services.Handlers
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Нажми на кнопку 'Поделиться контактом' ниже",
+                text: "Нажми на кнопку\n 'Поделиться контактом'",
                 replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
                 cancellationToken: cancellationToken
             );

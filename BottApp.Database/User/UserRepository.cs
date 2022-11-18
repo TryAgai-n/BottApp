@@ -33,15 +33,7 @@ namespace BottApp.Database.User
             return result;
         }
 
-        public async Task<UserModel> GetOneByUid(long uid)
-        {
-            var model = await DbModel.Where(x => x.UId == uid).FirstAsync();
-            if(model == null)
-            {
-                throw new Exception($"User with Uid: {uid} is not found");
-            }
-            return model;
-        }
+      
 
         public async Task<UserModel?> FindOneByUid(long userId)
         {
@@ -63,8 +55,7 @@ namespace BottApp.Database.User
             {
                 throw new Exception($"User on the same state. State: {onState}");
             }
-
-
+            
             model.OnState = onState;
             var result = await UpdateModelAsync(model);
 
@@ -82,6 +73,16 @@ namespace BottApp.Database.User
             var result = await UpdateModelAsync(user);
 
             return result > 0;
+        }
+        
+        public async Task<UserModel> GetOneByUid(long uid)
+        {
+            var model = await DbModel.Where(x => x.UId == uid).FirstAsync();
+            if(model == null)
+            {
+                throw new Exception($"User with Uid: {uid} is not found");
+            }
+            return model;
         }
     }
 }
