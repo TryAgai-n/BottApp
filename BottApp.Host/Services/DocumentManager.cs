@@ -47,7 +47,7 @@ public static class DocumentManager
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
         Random rnd = new Random();
-        string filePath = @"Files/TestPicture"+rnd.Next(3)+".jpg";
+        string filePath = @"Files/TestPicture"+rnd.Next(3)+".png";
         await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
        

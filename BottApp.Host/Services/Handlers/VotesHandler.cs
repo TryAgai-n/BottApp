@@ -1,4 +1,5 @@
 using BottApp.Database;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
@@ -13,7 +14,13 @@ namespace BottApp.Host.Services.Handlers;
 
 public class VotesHandler 
 {
-    
+    private readonly IDatabaseContainer _databaseContainer;
+
+    public VotesHandler(IDatabaseContainer databaseContainer)
+    {
+        _databaseContainer = databaseContainer;
+    }
+
     #region Inline Mode
 
     public static string GetTimeEmooji()
@@ -23,9 +30,7 @@ public class VotesHandler
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-
-    public static async Task<Message> TryEditMessage
-        (ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    public static async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
@@ -71,128 +76,41 @@ public class VotesHandler
         }
     }
 
-    public async Task BotOnCallbackQueryReceived(SimpleFSM FSM, ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken,  IDatabaseContainer _dbContainer)
+    public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        var guid = Guid.NewGuid().ToString("N");
 
-        if (callbackQuery.Data == "ButtonVotes")
-        {
-            FSM.SetState(UserState.Votes);
-            await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
-            return;
-        }
-        
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
             "ButtonRight" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
+                (_databaseContainer, callbackQuery, botClient, cancellationToken),
             "ButtonLeft" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
-            "ButtonRequestContact" => await InlineRequestContactAndLocation
-                (botClient, callbackQuery, cancellationToken),
-            "ButtonBack" => await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Главное меню",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
-                cancellationToken: cancellationToken
-            ),
+                (_databaseContainer, callbackQuery, botClient, cancellationToken),
+            "ButtonBack" => await BackToLastInterface(botClient, callbackQuery, cancellationToken),
 
             _ => await TryEditMessage(botClient, callbackQuery, cancellationToken)
         };
-
-
-        async Task<Message> SendInlineVotesKeyboard
-            (ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
-        {
-            await botClient.SendChatActionAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                chatAction: ChatAction.Typing,
-                cancellationToken: cancellationToken
-            );
-
-            // Simulate longer running task
-            await Task.Delay(500, cancellationToken);
-
-            await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Голосование",
-                cancellationToken: cancellationToken
-            );
-
-            return await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken);
-        }
-
-        async Task<Message> InlineRequestContactAndLocation
-            (ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
-        {
-            await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Привет! необходим твой номер телефона, чтобы я могли идентифицировать тебя.",
-                cancellationToken: cancellationToken
-            );
-
-            await Task.Delay(750);
-
-            await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере",
-                cancellationToken: cancellationToken
-            );
-
-            await Task.Delay(1500);
-
-            return await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Нажми на кнопку 'Поделиться номером' ниже",
-                replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
-                cancellationToken: cancellationToken
-            );
-        }
     }
 
-    #endregion
-
-    #region Simple Message Mode
-
-    private async Task BotOnMessageReceivedVotes
-        (ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    public async Task<Message> BackToLastInterface(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
-        await botClient.SendTextMessageAsync
+        await _databaseContainer.User.ChangeOnStateByUID(callbackQuery.Message.Chat.Id, OnState.Menu);
+        
+        return await botClient.SendTextMessageAsync
         (
-            chatId: message.Chat.Id,
-            text: "Ты в вотсе",
+            chatId: callbackQuery.Message.Chat.Id,
+            text: "Перходим в главное меню!",
+            replyMarkup: Keyboard.MainKeyboardMarkup,
             cancellationToken: cancellationToken
         );
     }
+    
+    #endregion
 
-    public async Task BotOnCallbackQueryReceivedVotes
-        (ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    #region Simple Message Mode
+    public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-    }
-
-    public async Task BotOnMessageReceived(SimpleFSM FSM,ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
-    {
-        // await MessageManager.SaveMessage(_dbContainer, message);
-        //
-        // if (message.Contact != null)
-        //     await UserManager.UpdateContact(message, botClient, cancellationToken, _dbContainer);
-        //
-        // if (await UserManager.UserPhoneHasOnDb(_dbContainer, message) == false)
-        // {
-        //     await RequestContactAndLocation(botClient, message, cancellationToken);
-        //     return;
-        // }
-
-        // _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        
         if (message.Text is not { } messageText)
             return;
 
@@ -201,14 +119,20 @@ public class VotesHandler
             _ => Usage(botClient, message, cancellationToken)
         };
         
-
         static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
+            await botClient.SendTextMessageAsync
+            (
+                chatId: message.Chat.Id,
+                text: "Хорошая попытка, но тебе нужно использовать виртуальные кнопки",
+                cancellationToken: cancellationToken
+            );
+            await Task.Delay(100);
             return await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Главное Меню",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
+                text: "Голосование",
+                replyMarkup: Keyboard.VotesKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }
@@ -233,8 +157,6 @@ public class VotesHandler
                 $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-        
-
         // Cooldown in case of network connection error
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);

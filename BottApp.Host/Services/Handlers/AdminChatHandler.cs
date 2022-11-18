@@ -42,7 +42,6 @@ namespace BottApp.Host.Services.Handlers
 
         public async Task BotOnCallbackQueryReceived
         (
-            SimpleFSM FSM,
             ITelegramBotClient? botClient,
             CallbackQuery callbackQuery,
             CancellationToken cancellationToken

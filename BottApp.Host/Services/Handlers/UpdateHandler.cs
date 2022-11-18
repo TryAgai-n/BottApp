@@ -59,32 +59,24 @@ public class UpdateHandler : IUpdateHandler
     {
         Task? handler;
         
-        var updateMessage  = update.Message;
-
-        if (updateMessage == null)
-        {
-            updateMessage = update.CallbackQuery.Message;
-        }
+        var updateMessage  = update.Message ?? update.CallbackQuery?.Message;
         
         if (updateMessage.Chat.Id == _adminChatID)
         {
             handler = update switch
             {
-                {Message: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _databaseContainer),
-                {EditedMessage: { } message} => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken, _databaseContainer),
-                {CallbackQuery: { } callbackQuery} => _adminChatHandler.BotOnCallbackQueryReceived
-                    (_fsm, _, callbackQuery, cancellationToken),
-                _ => _adminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                {Message: { } message}             => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {EditedMessage: { } message}       => _adminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {CallbackQuery: { } callbackQuery} => _adminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken),
+                _                                  => _adminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
             await handler;
         }
         else
         {
-            var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id);
-            if (findUserByUid == null)
-            {
-                findUserByUid = await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
-            }
+            var findUserByUid = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
+                                ?? 
+                                await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
             
             await MessageManager.SaveMessage(_databaseContainer, updateMessage);
 
@@ -104,11 +96,11 @@ public class UpdateHandler : IUpdateHandler
                     handler = update switch
                     {
                         {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _databaseContainer),
+                            (_, message, cancellationToken),
                         {EditedMessage: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _databaseContainer),
+                            (_, message, cancellationToken),
                         {CallbackQuery: { } callbackQuery} => _mainMenuHandler.BotOnCallbackQueryReceived
-                            (_fsm, _, callbackQuery, cancellationToken, _databaseContainer),
+                            (_, callbackQuery, cancellationToken),
                         _ => _mainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
@@ -117,13 +109,13 @@ public class UpdateHandler : IUpdateHandler
                 case OnState.Votes:
                     handler = update switch
                     {
-                        {Message: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _databaseContainer),
-                        {EditedMessage: { } message} => _mainMenuHandler.BotOnMessageReceived
-                            (_fsm, _, message, cancellationToken, _databaseContainer),
-                        {CallbackQuery: { } callbackQuery} => _mainMenuHandler.BotOnCallbackQueryReceived
-                            (_fsm, _, callbackQuery, cancellationToken, _databaseContainer),
-                        _ => _mainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                        {Message: { } message} => _votesHandler.BotOnMessageReceived
+                            (_, message, cancellationToken),
+                        {EditedMessage: { } message} => _votesHandler.BotOnMessageReceived
+                            (_, message, cancellationToken),
+                        {CallbackQuery: { } callbackQuery} => _votesHandler.BotOnCallbackQueryReceived
+                            (_, callbackQuery, cancellationToken),
+                        _ => _votesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;
@@ -141,8 +133,6 @@ public class UpdateHandler : IUpdateHandler
             _ => exception.ToString()
         };
         
-
-        // Cooldown in case of network connection error
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }

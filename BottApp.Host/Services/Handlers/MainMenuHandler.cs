@@ -1,4 +1,5 @@
 ﻿using BottApp.Database;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
@@ -12,7 +13,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace BottApp.Host.Services.Handlers;
 
 public class MainMenuHandler 
-{
+{  private readonly IDatabaseContainer _databaseContainer;
+    
+    public MainMenuHandler(IDatabaseContainer databaseContainer)
+    {
+        _databaseContainer = databaseContainer;
+    }
     
     #region Inline Mode
 
@@ -24,8 +30,7 @@ public class MainMenuHandler
         return preparedString;
     }
 
-    public static async Task<Message> TryEditMessage
-        (ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    public static async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
@@ -73,27 +78,22 @@ public class MainMenuHandler
 
     public async Task BotOnCallbackQueryReceived
     (
-        SimpleFSM FSM, ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken,
-        IDatabaseContainer _dbContainer
+        ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken
     )
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
        // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
 
        if (callbackQuery.Data == "ButtonVotes")
-        {
-            FSM.SetState(UserState.Votes);
-            await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
-            return;
+       {
+           await _databaseContainer.User.ChangeOnStateByUID(callbackQuery.Message.Chat.Id, OnState.Votes);
+           
+           await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
+           return;
         }
 
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
-            "ButtonRight" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
-            "ButtonLeft" => await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken),
-            
             "ButtonHi" => await botClient.SendTextMessageAsync
             (
                 chatId: -1001824488986,
@@ -133,7 +133,7 @@ public class MainMenuHandler
             );
 
             return await DocumentManager.SendVotesDocument
-                (_dbContainer, callbackQuery, botClient, cancellationToken);
+                (_databaseContainer, callbackQuery, botClient, cancellationToken);
         }
     }
 
@@ -145,13 +145,12 @@ public class MainMenuHandler
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
     }
 
-    public async Task BotOnMessageReceived(SimpleFSM FSM,ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _dbContainer)
+    public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
        await Usage(botClient, message, cancellationToken);
         
         
-        static async Task<Message> SendFile
-            (ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        static async Task<Message> SendFile(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await botClient.SendChatActionAsync
             (
