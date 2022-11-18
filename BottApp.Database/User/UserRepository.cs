@@ -70,5 +70,18 @@ namespace BottApp.Database.User
 
             return result > 0;
         }
+        
+        public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
+        {
+            var user = await GetOneByUid(uid);
+            
+            if (user.OnState == onState) 
+                throw new Exception($"User on the same state. State: {onState}");
+            
+            user.OnState = onState;
+            var result = await UpdateModelAsync(user);
+
+            return result > 0;
+        }
     }
 }

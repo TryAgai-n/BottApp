@@ -14,5 +14,7 @@ namespace BottApp.Database.User
         Task<bool> UpdateUserPhone(UserModel model, string phone);
 
         Task<bool> ChangeOnState(UserModel model, OnState onState);
+        
+        Task<bool> ChangeOnStateByUID(long uid, OnState onState);
     }
 }
