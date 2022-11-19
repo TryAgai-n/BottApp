@@ -9,7 +9,7 @@ using Telegram.Bot.Types.InputFiles;
 
 namespace BottApp.Host.Services;
 
-public class DocumentManager
+public  class DocumentManager
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentRepository _documentRepository;

@@ -9,7 +9,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 {
     public class AuthHandler : IAuthHandler
     {
-        public async Task BotOnMessageReceivedVotes(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        public async Task BotOnMessageReceivedVotes(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await RequestContactAndLocation(botClient, message, cancellationToken);
         }

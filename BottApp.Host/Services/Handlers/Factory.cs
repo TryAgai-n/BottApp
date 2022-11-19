@@ -13,7 +13,7 @@ public static class Factory
         return new HandlerContainer(
             new AdminChatHandler(databaseContainer.User),
             new AuthHandler(),
-            new MainMenuHandler(),
+            new MainMenuHandler(databaseContainer.User, new DocumentManager(databaseContainer.User, databaseContainer.Document)),
             new VotesHandler()
             
         );

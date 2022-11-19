@@ -61,13 +61,13 @@ public class VotesHandler : IVotesHandler
 
 
     public async Task BotOnCallbackQueryReceived(
-        SimpleFSM FSM,
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
     )
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
+      
 
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
@@ -155,7 +155,6 @@ public class VotesHandler : IVotesHandler
 
 
     public async Task BotOnMessageReceived(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken

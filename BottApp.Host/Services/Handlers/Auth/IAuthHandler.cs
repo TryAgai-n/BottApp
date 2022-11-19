@@ -7,7 +7,6 @@ namespace BottApp.Host.Services.Handlers.Auth;
 public interface IAuthHandler
 {
     Task BotOnMessageReceivedVotes(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken
@@ -15,7 +14,6 @@ public interface IAuthHandler
 
 
     Task BotOnMessageReceived(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken,

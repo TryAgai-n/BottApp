@@ -17,7 +17,6 @@ public interface IMainMenuHandler
 
 
     Task BotOnCallbackQueryReceived(
-        SimpleFSM FSM,
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
@@ -25,7 +24,6 @@ public interface IMainMenuHandler
 
 
     Task BotOnMessageReceived(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken
@@ -40,7 +38,4 @@ public interface IMainMenuHandler
         Exception exception,
         CancellationToken cancellationToken
     );
-    
-    
-
 }

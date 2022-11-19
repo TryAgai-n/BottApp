@@ -72,7 +72,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             var approveId = Convert.ToInt64(subs[3]);
             var approvePhone = subs[5]; 
           
-            var findUserByUid = await _userRepository.FindOneByUid(approveID);
+            var findUserByUid = await _userRepository.FindOneByUid(approveId);
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
             
