@@ -9,12 +9,12 @@ namespace BottApp.Host.Services.Handlers.Auth
 {
     public class AuthHandler : IAuthHandler
     {
-        public async Task BotOnMessageReceivedVotes(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        public async Task BotOnMessageReceivedVotes(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             await RequestContactAndLocation(botClient, message, cancellationToken);
         }
 
-        public async Task BotOnMessageReceived(SimpleFSM FSM, ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, long AdminChatID)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, long AdminChatID)
         {
             if ((message.Contact != null))
             {
@@ -26,14 +26,17 @@ namespace BottApp.Host.Services.Handlers.Auth
                     cancellationToken: cancellationToken
                 );
 
+                //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
                 var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
-                var photo = getPhotoAsync.Result.Photos[1];
+                var photo = getPhotoAsync.Result.Photos[0];
                 
                 await botClient.SendPhotoAsync(
                     chatId: AdminChatID,
                     photo: photo[0].FileId ,
-                    caption: $" Пользователь |{message.Chat.FirstName}|\n @{message.From.Username} |{message.From.Id}|\n Моб.тел. |{message.Contact.PhoneNumber}|\n Хочет авторизоваться в системе " +
-                    
+                    caption: $" Пользователь |{message.Chat.FirstName}|\n" +
+                             $" @{message.From.Username} |{message.From.Id}|\n" +
+                             $" Моб.тел. |{message.Contact.PhoneNumber}|\n" +
+                             $" Хочет авторизоваться в системе " +
                              $"{message.Caption}",
                     replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup,
                     cancellationToken: cancellationToken);
@@ -55,7 +58,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await Task.Delay(2000);
                 
-                await RequestContactAndLocation(botClient, message, cancellationToken);
+                //await RequestContactAndLocation(botClient, message, cancellationToken);
             }
         }
         
@@ -73,7 +76,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере =)",
+                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере.",
                 cancellationToken: cancellationToken
             );
 
@@ -82,7 +85,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Нажми на кнопку 'Поделиться контактом' ниже",
+                text: "Нажми на кнопку\n 'Поделиться контактом'",
                 replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
                 cancellationToken: cancellationToken
             );

@@ -9,7 +9,7 @@ using Telegram.Bot.Types.InputFiles;
 
 namespace BottApp.Host.Services;
 
-public class DocumentManager
+public  class DocumentManager
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentRepository _documentRepository;
@@ -60,7 +60,7 @@ public class DocumentManager
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
         Random rnd = new Random();
-        string filePath = @"Files/TestPicture"+rnd.Next(3)+".jpg";
+        string filePath = @"Files/TestPicture"+rnd.Next(5)+".jpg";
         await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
        

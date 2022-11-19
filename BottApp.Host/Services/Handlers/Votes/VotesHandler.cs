@@ -60,21 +60,13 @@ public class VotesHandler : IVotesHandler
 
 
     public async Task BotOnCallbackQueryReceived(
-        SimpleFSM FSM,
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
     )
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        var guid = Guid.NewGuid().ToString("N");
-
-        if (callbackQuery.Data == "ButtonVotes")
-        {
-            FSM.SetState(UserState.Votes);
-            await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
-            return;
-        }
+      
 
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
@@ -166,7 +158,6 @@ public class VotesHandler : IVotesHandler
 
 
     public async Task BotOnMessageReceived(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken

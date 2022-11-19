@@ -1,4 +1,5 @@
 ﻿using BottApp.Database;
+using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using BottApp.Host.Services.Handlers;
@@ -55,7 +56,6 @@ namespace BottApp.Host
 
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
-            
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
             services.AddScoped<IHandlerContainer>(x => Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
 

@@ -37,31 +37,17 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     cancellationToken: cancellationToken
                 );
             }
-            // else
-            // {
-            //     await botClient.SendTextMessageAsync
-            //     (
-            //         chatId: message.Chat.Id,
-            //         text: "Что-то пошло не так :( Давай попробуем еще раз?. Напишите \n /start",
-            //         cancellationToken: cancellationToken
-            //     );
-            //
-            //     await Task.Delay(2000);
-            // }
         }
 
         public async Task BotOnCallbackQueryReceived
         (
-            SimpleFSM FSM,
             ITelegramBotClient? botClient,
             CallbackQuery callbackQuery,
             CancellationToken cancellationToken
         )
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-            // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
-
-
+            
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
                 "ButtonApprove" => await Approve(botClient, callbackQuery, cancellationToken),
@@ -81,35 +67,24 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 text: "Заявка принята",
                 cancellationToken: cancellationToken
             );
-
-            string s = callbackQuery.Message.Caption;
-
-            string[] subs = s.Split('|');
-            string[] DotSubs = s.Split('.');
-
-            foreach (var sub in subs)
-            {
-                Console.WriteLine($"Substring: {sub}");
-            }
             
-            long approveID = Convert.ToInt64(subs[3]); 
-            var approveFirstName = subs[1]; 
+            var subs = callbackQuery.Message.Caption.Split('|');
+            var approveId = Convert.ToInt64(subs[3]);
             var approvePhone = subs[5]; 
           
-            var findUserByUid = await _userRepository.FindOneByUid(approveID);
+            var findUserByUid = await _userRepository.FindOneByUid(approveId);
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
             
             return await botClient.SendTextMessageAsync
             (
-                chatId: approveID,
+                chatId: approveId,
                 text: "Вы авторизованы!",
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
             
         }
-        
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
               await botClient.SendTextMessageAsync
@@ -119,34 +94,13 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 cancellationToken: cancellationToken
             );
               
-            var declineID = 875152571; //ToDo: Нужна логика обработки ID юзера из callbackQuery.Message.Caption
+              var subs = callbackQuery.Message.Caption.Split('|');
+              var declineId = Convert.ToInt64(subs[3]);
             
             return await botClient.SendTextMessageAsync
             (
-                chatId: declineID,
+                chatId: declineId,
                 text: "Вы не авторизованы в системе, попробуйте позже!",
-                cancellationToken: cancellationToken
-            );
-        }
-        
-        public async Task AuthComplete(SimpleFSM FSM, ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken)
-        {
-            FSM.SetState(UserState.Menu);
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Вы авторизованы!",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken
-            );
-                
-            await Task.Delay(1000);
-                
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Главное Меню",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }

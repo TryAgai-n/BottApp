@@ -11,7 +11,6 @@ public interface IAdminChatHandler
     Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken);
 
     Task BotOnCallbackQueryReceived(
-        SimpleFSM FSM,
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
@@ -28,14 +27,6 @@ public interface IAdminChatHandler
     Task<Message> Decline(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    );
-
-
-    Task AuthComplete(
-        SimpleFSM FSM,
-        ITelegramBotClient botClient,
-        Message? message,
         CancellationToken cancellationToken
     );
 }

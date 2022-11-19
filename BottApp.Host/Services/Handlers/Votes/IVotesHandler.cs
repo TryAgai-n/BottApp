@@ -17,7 +17,6 @@ public interface IVotesHandler
 
 
     Task BotOnCallbackQueryReceived(
-        SimpleFSM FSM,
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
@@ -35,7 +34,6 @@ public interface IVotesHandler
 
 
     Task BotOnMessageReceived(
-        SimpleFSM FSM,
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken
