@@ -11,11 +11,17 @@ public static class Factory
     public static IHandlerContainer Create(IDatabaseContainer databaseContainer)
     {
         return new HandlerContainer(
+
             new AdminChatHandler(databaseContainer.User),
+
             new AuthHandler(),
-            new MainMenuHandler(databaseContainer.User, new DocumentManager(databaseContainer.User, databaseContainer.Document)),
-            new VotesHandler()
-            
+
+            new MainMenuHandler(databaseContainer.User,
+                new DocumentManager(databaseContainer.User, databaseContainer.Document)),
+
+            new VotesHandler(databaseContainer.User,
+                new DocumentManager(databaseContainer.User, databaseContainer.Document))
+
         );
     }
 }

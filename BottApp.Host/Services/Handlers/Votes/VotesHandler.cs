@@ -1,29 +1,36 @@
 using BottApp.Database;
+using BottApp.Database.User;
 using BottApp.Host.Keyboards;
+using BottApp.Host.Services.Handlers.MainMenu;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using OnState = BottApp.Client.Payload.User.OnState;
 
 namespace BottApp.Host.Services.Handlers.Votes;
 
 public class VotesHandler : IVotesHandler
 {
-    public string GetTimeEmooji()
+    private readonly IUserRepository _userRepository;
+    private readonly DocumentManager _documentManager;
+    private IVotesHandler _votesHandlerImplementation;
+
+    public VotesHandler(IUserRepository userRepository, DocumentManager documentManager)
+    {
+        _userRepository = userRepository;
+        _documentManager = documentManager;
+    }
+
+  public string GetTimeEmooji()
     {
         string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ",};
         var rand = new Random();
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-
-
-    public async Task<Message> TryEditMessage(
-        ITelegramBotClient? botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    )
+    public async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
@@ -34,147 +41,72 @@ public class VotesHandler : IVotesHandler
         {
             try
             {
-                return await botClient.EditMessageTextAsync(
-                    chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId, text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+                return await botClient.EditMessageTextAsync
+                (
+                    chatId: callbackQuery.Message.Chat.Id,
+                    messageId: callbackQuery.Message.MessageId,
+                    text: editText,
+                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    cancellationToken: cancellationToken
                 );
             }
             catch
             {
                 editText = viewText + GetTimeEmooji();
 
-                return await botClient.EditMessageTextAsync(
-                    chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId, text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+                return await botClient.EditMessageTextAsync
+                (
+                    chatId: callbackQuery.Message.Chat.Id,
+                    messageId: callbackQuery.Message.MessageId,
+                    text: editText,
+                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    cancellationToken: cancellationToken
                 );
             }
         }
         catch (Exception e)
         {
-            return await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id, text: viewExceptionText + "\n" + e,
-                replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+            return await botClient.SendTextMessageAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                text: viewExceptionText + "\n" + e,
+                replyMarkup: Keyboard.MainKeyboardMarkup,
+                cancellationToken: cancellationToken
             );
         }
     }
 
-
-    public async Task BotOnCallbackQueryReceived(
-        ITelegramBotClient? botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    )
+    public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-      
 
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
             "ButtonRight" => await DocumentManager.SendVotesDocument(callbackQuery, botClient, cancellationToken),
-            "ButtonLeft" => await DocumentManager.SendVotesDocument(callbackQuery, botClient, cancellationToken),
-            "ButtonRequestContact" => await InlineRequestContactAndLocation(
-                botClient, callbackQuery, cancellationToken
-            ),
-            "ButtonBack" => await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboardMarkup,
-                cancellationToken: cancellationToken
-            ),
+            "ButtonLeft" => await DocumentManager.SendVotesDocument (callbackQuery, botClient, cancellationToken),
+            "ButtonBack" => await BackToLastInterface(botClient, callbackQuery, cancellationToken),
 
             _ => await TryEditMessage(botClient, callbackQuery, cancellationToken)
         };
-
-
-        async Task<Message> SendInlineVotesKeyboard(
-            ITelegramBotClient botClient,
-            CallbackQuery callbackQuery,
-            CancellationToken cancellationToken
-        )
-        {
-            await botClient.SendChatActionAsync(
-                chatId: callbackQuery.Message.Chat.Id, chatAction: ChatAction.Typing,
-                cancellationToken: cancellationToken
-            );
-
-            // Simulate longer running task
-            await Task.Delay(500, cancellationToken);
-
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id, text: "Голосование", cancellationToken: cancellationToken
-            );
-
-            return await DocumentManager.SendVotesDocument(callbackQuery, botClient, cancellationToken);
-        }
-
-        async Task<Message> InlineRequestContactAndLocation(
-            ITelegramBotClient botClient,
-            CallbackQuery callbackQuery,
-            CancellationToken cancellationToken
-        )
-        {
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Привет! необходим твой номер телефона, чтобы я могли идентифицировать тебя.",
-                cancellationToken: cancellationToken
-            );
-
-            await Task.Delay(750);
-
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере",
-                cancellationToken: cancellationToken
-            );
-
-            await Task.Delay(1500);
-
-            return await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id, text: "Нажми на кнопку 'Поделиться номером' ниже",
-                replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
-            );
-        }
     }
+    
 
-
-    public async Task BotOnMessageReceivedVotes(
-        ITelegramBotClient botClient,
-        Message message,
-        CancellationToken cancellationToken
-    )
+    public async Task<Message> BackToLastInterface(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
-        await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Ты в вотсе", cancellationToken: cancellationToken
+       // await _userRepository.(callbackQuery.Message.Chat.Id, OnState.Menu);
+        
+        return await botClient.SendTextMessageAsync
+        (
+            chatId: callbackQuery.Message.Chat.Id,
+            text: "Переходим в главное меню!",
+            replyMarkup: Keyboard.MainKeyboardMarkup,
+            cancellationToken: cancellationToken
         );
     }
-
-
-    public async Task BotOnCallbackQueryReceivedVotes(
-        ITelegramBotClient? botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    )
+    
+    public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-    }
-
-
-    public async Task BotOnMessageReceived(
-        ITelegramBotClient botClient,
-        Message message,
-        CancellationToken cancellationToken
-    )
-    {
-        // await MessageManager.SaveMessage(_dbContainer, message);
-        //
-        // if (message.Contact != null)
-        //     await UserManager.UpdateContact(message, botClient, cancellationToken, _dbContainer);
-        //
-        // if (await UserManager.UserPhoneHasOnDb(_dbContainer, message) == false)
-        // {
-        //     await RequestContactAndLocation(botClient, message, cancellationToken);
-        //     return;
-        // }
-
-        // _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        
         if (message.Text is not { } messageText)
             return;
 
@@ -182,21 +114,26 @@ public class VotesHandler : IVotesHandler
         {
             _ => Usage(botClient, message, cancellationToken)
         };
-
-
-        static async Task<Message> Usage(
-            ITelegramBotClient botClient,
-            Message message,
-            CancellationToken cancellationToken
-        )
+        
+        static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            return await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id, text: "Главное Меню", replyMarkup: Keyboard.MainKeyboardMarkup,
+            await botClient.SendTextMessageAsync
+            (
+                chatId: message.Chat.Id,
+                text: "Хорошая попытка, но тебе нужно использовать виртуальные кнопки",
+                cancellationToken: cancellationToken
+            );
+            await Task.Delay(100);
+            return await botClient.SendTextMessageAsync
+            (
+                chatId: message.Chat.Id,
+                text: "Голосование",
+                replyMarkup: Keyboard.VotesKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }
     }
-
+    
 
     public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {
@@ -204,12 +141,8 @@ public class VotesHandler : IVotesHandler
         return Task.CompletedTask;
     }
 
-
-    public async Task HandlePollingErrorAsync(
-        ITelegramBotClient botClient,
-        Exception exception,
-        CancellationToken cancellationToken
-    )
+    public async Task HandlePollingErrorAsync
+        (ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var ErrorMessage = exception switch
         {
@@ -217,8 +150,6 @@ public class VotesHandler : IVotesHandler
                 $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-
-
         // Cooldown in case of network connection error
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);

@@ -22,17 +22,6 @@ public interface IVotesHandler
         CancellationToken cancellationToken
     );
 
-
-    Task BotOnMessageReceivedVotes(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken);
-
-
-    Task BotOnCallbackQueryReceivedVotes(
-        ITelegramBotClient? botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    );
-
-
     Task BotOnMessageReceived(
         ITelegramBotClient botClient,
         Message message,
