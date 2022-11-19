@@ -33,7 +33,17 @@ namespace BottApp.Database.User
             return result;
         }
 
-      
+
+        public async Task<UserModel> GetOneByUid(long uid)
+        {
+            var model = await DbModel.Where(x => x.UId == uid).FirstAsync();
+            if(model == null)
+            {
+                throw new Exception($"User with Uid: {uid} is not found");
+            }
+            return model;
+        }
+
 
         public async Task<UserModel?> FindOneByUid(long userId)
         {

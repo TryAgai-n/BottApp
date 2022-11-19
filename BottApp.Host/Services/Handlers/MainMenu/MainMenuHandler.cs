@@ -80,9 +80,10 @@ public class MainMenuHandler : IMainMenuHandler
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
         // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
 
+        var user = await _userRepository.GetOneByUid(callbackQuery.Message.Chat.Id);
         if (callbackQuery.Data == "ButtonVotes")
         {
-            await _userRepository.ChangeOnStateByUID(callbackQuery.Message.Chat.Id, OnState.Votes);
+            await _userRepository.ChangeOnState(user, OnState.Votes);
 
             await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
             return;
