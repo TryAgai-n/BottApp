@@ -28,6 +28,11 @@ public interface IVotesHandler
         CancellationToken cancellationToken
     );
 
+    Task<Message> BackToLastInterface(
+        ITelegramBotClient botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken);
+
 
     Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
 

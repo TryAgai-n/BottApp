@@ -15,8 +15,6 @@ public class VotesHandler : IVotesHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly DocumentManager _documentManager;
-    private IVotesHandler _votesHandlerImplementation;
-
     public VotesHandler(IUserRepository userRepository, DocumentManager documentManager)
     {
         _userRepository = userRepository;
@@ -93,7 +91,8 @@ public class VotesHandler : IVotesHandler
 
     public async Task<Message> BackToLastInterface(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
-       // await _userRepository.(callbackQuery.Message.Chat.Id, OnState.Menu);
+        //ToDo: Аккуратно реализовать смену состояния Юзера используя S из SOLID
+        // await _userRepository.(callbackQuery.Message.Chat.Id, OnState.Menu);
         
         return await botClient.SendTextMessageAsync
         (
