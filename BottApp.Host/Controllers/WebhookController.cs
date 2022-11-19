@@ -5,6 +5,8 @@ using Telegram.Bot.Types;
 
 namespace BottApp.Host.Controllers;
 
+[ApiController]
+[Route("bot/5436952910:AAFPumwqjaZsT-IKybbvcxIUxVpdVrzFth4/[controller]/[action]")]
 public class WebhookController : AbstractBaseController<WebhookController>
 {
     public WebhookController(ILogger<WebhookController> logger) : base(logger)
@@ -12,11 +14,9 @@ public class WebhookController : AbstractBaseController<WebhookController>
     }
     
     
-    // [HttpPost]
-    // public async Task<IActionResult> Post([FromServices] HandleUpdateService handleUpdateService,
-                                          // [FromBody] Update update)
-    // {
-        // await handleUpdateService.EchoAsync(update);
-        // return Ok();
-    // }
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] Update update)
+    {
+        return Ok();
+    }
 }
