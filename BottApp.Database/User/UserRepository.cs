@@ -55,8 +55,7 @@ namespace BottApp.Database.User
             {
                 throw new Exception($"User on the same state. State: {onState}");
             }
-
-
+            
             model.OnState = onState;
             var result = await UpdateModelAsync(model);
 

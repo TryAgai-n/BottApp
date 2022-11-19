@@ -1,5 +1,4 @@
 using BottApp.Database;
-using BottApp.Database.User;
 using BottApp.Host.Keyboards;
 using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
@@ -146,9 +145,13 @@ public class VotesHandler : IVotesHandler
             chatId: message.Chat.Id, text: "Ты в вотсе", cancellationToken: cancellationToken
         );
     }
-    
-    #endregion
 
+
+    public async Task BotOnCallbackQueryReceivedVotes(
+        ITelegramBotClient? botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken
+    )
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
     }
@@ -170,8 +173,8 @@ public class VotesHandler : IVotesHandler
         //     await RequestContactAndLocation(botClient, message, cancellationToken);
         //     return;
         // }
-    {
-        
+
+        // _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         if (message.Text is not { } messageText)
             return;
 
