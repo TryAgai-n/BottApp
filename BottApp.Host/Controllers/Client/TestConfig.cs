@@ -1,5 +1,7 @@
 using System;
 using BottApp.Client.Bot;
+using BottApp.Client.Payload.User;
+using BottApp.Client.User;
 using BottApp.Database;
 using BottApp.Host.Configs;
 using Microsoft.AspNetCore.Mvc;
@@ -31,8 +33,19 @@ public class TestConfig : AbstractClientController<TestConfig>
     public async Task<BotUpdate.Response> CreateUser([FromBody] BotUpdate request)
     {
         var user = await _databaseContainer.User.FindOneByUid((int) request.Message.Chat.Id);
-
-
+        
+        
+        
         return new BotUpdate.Response();
     }
+
+    // [HttpGet]
+    // [ProducesResponseType(typeof(GetOne.Response), 200)]
+    // public async Task<GetOne.Response> CreateUser([FromBody] GetOne request)
+    // {
+        
+        // var user = await _databaseContainer.User.FindOneByUid((int) request.Update.Message.Chat.Id);
+        //
+        // return new GetOne.Response(user);
+    // }
 }

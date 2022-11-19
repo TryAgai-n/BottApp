@@ -4,7 +4,6 @@ using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 
 namespace BottApp.Host.Services.Handlers;
@@ -40,13 +39,8 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
     {
         Task? handler;
         
-        var updateMessage  = update.Message;
+        var updateMessage  = update.Message ?? update.CallbackQuery.Message;
 
-        if (updateMessage == null)
-        {
-            updateMessage = update.CallbackQuery.Message;
-        }
-        
         if (updateMessage.Chat.Id == _adminChatID)
         {
             handler = update switch
