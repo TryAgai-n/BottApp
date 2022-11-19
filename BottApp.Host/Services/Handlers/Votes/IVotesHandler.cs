@@ -28,7 +28,7 @@ public interface IVotesHandler
         CancellationToken cancellationToken
     );
 
-    Task<Message> BackToLastInterface(
+    Task<Message> BackMainMenuInterface(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken);

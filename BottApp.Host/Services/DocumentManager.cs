@@ -53,24 +53,12 @@ public  class DocumentManager
         await _botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
     }
 
-    public static async Task<Message> SendVotesDocument(CallbackQuery callbackQuery, ITelegramBotClient _botClient, CancellationToken cancellationToken)
+    public static async Task<InputOnlineFile> GetOneCandidatePicture()
     {
-        await _botClient.SendChatActionAsync(
-            callbackQuery.Message.Chat.Id,
-            ChatAction.UploadPhoto,
-            cancellationToken: cancellationToken);
         Random rnd = new Random();
         string filePath = @"Files/TestPicture"+rnd.Next(5)+".jpg";
         await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
-       
-
-        return await _botClient.SendPhotoAsync(
-            chatId: callbackQuery.Message.Chat.Id,
-            photo: new InputOnlineFile(fileStream, fileName),
-            caption: "Голосуем за кандидата?",
-            replyMarkup: Keyboard.VotesKeyboardMarkup,
-            cancellationToken: cancellationToken);
-   
+        return new InputOnlineFile(fileStream, fileName);
     }
 }

@@ -81,10 +81,10 @@ public class MainMenuHandler : IMainMenuHandler
         // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
 
         var user = await _userRepository.GetOneByUid(callbackQuery.Message.Chat.Id);
+        
         if (callbackQuery.Data == "ButtonVotes")
         {
             await _userRepository.ChangeOnState(user, OnState.Votes);
-
             await SendInlineVotesKeyboard(botClient, callbackQuery, cancellationToken);
             return;
         }
@@ -102,27 +102,32 @@ public class MainMenuHandler : IMainMenuHandler
 
             _ => await TryEditMessage(botClient, callbackQuery, cancellationToken)
         };
-
-
+        
         async Task<Message> SendInlineVotesKeyboard(
             ITelegramBotClient botClient,
             CallbackQuery callbackQuery,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
+
+
+            await botClient.DeleteMessageAsync(
+                chatId: callbackQuery.Message.Chat.Id,
+                messageId: callbackQuery.Message.MessageId,
+                cancellationToken: cancellationToken);
+          
+            
             await botClient.SendChatActionAsync(
                 chatId: callbackQuery.Message.Chat.Id, chatAction: ChatAction.Typing,
                 cancellationToken: cancellationToken
             );
 
-            // Simulate longer running task
-            await Task.Delay(500, cancellationToken);
-
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id, text: "Голосование", cancellationToken: cancellationToken
+            return await botClient.SendTextMessageAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id, 
+                text: "Меню: Голосование", 
+                replyMarkup: Keyboard.MainVotesKeyboardMarkup,
+                cancellationToken: cancellationToken
             );
-
-            return await DocumentManager.SendVotesDocument(callbackQuery, botClient, cancellationToken);
         }
     }
 

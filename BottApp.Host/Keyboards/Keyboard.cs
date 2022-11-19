@@ -11,24 +11,46 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Votes", "ButtonVotes"),
-                InlineKeyboardButton.WithCallbackData("Say Hi", "ButtonHi"),
+                InlineKeyboardButton.WithCallbackData("Голосование 🗳 ", "ButtonVotes"),
+                InlineKeyboardButton.WithCallbackData("Сказать привет ✋ ", "ButtonHi"),
                 
             },
             // second row
             new []
             {
+                InlineKeyboardButton.WithCallbackData("Help❕ ", "ButtonHelp"),
+            },
+        });
+    public static InlineKeyboardMarkup MainVotesKeyboardMarkup = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Оставить голос", "ButtontGiveAVote"),
+                
+            },
+            // second row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Добавить своего кандидата", "ButtonAddCandidate"),
+            },
+            // third row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
                 InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
             },
         });
+    
     public static InlineKeyboardMarkup VotesKeyboardMarkup = new(
         new[]
         {
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("<", "ButtonLeft"),
-                InlineKeyboardButton.WithCallbackData(">", "ButtonRight"),
+                InlineKeyboardButton.WithCallbackData("< ", "ButtonLeft"),
+                InlineKeyboardButton.WithCallbackData(" >", "ButtonRight"),
             },
             // second row
             new []
@@ -38,7 +60,7 @@ public class Keyboard
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
+                InlineKeyboardButton.WithCallbackData("Back", "ButtonBackToVotes"),
                 InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
             },
         });
@@ -59,16 +81,12 @@ public class Keyboard
         new[]
         {
             KeyboardButton.WithRequestContact("Поделиться контактом"),})
-           // KeyboardButton.WithRequestLocation("Location"),})
 
-    {
+   {
         ResizeKeyboard = true,
         //OneTimeKeyboard = true
     };
-        
-       
-    
-    
+   
     public const string usage = "Usage:\n" +
                          "/votes       - send votes keyboard\n" +
                          "/keyboard    - send custom keyboard\n" +

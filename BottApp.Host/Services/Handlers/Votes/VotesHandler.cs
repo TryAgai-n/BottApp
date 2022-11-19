@@ -1,13 +1,11 @@
-using BottApp.Database;
 using BottApp.Database.User;
 using BottApp.Host.Keyboards;
-using BottApp.Host.Services.Handlers.MainMenu;
-using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using OnState = BottApp.Client.Payload.User.OnState;
+using Telegram.Bot.Types.InputFiles;
+
 
 namespace BottApp.Host.Services.Handlers.Votes;
 
@@ -15,6 +13,7 @@ public class VotesHandler : IVotesHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly DocumentManager _documentManager;
+    private List<int> _deleteMessageList = new List<int>();
     public VotesHandler(IUserRepository userRepository, DocumentManager documentManager)
     {
         _userRepository = userRepository;
@@ -44,7 +43,7 @@ public class VotesHandler : IVotesHandler
                     chatId: callbackQuery.Message.Chat.Id,
                     messageId: callbackQuery.Message.MessageId,
                     text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    replyMarkup: Keyboard.MainVotesKeyboardMarkup,
                     cancellationToken: cancellationToken
                 );
             }
@@ -57,7 +56,7 @@ public class VotesHandler : IVotesHandler
                     chatId: callbackQuery.Message.Chat.Id,
                     messageId: callbackQuery.Message.MessageId,
                     text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup,
+                    replyMarkup: Keyboard.MainVotesKeyboardMarkup,
                     cancellationToken: cancellationToken
                 );
             }
@@ -80,29 +79,36 @@ public class VotesHandler : IVotesHandler
 
         var action = callbackQuery.Data.Split(' ')[0] switch
         {
-            "ButtonRight" => await DocumentManager.SendVotesDocument(callbackQuery, botClient, cancellationToken),
-            "ButtonLeft" => await DocumentManager.SendVotesDocument (callbackQuery, botClient, cancellationToken),
-            "ButtonBack" => await BackToLastInterface(botClient, callbackQuery, cancellationToken),
+            "ButtonRight" => await NextCandidate(botClient, callbackQuery, cancellationToken),
+            "ButtonLeft" => await NextCandidate(botClient, callbackQuery, cancellationToken),
+            "ButtonBack" => await BackMainMenuInterface(botClient, callbackQuery, cancellationToken),
+            "ButtonBackToVotes" => await ButtonBackToVotes(botClient, callbackQuery, cancellationToken),
+            "ButtonAddCandidate" => await AddCandidate(botClient, callbackQuery, cancellationToken),
+            "ButtontGiveAVote" => await GiveAVote(botClient, callbackQuery, cancellationToken),
 
             _ => await TryEditMessage(botClient, callbackQuery, cancellationToken)
         };
     }
     
-
-    public async Task<Message> BackToLastInterface(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    public async Task<Message> BackMainMenuInterface(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
-        //ToDo: Аккуратно реализовать смену состояния Юзера используя S из SOLID
-        // await _userRepository.(callbackQuery.Message.Chat.Id, OnState.Menu);
         
+        var user = await _userRepository.GetOneByUid(callbackQuery.Message.Chat.Id);
+        await _userRepository.ChangeOnState(user, OnState.Menu);
+        
+        await botClient.DeleteMessageAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            messageId: callbackQuery.Message.MessageId,
+            cancellationToken: cancellationToken);
+
         return await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
-            text: "Переходим в главное меню!",
+            text: "Главное меню",
             replyMarkup: Keyboard.MainKeyboardMarkup,
             cancellationToken: cancellationToken
         );
     }
-    
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         
@@ -127,21 +133,17 @@ public class VotesHandler : IVotesHandler
             (
                 chatId: message.Chat.Id,
                 text: "Голосование",
-                replyMarkup: Keyboard.VotesKeyboardMarkup,
+                replyMarkup: Keyboard.MainVotesKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
         }
     }
-    
-
     public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {
         // _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
         return Task.CompletedTask;
     }
-
-    public async Task HandlePollingErrorAsync
-        (ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var ErrorMessage = exception switch
         {
@@ -153,4 +155,82 @@ public class VotesHandler : IVotesHandler
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }
+
+    #region TestSomeMethods
+
+    async Task<Message> GiveAVote(
+        ITelegramBotClient botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken)
+    {
+        await botClient.DeleteMessageAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            messageId: callbackQuery.Message.MessageId,
+            cancellationToken: cancellationToken);
+
+        return await NextCandidate(botClient, callbackQuery, cancellationToken);
+    }
+
+    async Task<Message> AddCandidate(
+        ITelegramBotClient botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken)
+    {
+        return await botClient.SendTextMessageAsync
+        (
+            chatId: callbackQuery.Message.Chat.Id,
+            text: "Отправь мне фотографию своего кандидата",
+            cancellationToken: cancellationToken
+        );
+    }
+    
+    async Task<Message> ButtonBackToVotes(
+        ITelegramBotClient botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken)
+    {
+        foreach (var message in _deleteMessageList)
+        {
+            await botClient.DeleteMessageAsync(
+                chatId: callbackQuery.Message.Chat.Id,
+                messageId: message,
+                cancellationToken: cancellationToken);
+        }
+        
+        _deleteMessageList.Clear();
+        
+        return await botClient.SendTextMessageAsync
+        (
+            chatId: callbackQuery.Message.Chat.Id,
+            text: "Меню: Голосование",
+            replyMarkup: Keyboard.MainVotesKeyboardMarkup,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    async Task<Message> NextCandidate(
+        ITelegramBotClient botClient,
+        CallbackQuery callbackQuery,
+        CancellationToken cancellationToken)
+    { 
+       await botClient.SendChatActionAsync(
+            callbackQuery.Message.Chat.Id,
+            ChatAction.UploadPhoto,
+            cancellationToken: cancellationToken);
+       
+        Random rnd = new Random();
+        string filePath = @"Files/TestPicture"+rnd.Next(5)+".jpg";
+        await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
+        
+        _deleteMessageList.Add(callbackQuery.Message.MessageId+1);
+        
+        return await botClient.SendPhotoAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            photo: new InputOnlineFile(fileStream, fileName),
+            caption: "Голосуем за кандидата?",
+            replyMarkup: Keyboard.VotesKeyboardMarkup,
+            cancellationToken: cancellationToken);
+    }
+    #endregion
 }
