@@ -11,18 +11,21 @@ public class HandlerContainer : IHandlerContainer
     public IAuthHandler AuthHandler { get; }
     public IMainMenuHandler MainMenuHandler { get; }
     public IVotesHandler VotesHandler { get; }
+    public ICandidateUploadHandler CandidateUploadHandler { get; }
 
 
     public HandlerContainer(
         IAdminChatHandler adminChatHandler,
         IAuthHandler authHandler,
         IMainMenuHandler mainMenuHandler,
-        IVotesHandler votesHandler
+        IVotesHandler votesHandler,
+        ICandidateUploadHandler candidateUploadHandler
     )
     {
         AdminChatHandler = adminChatHandler;
         AuthHandler = authHandler;
         MainMenuHandler = mainMenuHandler;
         VotesHandler = votesHandler;
+        CandidateUploadHandler = candidateUploadHandler;
     }
 }

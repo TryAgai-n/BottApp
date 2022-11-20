@@ -5,4 +5,5 @@ public enum OnState
     Auth,
     Menu,
     Votes,
+    UploadCandidate,
 }

@@ -20,6 +20,9 @@ public static class Factory
                 new DocumentManager(databaseContainer.User, databaseContainer.Document)),
 
             new VotesHandler(databaseContainer.User,
+                new DocumentManager(databaseContainer.User, databaseContainer.Document)),
+            
+            new CandidateUploadHandler(databaseContainer.User,
                 new DocumentManager(databaseContainer.User, databaseContainer.Document))
 
         );
