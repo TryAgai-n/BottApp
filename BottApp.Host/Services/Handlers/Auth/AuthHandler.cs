@@ -1,6 +1,4 @@
-using BottApp.Database;
 using BottApp.Host.Keyboards;
-using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

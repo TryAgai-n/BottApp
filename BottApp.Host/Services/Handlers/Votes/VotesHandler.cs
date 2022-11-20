@@ -232,5 +232,6 @@ public class VotesHandler : IVotesHandler
             replyMarkup: Keyboard.VotesKeyboardMarkup,
             cancellationToken: cancellationToken);
     }
+    
     #endregion
 }
