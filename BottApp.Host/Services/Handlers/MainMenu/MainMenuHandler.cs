@@ -140,7 +140,7 @@ public class MainMenuHandler : IMainMenuHandler
     {
         if (message.Document != null)
         {
-           await _documentManager.Save(message, botClient);
+           await _documentManager.UploadFile(message, botClient);
         }
 
         await Usage(botClient, message, cancellationToken);

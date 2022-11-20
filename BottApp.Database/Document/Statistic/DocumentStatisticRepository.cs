@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,4 +38,15 @@ public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticM
 
         return result;
     }
+    
+    
+    
+    //TODO:
+    // [Obsolete("Obsolete")]
+    // public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
+    // {
+        // var commandText =
+            // $"UPDATE \"DocumentStatisticModel\" SET \"ViewCount\" = \"ViewCount\" + {viewCountIncrement} WHERE \"DocumentId\" = {documentId}";
+        // return Context.Database.ExecuteSqlCommandAsync(commandText, documentId, viewCountIncrement);
+    // }
 }

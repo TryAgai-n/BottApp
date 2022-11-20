@@ -49,8 +49,8 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("< ", "ButtonLeft"),
-                InlineKeyboardButton.WithCallbackData(" >", "ButtonRight"),
+                InlineKeyboardButton.WithCallbackData("< ", nameof(MenuButton.ButtonLeft)),
+                InlineKeyboardButton.WithCallbackData(" >", nameof(MenuButton.ButtonRight)),
             },
             // second row
             new []

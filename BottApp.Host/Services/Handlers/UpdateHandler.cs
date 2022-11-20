@@ -92,12 +92,26 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                     handler = update switch
                     {
                         {Message: { } message} =>  _handlerContainer.VotesHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
+                            (_, message, cancellationToken, user),
                         {EditedMessage: { } message} => _handlerContainer.VotesHandler.BotOnMessageReceived
-                            (_, message, cancellationToken),
+                            (_, message, cancellationToken, user),
                         {CallbackQuery: { } callbackQuery} => _handlerContainer.VotesHandler.BotOnCallbackQueryReceived
-                            (_, callbackQuery, cancellationToken),
+                            (_, callbackQuery, cancellationToken, user),
                         _ => _handlerContainer.VotesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                    };
+                    await handler;
+                    break;
+                
+                case OnState.UploadCandidate:
+                    handler = update switch
+                    {
+                        {Message: { } message} =>  _handlerContainer.CandidateUploadHandler.BotOnMessageReceived
+                            (_, message, cancellationToken, user),
+                        {EditedMessage: { } message} => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived
+                            (_, message, cancellationToken, user),
+                        {CallbackQuery: { } callbackQuery} => _handlerContainer.CandidateUploadHandler.BotOnCallbackQueryReceived
+                            (_, callbackQuery, cancellationToken, user),
+                        _ => _handlerContainer.CandidateUploadHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                     };
                     await handler;
                     break;

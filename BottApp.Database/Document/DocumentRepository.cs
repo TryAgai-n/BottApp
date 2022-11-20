@@ -13,9 +13,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
     }
     
-    public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path)
+    public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path, DocumentInPath documentInPath)
     {
-        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt, path);
+        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt, path, documentInPath);
 
         var result = await CreateModelAsync(model);
         if (result == null)
@@ -25,14 +25,28 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
         return result;
     }
-    
 
-    [Obsolete("Obsolete")]
-    public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
+
+    public async Task<DocumentModel> GetOneByDocumentId(int documentId)
     {
-        var commandText =
-            $"UPDATE \"DocumentStatisticModel\" SET \"ViewCount\" = \"ViewCount\" + {{1}} WHERE \"DocumentId\" = {{0}}";
-        return Context.Database.ExecuteSqlCommandAsync(commandText, documentId, viewCountIncrement);
+        var model = await DbModel.Where(x => x.Id == documentId).Include(x => x.DocumentStatisticModel).FirstAsync();
+        if(model == null)
+        {
+            throw new Exception($"Document with id: {documentId} is not found");
+        }
+        return model;
+    }
+
+
+    public Task<List<DocumentModel>> ListDocumentsByPath(Pagination pagination, DocumentInPath documentInPath)
+    {
+        return DbModel
+            .Where(x => x.DocumentInPath == documentInPath)
+            .OrderByDescending(x => x.Id)
+            .Include(x => x.DocumentStatisticModel)
+            .Skip(pagination.GetSkip())
+            .Take(pagination.Limit)
+            .ToListAsync();
     }
 
 

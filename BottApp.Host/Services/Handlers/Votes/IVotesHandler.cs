@@ -1,3 +1,4 @@
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -18,19 +19,23 @@ public interface IVotesHandler
     Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        UserModel user
     );
 
     Task BotOnMessageReceived(
         ITelegramBotClient botClient,
         Message message,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        UserModel user
     );
 
     Task<Message> BackMainMenuInterface(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken
+        
+        );
 
 
     Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
