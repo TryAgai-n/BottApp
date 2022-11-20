@@ -51,7 +51,9 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
         }
         else
         {
-            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) ?? await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
+            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
+                       ??
+                       await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
 
             string type = updateMessage.Type.ToString();
             await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);

@@ -125,7 +125,7 @@ public class VotesHandler : IVotesHandler
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Хорошая попытка, но тебе нужно использовать виртуальные кнопки",
+                text: "Используй вирутальные кнопки",
                 cancellationToken: cancellationToken
             );
             await Task.Delay(100);
