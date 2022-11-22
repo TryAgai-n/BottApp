@@ -1,3 +1,4 @@
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -18,14 +19,16 @@ public interface IMainMenuHandler
     Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        UserModel user
     );
 
 
     Task BotOnMessageReceived(
         ITelegramBotClient botClient,
         Message message,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        UserModel user
     );
 
 

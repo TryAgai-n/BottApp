@@ -11,35 +11,36 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Голосование 🗳 ", "ButtonVotes"),
-                InlineKeyboardButton.WithCallbackData("Сказать привет ✋ ", "ButtonHi"),
+                InlineKeyboardButton.WithCallbackData("Голосование 🗳 ",nameof(MenuButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("Сказать привет ✋ ", nameof(MenuButton.Hi)),
                 
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Help❕ ", "ButtonHelp"),
+                InlineKeyboardButton.WithCallbackData("Help❕ ", nameof(MenuButton.ToHelp)),
             },
         });
+    
     public static InlineKeyboardMarkup MainVotesKeyboardMarkup = new(
         new[]
         {
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Оставить голос", "ButtontGiveAVote"),
+                InlineKeyboardButton.WithCallbackData("Оставить голос", nameof(MainVoteButton.GiveAVote)),
                 
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Добавить своего кандидата", "ButtonAddCandidate"),
+                InlineKeyboardButton.WithCallbackData("Добавить своего кандидата",nameof(MainVoteButton.AddCandidate)),
             },
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", "ButtonBack"),
-                InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
+                InlineKeyboardButton.WithCallbackData("Back", nameof(MainVoteButton.Back)),
+                InlineKeyboardButton.WithCallbackData("Help", nameof(MainVoteButton.ToHelp)),
             },
         });
     
@@ -49,19 +50,19 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("< ", nameof(MenuButton.ButtonLeft)),
-                InlineKeyboardButton.WithCallbackData(" >", nameof(MenuButton.ButtonRight)),
+                InlineKeyboardButton.WithCallbackData("< ", nameof(VotesButton.Left)),
+                InlineKeyboardButton.WithCallbackData(" >", nameof(VotesButton.Right)),
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Like", "ButtonLike"),
+                InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Right)),
             },
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", "ButtonBackToVotes"),
-                InlineKeyboardButton.WithCallbackData("Help", "ButtonHelp"),
+                InlineKeyboardButton.WithCallbackData("Back", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("Help", nameof(VotesButton.ToHelp)),
             },
         });
     
@@ -71,28 +72,29 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Approve", "ButtonApprove"),
-                InlineKeyboardButton.WithCallbackData("Decline", "ButtonDecline"),
+                InlineKeyboardButton.WithCallbackData("Approve",nameof(AdminButton.Approve)),
+                InlineKeyboardButton.WithCallbackData("Decline", nameof(AdminButton.Decline)),
             },
         });
-    
-    
-   public static ReplyKeyboardMarkup RequestLocationAndContactKeyboard = new(
+
+
+    public static ReplyKeyboardMarkup RequestLocationAndContactKeyboard = new(
         new[]
         {
-            KeyboardButton.WithRequestContact("Поделиться контактом"),})
+            KeyboardButton.WithRequestContact("Поделиться контактом")
+        })
 
-   {
-        ResizeKeyboard = true,
+    {
+        ResizeKeyboard = true
         //OneTimeKeyboard = true
     };
-   
+
     public const string usage = "Usage:\n" +
-                         "/votes       - send votes keyboard\n" +
-                         "/keyboard    - send custom keyboard\n" +
-                         "/remove      - remove custom keyboard\n" +
-                         "/photo       - send a photo\n" +
-                         "/request     - request location or contact\n" +
-                         "/inline_mode - send keyboard with Inline Query\n" +
-                         "/help        - Раздел в разработке";
+                                "/votes       - send votes keyboard\n" +
+                                "/keyboard    - send custom keyboard\n" +
+                                "/remove      - remove custom keyboard\n" +
+                                "/photo       - send a photo\n" +
+                                "/request     - request location or contact\n" +
+                                "/inline_mode - send keyboard with Inline Query\n" +
+                                "/help        - Раздел в разработке";
 }

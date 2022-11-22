@@ -47,9 +47,8 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
-                "ButtonApprove" => await Approve(botClient, callbackQuery, cancellationToken),
-                "ButtonDecline" => await Decline(botClient, callbackQuery, cancellationToken),
-                
+                nameof(AdminButton.Approve) => await Approve(botClient, callbackQuery, cancellationToken),
+                nameof(AdminButton.Decline) => await Decline(botClient, callbackQuery, cancellationToken),
                 _ => await MessageManager.TryEditInlineMessage(botClient, callbackQuery, cancellationToken, new Keyboard())
             };
             

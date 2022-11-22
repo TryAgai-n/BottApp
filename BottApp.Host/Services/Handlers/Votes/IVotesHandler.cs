@@ -30,13 +30,6 @@ public interface IVotesHandler
         UserModel user
     );
 
-    Task<Message> BackMainMenuInterface(
-        ITelegramBotClient botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-        
-        );
-
 
     Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
 

@@ -37,7 +37,6 @@ public  class MessageManager
     {
         var viewText = "Такой команды еще нет ";
         var viewExceptionText = "Все сломаделось : ";
-
         var editText = viewText + GetTimeEmooji();
 
         try
