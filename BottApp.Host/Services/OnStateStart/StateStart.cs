@@ -15,6 +15,7 @@ public class StateStart
  }
  public async Task Startup(UserModel user, OnState state, ITelegramBotClient bot, Message message)
      {
+      
       await _userRepository.ChangeOnState(user, state);
       
       var start = state switch

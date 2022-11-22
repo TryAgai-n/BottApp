@@ -101,12 +101,16 @@ public class VotesHandler : IVotesHandler
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken)
     {
-        await botClient.DeleteMessageAsync(
-            chatId: callbackQuery.Message.Chat.Id,
-            messageId: callbackQuery.Message.MessageId,
-            cancellationToken: cancellationToken);
 
-        return await NextCandidate(botClient, callbackQuery, cancellationToken);
+        var firstDocument = await _documentRepository.GetFirstDocumentByPath(DocumentInPath.Votes);
+
+        await using FileStream fileStream = new(firstDocument.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        
+        return await botClient.SendPhotoAsync(
+        chatId: callbackQuery.Message.Chat.Id, 
+        photo: new InputOnlineFile(fileStream, firstDocument.DocumentType),
+        replyMarkup: Keyboard.VotesKeyboardMarkup,
+        cancellationToken: cancellationToken);
     }
 
 
@@ -117,7 +121,12 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await _messageManager.DeleteMessages(botClient, user, callbackQuery.Message);
+        await botClient.DeleteMessageAsync(
+            callbackQuery.Message.Chat.Id,
+            callbackQuery.Message.MessageId,
+            cancellationToken: cancellationToken
+        );
+        //await _messageManager.DeleteMessages(botClient, user, callbackQuery.Message);
         return await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
@@ -133,6 +142,8 @@ public class VotesHandler : IVotesHandler
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken)
     {
+
+      
         await botClient.SendChatActionAsync(
             callbackQuery.Message.Chat.Id,
             ChatAction.UploadPhoto,
@@ -146,13 +157,16 @@ public class VotesHandler : IVotesHandler
         var ww = listDocumentsForVotes.First();
 
         await using FileStream fileStream = new(ww.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-        await _messageManager.AddMessagesForDelete(callbackQuery.Message);
         
-        return await botClient.SendPhotoAsync(
-            chatId: callbackQuery.Message.Chat.Id, photo: new InputOnlineFile(fileStream, ww.DocumentType),
-            caption: "Голосуем за кандидата?" + callbackQuery.Message.MessageId, replyMarkup: Keyboard.VotesKeyboardMarkup,
-            cancellationToken: cancellationToken);
+      return await botClient.EditMessageMediaAsync(
+          chatId: callbackQuery.Message.Chat.Id,
+          messageId: callbackQuery.Message.MessageId,
+          media: new InputMediaPhoto(new InputMedia(fileStream, ww.DocumentType)),
+          replyMarkup: Keyboard.VotesKeyboardMarkup,
+          cancellationToken: cancellationToken);
+      
+       
+
     }
     #endregion
 

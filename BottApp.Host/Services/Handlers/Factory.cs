@@ -25,6 +25,7 @@ public static class Factory
                 new DocumentManager(databaseContainer.User, databaseContainer.Document),
                 new StateStart(databaseContainer.User)
             ),
+            
             new VotesHandler(
                 databaseContainer.User,
                 databaseContainer.Document,
@@ -32,6 +33,7 @@ public static class Factory
                 new MessageManager(databaseContainer.User, databaseContainer.Message),
                 new StateStart(databaseContainer.User)
             ),
+            
             new CandidateUploadHandler(
                 databaseContainer.User,
                 new DocumentManager(databaseContainer.User, databaseContainer.Document)

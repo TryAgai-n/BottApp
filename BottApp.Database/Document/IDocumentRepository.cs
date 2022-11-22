@@ -18,8 +18,10 @@ public interface IDocumentRepository
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);
+    
+    Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);
 
     Task<List<DocumentModel>> ListDocumentsByPath(Pagination pagination, DocumentInPath documentInPath);
-
+    
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
 }

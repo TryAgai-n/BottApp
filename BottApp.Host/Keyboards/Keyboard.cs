@@ -56,7 +56,7 @@ public class Keyboard
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Right)),
+                InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Like)),
             },
             // third row
             new []

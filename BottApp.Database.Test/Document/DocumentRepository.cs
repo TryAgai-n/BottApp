@@ -42,26 +42,28 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
 
         var pagination = new Pagination(0, 10);
-        var documentInBasePath1 = DatabaseContainer.Document.CreateModel(user.Id, "documentInBasePath1", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Base).Result;
-        var documentInBasePath2 = DatabaseContainer.Document.CreateModel(user.Id, "documentInBasePath2", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Base).Result;
-        var documentInBasePath3 = DatabaseContainer.Document.CreateModel(user.Id, "documentInBasePath3", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Base).Result;
-        var documentInVotesPath1 = DatabaseContainer.Document.CreateModel(user.Id, "documentInVotesPath1", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Votes).Result;
-        var documentInVotesPath2 = DatabaseContainer.Document.CreateModel(user.Id, "documentInVotesPath2", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Votes).Result;
+        var basePathCollection = new List<DocumentModel>();
+        var votesPathCollection = new List<DocumentModel>();
 
+        for (var i = 1; i <= 10; i++)
+        {
+            basePathCollection.Add(DatabaseContainer.Document.CreateModel(user.Id, $"Base Type {i}", ".jpeg", DateTime.Now, "Base Path", DocumentInPath.Base).Result);
+        }
+        for (var i = 1; i <= 5; i++)
+        {
+            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(user.Id, $"Votes Type {i}", ".jpeg", DateTime.Now, "Vote Path", DocumentInPath.Votes).Result);
+        }
 
-        var listMostViewedDocuments = DatabaseContainer.Document.ListMostViewedDocuments(0, 10).Result;
-        
-        Assert.Equal(5, listMostViewedDocuments.Count);
-
-        var listInVotes = DatabaseContainer.Document.ListDocumentsByPath(pagination, DocumentInPath.Votes).Result;
-        Assert.Equal(2, listInVotes.Count);
+        Assert.Equal(10, basePathCollection.Count);
+        // Assert.Equal(5, votesPathCollection.Count);
 
         var listInBase = DatabaseContainer.Document.ListDocumentsByPath(pagination, DocumentInPath.Base).Result;
-        Assert.Equal(3, listInBase.Count);
+        Assert.Equal(10, listInBase.Count);
 
-        var skipList = DatabaseContainer.Document.ListDocumentsByPath(new Pagination(2, 1), DocumentInPath.Base).Result;
-        Assert.Single(skipList);
-        Assert.Equal(documentInBasePath3.DocumentType, skipList.First().DocumentType);
+
+        var firstDocumentInVotes = DatabaseContainer.Document.GetFirstDocumentByPath(DocumentInPath.Votes).Result;
+
+        Assert.Equal("Votes Type 1", firstDocumentInVotes.DocumentType);
 
     }
 }

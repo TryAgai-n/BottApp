@@ -12,6 +12,13 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public DocumentRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
+
+
+    private IQueryable<DocumentModel> PrepareDocumentPath(DocumentInPath documentInPath)
+    {
+        return DbModel.Where(x => x.DocumentInPath == documentInPath);
+    }
+
     
     public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension, DateTime createdAt, string? path, DocumentInPath documentInPath)
     {
@@ -29,19 +36,38 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<DocumentModel> GetOneByDocumentId(int documentId)
     {
-        var model = await DbModel.Where(x => x.Id == documentId).Include(x => x.DocumentStatisticModel).FirstAsync();
+        var model = await DbModel
+            .Where(x => x.Id == documentId)
+            .Include(x => x.DocumentStatisticModel)
+            .FirstAsync();
+        
         if(model == null)
         {
             throw new Exception($"Document with id: {documentId} is not found");
         }
+        
+        return model;
+    }
+
+
+    public async Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath)
+    {
+        var model =  await PrepareDocumentPath(documentInPath)
+            .Include(x => x.DocumentStatisticModel)
+            .FirstAsync();
+        
+        if(model == null)
+        {
+            throw new Exception($"Document is not found");
+        }
+        
         return model;
     }
 
 
     public Task<List<DocumentModel>> ListDocumentsByPath(Pagination pagination, DocumentInPath documentInPath)
     {
-        return DbModel
-            .Where(x => x.DocumentInPath == documentInPath)
+        return PrepareDocumentPath(documentInPath)
             .OrderByDescending(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
             .Skip(pagination.GetSkip())
