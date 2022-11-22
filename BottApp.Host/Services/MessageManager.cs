@@ -5,10 +5,11 @@ using Telegram.Bot.Types;
 
 namespace Telegram.Bot.Services;
 
-public  class MessageManager
+public class MessageManager
 {
     private readonly IUserRepository _userRepository;
     private readonly IMessageRepository _messageRepository;
+    private List<int> _deleteMessageList = new();
 
 
     public MessageManager(IUserRepository userRepository, IMessageRepository messageRepository)
@@ -32,7 +33,7 @@ public  class MessageManager
         await _messageRepository.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
     }
 
-    public static async Task<Message> TryEditInlineMessage
+    public  async Task<Message> TryEditInlineMessage
     (ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken, Keyboard keyboard)
     {
         var viewText = "Такой команды еще нет ";
@@ -79,11 +80,36 @@ public  class MessageManager
     }
 
 
-    public static string GetTimeEmooji()
+    public  string GetTimeEmooji()
     {
         string[] emooji = { "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ", };
         var rand = new Random();
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
+
+
+    public async Task AddMessagesForDelete (Message message)
+    {
+         _deleteMessageList.Add(message.MessageId);
+    }
+    
+    
+    public async Task DeleteMessages (ITelegramBotClient? botClient, UserModel user, Message message)
+    {
+        if (_deleteMessageList.Count == null)
+        {
+            return;
+        }
+        
+        foreach (var messageId in _deleteMessageList)
+        { 
+            await botClient.DeleteMessageAsync(
+                  chatId: message.Chat.Id,
+                  messageId: messageId);
+            
+           // _deleteMessageList.RemoveAt(messageId);
+        }
+    }
+    
 }

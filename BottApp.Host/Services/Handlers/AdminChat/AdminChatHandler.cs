@@ -9,10 +9,12 @@ namespace BottApp.Host.Services.Handlers.AdminChat
     public class AdminChatHandler : IAdminChatHandler
     {
         private readonly IUserRepository _userRepository;
+        private readonly MessageManager _messageManager;
 
-        public AdminChatHandler(IUserRepository userRepository)
+        public AdminChatHandler(IUserRepository userRepository,MessageManager messageManager)
         {
             _userRepository = userRepository;
+            _messageManager = messageManager;
         }
 
         public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
@@ -49,7 +51,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             {
                 nameof(AdminButton.Approve) => await Approve(botClient, callbackQuery, cancellationToken),
                 nameof(AdminButton.Decline) => await Decline(botClient, callbackQuery, cancellationToken),
-                _ => await MessageManager.TryEditInlineMessage(botClient, callbackQuery, cancellationToken, new Keyboard())
+                _ => await _messageManager.TryEditInlineMessage(botClient, callbackQuery, cancellationToken, new Keyboard())
             };
             
 

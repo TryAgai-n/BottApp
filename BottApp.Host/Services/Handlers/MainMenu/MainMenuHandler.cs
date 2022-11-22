@@ -85,7 +85,7 @@ public class MainMenuHandler : IMainMenuHandler
         
 
        
-        switch (callbackQuery.Data.Split(' ')[0])
+        switch (callbackQuery.Data)
         {
             case nameof(MenuButton.Hi):
                 await botClient.SendTextMessageAsync(
