@@ -43,7 +43,6 @@ internal sealed class Fixture : IDisposable
         }
         
         _postgreSqlContext.Database.EnsureDeleted();
-
         _postgreSqlContext?.Dispose();
     }
 }

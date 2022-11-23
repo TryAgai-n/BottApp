@@ -90,7 +90,7 @@ public class MainMenuHandler : IMainMenuHandler
             case nameof(MenuButton.Hi):
                 await botClient.SendTextMessageAsync(
                     chatId: -1001824488986,
-                    text: user.FirstName + " говорит привет!", 
+                    text: user.TelegramFirstName + " говорит привет!", 
                     cancellationToken: cancellationToken);
                 break;
             

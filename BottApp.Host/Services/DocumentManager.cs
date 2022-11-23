@@ -34,7 +34,7 @@ public class DocumentManager
 
         var user = await _userRepository.GetOneByUid(message.Chat.Id);
 
-        var newPath = Path.Combine(rootPath, user.FirstName + "___" + user.UId, documentType, extension);
+        var newPath = Path.Combine(rootPath, user.TelegramFirstName + "___" + user.UId, documentType, extension);
 
         if (!Directory.Exists(newPath))
         {
@@ -42,7 +42,7 @@ public class DocumentManager
         }
 
 
-        var destinationFilePath = newPath + $"/{user.FirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
+        var destinationFilePath = newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
         await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, DocumentInPath.Base);
@@ -70,7 +70,7 @@ public class DocumentManager
 
         var user = await _userRepository.GetOneByUid((int) message.Chat.Id);
 
-        var newPath = Path.Combine(rootPath, user.FirstName + "___" + user.UId, documentType, extension);
+        var newPath = Path.Combine(rootPath, user.TelegramFirstName + "___" + user.UId, documentType, extension);
 
         if (!Directory.Exists(newPath))
         {
@@ -79,7 +79,7 @@ public class DocumentManager
 
 
         var destinationFilePath =
-            newPath + $"/{user.FirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
+            newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
         await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, DocumentInPath.Votes);

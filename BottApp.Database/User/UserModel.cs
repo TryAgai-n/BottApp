@@ -16,23 +16,25 @@ public class UserModel : AbstractModel
     
     [Required]
     public long UId { get; set; }
-    public string? FirstName { get; set; }
+    public string? TelegramFirstName { get; set; }
     public string? Phone { get; set; }
     
     [Required]
     public OnState OnState { get; set; }
+    
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
 
     public List<MessageModel> Messages { get; set; }
-    
     public List<DocumentModel> Documents { get; set; }
 
 
-    public static UserModel Create(long uid, string? firstName, string? phone)
+    public static UserModel Create(long uid, string? telegramFirstName, string? phone)
     {
         return new UserModel
         {
             UId = uid,
-            FirstName = firstName,
+            TelegramFirstName = telegramFirstName,
             Phone = phone,
             OnState = OnState.Auth,
             Messages = new List<MessageModel>(),
