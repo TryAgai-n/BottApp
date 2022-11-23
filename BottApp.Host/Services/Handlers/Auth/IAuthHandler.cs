@@ -1,3 +1,4 @@
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -16,6 +17,7 @@ public interface IAuthHandler
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken,
+        UserModel user,
         long AdminChatID
     );
 

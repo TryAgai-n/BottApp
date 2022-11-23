@@ -67,8 +67,8 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 case OnState.Auth:
                     handler = update switch
                     {
-                        { Message: { } message } => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, AdminChatId),
-                        {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, AdminChatId),
+                        { Message: { } message } => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
+                        {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminChatId),
                         _ => throw new Exception()
                     };
                     await handler;
