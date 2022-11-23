@@ -25,6 +25,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 );
 
                 //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
+                
                 var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
                 var photo = getPhotoAsync.Result.Photos[0];
                 
@@ -40,6 +41,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                     cancellationToken: cancellationToken);
                 return;
             }
+            
             if(message.Text == "/start")
             {
                 await RequestContactAndLocation(botClient, message, cancellationToken);
@@ -53,10 +55,6 @@ namespace BottApp.Host.Services.Handlers.Auth
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
                     cancellationToken: cancellationToken
                 );
-
-                await Task.Delay(2000);
-                
-                //await RequestContactAndLocation(botClient, message, cancellationToken);
             }
         }
         
@@ -65,7 +63,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Привет! Мне необходим твой номер телефона, чтобы я мог идентифицировать тебя.",
+                text: "Привет! Мне необходимо собрать некоторую информацию, чтобы я мог идентифицировать тебя.",
                 cancellationToken: cancellationToken
             );
 
@@ -74,7 +72,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере.",
+                text: "Не переживай! Какие-либо данные не передаются третьим лицам и хранятся на безопасном сервере.",
                 cancellationToken: cancellationToken
             );
 
@@ -83,7 +81,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Нажми на кнопку\n 'Поделиться контактом'",
+                text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
                 replyMarkup: Keyboard.RequestLocationAndContactKeyboard,
                 cancellationToken: cancellationToken
             );
