@@ -74,6 +74,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
             
+            
             return await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
