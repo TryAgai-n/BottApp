@@ -98,8 +98,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                     _messageToRemoveList.Add(
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, 
-                            text: "Cпасибо!\nТеперь отправь фамилию",
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                            text: "Cпасибо!\nТеперь отправь фамилию"
                         )
                     );
                     
@@ -117,9 +116,8 @@ namespace BottApp.Host.Services.Handlers.Auth
                 _messageToRemoveList.Add(
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id, 
-                        text: "Отправьте имя в виде текста", 
-                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
-                ));
+                        text: "Отправьте имя в виде текста"
+                    ));
                 return;
             }
 
@@ -127,37 +125,30 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                 
-                    await botClient.DeleteMessageAsync(
-                        chatId: message.Chat.Id, messageId: message.MessageId-1);
-                    await botClient.DeleteMessageAsync(
-                        chatId: message.Chat.Id, messageId: message.MessageId);
-                    
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Отлично!\nПередал заявку на модерацию.\nОжидай уведомление :)",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
-                );
-                
-                await _userRepository.UpdateUserLastName(user, message.Text);
-                
-                _isSendLastName = true;
-                _isAllDataGrip = true;
-                
-                await SendUserFormToAdmin(botClient, message, user, AdminChatID); 
-                return;
+                    await RemoveMessageInList(botClient);
+
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id, text: "Отлично!\nПередал заявку на модерацию.\nОжидай уведомление :)"
+                    );
+
+                    await _userRepository.UpdateUserLastName(user, message.Text);
+
+                    _isSendLastName = true;
+                    _isAllDataGrip = true;
+
+                    await SendUserFormToAdmin(botClient, message, user, AdminChatID);
+                    return;
                 }
 
                 await Task.Delay(1000);
 
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-1);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId);
-                
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                await RemoveMessageInList(botClient);
+
+                _messageToRemoveList.Add(
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id, 
+                        text: "Отправьте фамилию в виде текста"
+                    )
                 );
             }
         }
