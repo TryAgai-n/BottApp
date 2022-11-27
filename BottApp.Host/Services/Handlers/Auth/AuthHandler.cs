@@ -61,29 +61,27 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && _isAllDataGrip)
             {
-                // deleteLastMessage(2);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-1);
-                await Task.Delay(100);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId);
+                await RemoveMessageInList(botClient);
                 
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
+                _messageToRemoveList.Add(
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id, 
+                        text: "Ваши данные на проверке, не переживайте!"
+                    )
                 );
             }
-            
+
             if ((message.Contact != null && !_isSendPhone))
             {
                 await RemoveMessageInList(botClient);
-                
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь свое имя",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+
+                _messageToRemoveList.Add(
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id, 
+                        text: "Cпасибо!\nТеперь отправь свое имя",
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                    )
                 );
-                
-               
-                
                 
                 await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
                 
@@ -95,32 +93,33 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    await botClient.DeleteMessageAsync(
-                        chatId: message.Chat.Id, messageId: message.MessageId-1);
-                    await botClient.DeleteMessageAsync(
-                        chatId: message.Chat.Id, messageId: message.MessageId);
+                    await RemoveMessageInList(botClient);
                     
-                    await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь фамилию",
-                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                    _messageToRemoveList.Add(
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, 
+                            text: "Cпасибо!\nТеперь отправь фамилию",
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                        )
                     );
+                    
                     await _userRepository.UpdateUserFirstName(user, message.Text);
                 
                     _isSendFirstName = true;
+                    
                     return;
                 }
                 
                 await Task.Delay(1000);
                 
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-1);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId);
+                await RemoveMessageInList(botClient);
 
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Отправьте имя в виде текста",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
-                );
+                _messageToRemoveList.Add(
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id, 
+                        text: "Отправьте имя в виде текста", 
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
+                ));
                 return;
             }
 
@@ -171,10 +170,8 @@ namespace BottApp.Host.Services.Handlers.Auth
                 await botClient.DeleteMessageAsync(
                     chatId: message.Chat.Id,
                     messageId: message.MessageId);
-                
-                _messageToRemoveList.Remove(message);
             }
-           
+            _messageToRemoveList.Clear();
         }
 
 
@@ -191,6 +188,9 @@ namespace BottApp.Host.Services.Handlers.Auth
                     cancellationToken: cancellationToken
                 )
             );
+            
+            await Task.Delay(1500);
+            
             _messageToRemoveList.Add(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
@@ -199,7 +199,9 @@ namespace BottApp.Host.Services.Handlers.Auth
                     cancellationToken: cancellationToken
                 )
             );
+            
             await Task.Delay(1500);
+            
             _messageToRemoveList.Add(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
