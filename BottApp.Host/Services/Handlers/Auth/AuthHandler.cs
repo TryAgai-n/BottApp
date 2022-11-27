@@ -12,7 +12,8 @@ namespace BottApp.Host.Services.Handlers.Auth
         private bool _isSendLastName = false;
         private bool _isSendFirstName = false;
         private bool _isAllDataGrip;
-        
+        private List<Message> _messageToRemoveList = new ();
+
         private readonly IUserRepository _userRepository;
 
 
@@ -40,6 +41,8 @@ namespace BottApp.Host.Services.Handlers.Auth
             long AdminChatID
         )
         {
+            _messageToRemoveList.Add(message);
+            
             if (message.Text == "/start" && !_isAllDataGrip)
             {
                 await RequestContactAndLocation(botClient, message, cancellationToken);
@@ -58,6 +61,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && _isAllDataGrip)
             {
+                // deleteLastMessage(2);
                 await botClient.DeleteMessageAsync(
                     chatId: message.Chat.Id, messageId: message.MessageId-1);
                 await Task.Delay(100);
@@ -68,25 +72,18 @@ namespace BottApp.Host.Services.Handlers.Auth
                     chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
                 );
             }
-
-
+            
             if ((message.Contact != null && !_isSendPhone))
             {
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-4);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-3);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-2);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId-1);
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id, messageId: message.MessageId);
+                await RemoveMessageInList(botClient);
                 
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь свое имя",
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
                 );
+                
+               
+                
                 
                 await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
                 
@@ -113,6 +110,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                     return;
                 }
                 
+                await Task.Delay(1000);
                 
                 await botClient.DeleteMessageAsync(
                     chatId: message.Chat.Id, messageId: message.MessageId-1);
@@ -130,6 +128,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
+                 
                     await botClient.DeleteMessageAsync(
                         chatId: message.Chat.Id, messageId: message.MessageId-1);
                     await botClient.DeleteMessageAsync(
@@ -150,7 +149,10 @@ namespace BottApp.Host.Services.Handlers.Auth
                 return;
                 }
 
-                
+                await Task.Delay(1000);
+
+                await botClient.DeleteMessageAsync(
+                    chatId: message.Chat.Id, messageId: message.MessageId-1);
                 await botClient.DeleteMessageAsync(
                     chatId: message.Chat.Id, messageId: message.MessageId);
                 
@@ -162,35 +164,51 @@ namespace BottApp.Host.Services.Handlers.Auth
         }
 
 
+        private async Task RemoveMessageInList(ITelegramBotClient botClient)
+        {
+            foreach (var message in _messageToRemoveList)
+            {
+                await botClient.DeleteMessageAsync(
+                    chatId: message.Chat.Id,
+                    messageId: message.MessageId);
+                
+                _messageToRemoveList.Remove(message);
+            }
+           
+        }
+
+
         public async Task RequestContactAndLocation(
             ITelegramBotClient botClient,
             Message? message,
             CancellationToken cancellationToken
         )
         {
-            await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "Привет! Мне необходимо собрать некоторую информацию, чтобы я мог идентифицировать тебя.",
-                cancellationToken: cancellationToken
+            _messageToRemoveList.Add(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "Привет! Мне необходимо собрать некоторую информацию, чтобы я мог идентифицировать тебя.",
+                    cancellationToken: cancellationToken
+                )
             );
-
-            await Task.Delay(750);
-
-            await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "Не переживай! Какие-либо данные не передаются третьим лицам и хранятся на безопасном сервере.",
-                cancellationToken: cancellationToken
+            _messageToRemoveList.Add(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text:
+                    "Не переживай! Какие-либо данные не передаются третьим лицам и хранятся на безопасном сервере.",
+                    cancellationToken: cancellationToken
+                )
             );
-
             await Task.Delay(1500);
-
-            await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id, text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
-                replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
+            _messageToRemoveList.Add(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
+                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
+                )
             );
+            
         }
-
-
+        
         public async Task SendUserFormToAdmin(
             ITelegramBotClient botClient,
             Message? message,
@@ -198,9 +216,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             long AdminChatID
         )
         {
-            // await botClient.SendTextMessageAsync(
-                // chatId: message.Chat.Id, text: $"FirstName {user.FirstName}\nLastName {user.LastName}\nPhone { user.Phone}" );
-                //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
+            //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
            var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
            var photo = getPhotoAsync.Result.Photos[0];
 
