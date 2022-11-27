@@ -1,7 +1,4 @@
-using System;
 using BottApp.Client.Bot;
-using BottApp.Client.Payload.User;
-using BottApp.Client.User;
 using BottApp.Database;
 using BottApp.Host.Configs;
 using Microsoft.AspNetCore.Mvc;
