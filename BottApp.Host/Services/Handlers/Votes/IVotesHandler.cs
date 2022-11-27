@@ -8,7 +8,7 @@ public interface IVotesHandler
 { 
     string GetTimeEmooji();
 
-
+    Task OnStart(ITelegramBotClient botClient, Message message);
     Task<Message> TryEditMessage(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,

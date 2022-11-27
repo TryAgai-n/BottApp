@@ -18,7 +18,7 @@ public static class Factory
                 databaseContainer.User, 
                 new MessageManager(databaseContainer.User, databaseContainer.Message)), 
             
-            new AuthHandler(databaseContainer.User),
+            new AuthHandler(databaseContainer.User, new MessageManager(databaseContainer.User, databaseContainer.Message)),
             
             new MainMenuHandler(
                 databaseContainer.User, 

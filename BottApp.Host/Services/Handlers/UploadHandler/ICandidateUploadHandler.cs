@@ -6,6 +6,7 @@ namespace BottApp.Host.Services.Handlers.UploadHandler;
 
 public interface ICandidateUploadHandler
 {
+    Task OnStart(ITelegramBotClient botClient, Message message);
     Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,

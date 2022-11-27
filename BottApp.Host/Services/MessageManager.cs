@@ -9,7 +9,7 @@ public class MessageManager
 {
     private readonly IUserRepository _userRepository;
     private readonly IMessageRepository _messageRepository;
-    private List<int> _deleteMessageList = new();
+    private List<Message> _deleteMessageList = new();
 
 
     public MessageManager(IUserRepository userRepository, IMessageRepository messageRepository)
@@ -89,27 +89,30 @@ public class MessageManager
     }
 
 
-    public async Task AddMessagesForDelete (Message message)
+
+    public async Task MarkMessageToDelete(Message message)
     {
-         _deleteMessageList.Add(message.MessageId);
+         _deleteMessageList.Add(message);
     }
     
-    
-    public async Task DeleteMessages (ITelegramBotClient? botClient, UserModel user, Message message)
+    public void DeleteMessages (ITelegramBotClient? botClient)
     {
-        if (_deleteMessageList.Count == null)
+        for (int i = _deleteMessageList.Count - 1; i >= 0; i--)
         {
-            return;
+              botClient.DeleteMessageAsync(
+                chatId: _deleteMessageList[i].Chat.Id,
+                messageId: _deleteMessageList[i].MessageId);
+            
+             _deleteMessageList.RemoveAt(i);
+        
         }
         
-        foreach (var messageId in _deleteMessageList)
-        { 
-            await botClient.DeleteMessageAsync(
-                  chatId: message.Chat.Id,
-                  messageId: messageId);
-            
-           // _deleteMessageList.RemoveAt(messageId);
-        }
+        
+        // foreach (var message in _deleteMessageList)
+        // { 
+        //    
+        //     _deleteMessageList.RemoveAt(message.MessageId);
+        // }
     }
     
 }

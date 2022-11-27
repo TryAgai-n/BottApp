@@ -3,6 +3,13 @@ using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using BottApp.Host.Services.Handlers;
+using BottApp.Host.Services.Handlers.AdminChat;
+using BottApp.Host.Services.Handlers.Auth;
+using BottApp.Host.Services.Handlers.MainMenu;
+using BottApp.Host.Services.Handlers.UploadHandler;
+using BottApp.Host.Services.Handlers.Votes;
+using BottApp.Host.Services.OnStateStart;
+using Telegram.Bot.Polling;
 
 namespace BottApp.Host
 {
@@ -58,6 +65,14 @@ namespace BottApp.Host
         {
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
             services.AddScoped<IHandlerContainer>(x => Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+            //
+            // services.AddScoped<IUpdateHandler>();
+            // services.AddScoped<IMainMenuHandler>();
+            // services.AddScoped<IVotesHandler>();
+            // services.AddScoped<IAuthHandler>();
+            // services.AddScoped<ICandidateUploadHandler>();
+            // services.AddScoped<StateStart>();
+            // services.AddScoped<IAdminChatHandler>();
 
             TelegramBotStartup.ConfigureServices(services, Configuration);
             

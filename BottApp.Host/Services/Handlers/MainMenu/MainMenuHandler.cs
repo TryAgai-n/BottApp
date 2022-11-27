@@ -24,7 +24,13 @@ public class MainMenuHandler : IMainMenuHandler
         _documentManager = documentManager;
         _stateStart = stateStart;
     }
-
+    
+    public async Task OnStart(ITelegramBotClient botClient, Message message)
+    {
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboardMarkup
+        );
+    }
 
     public string GetTimeEmooji()
     {
@@ -34,6 +40,8 @@ public class MainMenuHandler : IMainMenuHandler
         return preparedString;
     }
 
+
+    
 
     public async Task<Message> TryEditMessage(
         ITelegramBotClient? botClient,

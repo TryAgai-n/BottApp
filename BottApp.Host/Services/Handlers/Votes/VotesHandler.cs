@@ -2,6 +2,7 @@ using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.User;
 using BottApp.Host.Keyboards;
+using BottApp.Host.Services.Handlers.MainMenu;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -31,6 +32,13 @@ public class VotesHandler : IVotesHandler
         
     }
     
+    public async Task OnStart(ITelegramBotClient botClient, Message message)
+    {
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id, text: "Меню: Голосование", replyMarkup: Keyboard.MainKeyboardMarkup
+        );
+    }
+    
     public async Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
@@ -38,19 +46,15 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
-        // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        
-
-        
         switch (callbackQuery.Data)
         {
             case nameof(MainVoteButton.AddCandidate):
                 await _stateStart.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message);
-                break;
+                return;
             
             case nameof(MainVoteButton.Back):
                 await _stateStart.Startup(user, OnState.Menu, botClient, callbackQuery.Message);
-                break;
+                return;
         }
         
         var action = callbackQuery.Data switch
@@ -65,36 +69,32 @@ public class VotesHandler : IVotesHandler
     
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
     {
-        
         if (message.Text is not { } messageText)
             return;
 
+        await _messageManager.MarkMessageToDelete(message);
+
         var action = messageText switch
         {
-            _ => await Usage(botClient, message, cancellationToken)
+            _ => Usage(botClient, message, cancellationToken)
         };
-        
-        static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+
+        async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Используй вирутальные кнопки",
-                cancellationToken: cancellationToken
+             await _messageManager.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Используй вирутальные кнопки", cancellationToken: cancellationToken
+                )
             );
-            await Task.Delay(100);
-            return await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Голосование",
-                replyMarkup: Keyboard.MainVotesKeyboardMarkup,
-                cancellationToken: cancellationToken
-            );
+
+            await Task.Delay(1000);
+
+            _messageManager.DeleteMessages(botClient);
         }
     }
     
 
-    #region TestSomeMethods
+     #region TestSomeMethods
 
     async Task<Message> GiveAVote(
         ITelegramBotClient botClient,
@@ -126,7 +126,7 @@ public class VotesHandler : IVotesHandler
             callbackQuery.Message.MessageId,
             cancellationToken: cancellationToken
         );
-        //await _messageManager.DeleteMessages(botClient, user, callbackQuery.Message);
+        
         return await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
@@ -179,6 +179,11 @@ public class VotesHandler : IVotesHandler
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
+
+
+    
+
+
     public async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
         var viewText = "Такой команды еще нет ";

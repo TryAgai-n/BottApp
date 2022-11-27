@@ -15,8 +15,16 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         _userRepository = userRepository;
         _documentManager = documentManager;
     }
-    
-    
+
+
+    public async Task OnStart(ITelegramBotClient botClient, Message message)
+    {
+         await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id, text: "Отправь мне фотографию своего кандидата"
+        );
+    }
+
+
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken, UserModel user)
     {
         throw new NotImplementedException();
