@@ -56,7 +56,7 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                        ??
                        await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
 
-            //Todo: методы сохраранения сообщений необходимо вынести в отдельные состояния
+            //Todo: методы сохранения сообщений необходимо вынести в отдельные состояния(опционально)
             
             var type = updateMessage.Type.ToString();
             await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);

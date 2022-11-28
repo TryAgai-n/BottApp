@@ -90,9 +90,10 @@ public class MessageManager
 
 
 
-    public async Task MarkMessageToDelete(Message message)
+    public Task MarkMessageToDelete(Message message)
     {
-         _deleteMessageList.Add(message);
+        _deleteMessageList.Add(message);
+        return Task.CompletedTask;
     }
     
     public void DeleteMessages (ITelegramBotClient? botClient)

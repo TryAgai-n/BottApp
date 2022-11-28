@@ -31,7 +31,7 @@ public class MainMenuHandler : IMainMenuHandler
             chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboardMarkup
         );
     }
-
+   //Todo: убрать рерализации вспомогательных методов редактирования сообщений в MessageManager
     public string GetTimeEmooji()
     {
         string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ",};
@@ -39,10 +39,7 @@ public class MainMenuHandler : IMainMenuHandler
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-
-
     
-
     public async Task<Message> TryEditMessage(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
@@ -89,10 +86,9 @@ public class MainMenuHandler : IMainMenuHandler
         CancellationToken cancellationToken, UserModel user)
     {
         // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery);
+        // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery)
         
-
-       
+        //Todo: Попробовать организовать единый code-style для Switch конструкций
         switch (callbackQuery.Data)
         {
             case nameof(MenuButton.Hi):

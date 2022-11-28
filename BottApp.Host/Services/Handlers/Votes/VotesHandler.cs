@@ -82,7 +82,7 @@ public class VotesHandler : IVotesHandler
         async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
              await _messageManager.MarkMessageToDelete(
-                await botClient.SendTextMessageAsync(
+                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Используй вирутальные кнопки", cancellationToken: cancellationToken
                 )
             );
@@ -171,10 +171,10 @@ public class VotesHandler : IVotesHandler
     #endregion
 
     #region Useful
-
+    //Todo: убрать реализации вспомогательных методов редактирования сообщений в MessageManager
     public string GetTimeEmooji()
     {
-        string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ",};
+        string[] emooji = {"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐", "🕑",};
         var rand = new Random();
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;

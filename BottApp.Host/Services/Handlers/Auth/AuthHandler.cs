@@ -43,7 +43,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             long AdminChatID
         )
         {
-            _messageManager.MarkMessageToDelete(message);
+            await _messageManager.MarkMessageToDelete(message);
 
             if (message.Text == "/start" && !_isAllDataGrip)
             {
@@ -190,6 +190,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
                 )
             );
+            
             
         }
         
