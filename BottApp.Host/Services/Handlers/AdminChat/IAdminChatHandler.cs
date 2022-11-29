@@ -16,7 +16,7 @@ public interface IAdminChatHandler
     );
 
 
-    Task<Message> Approve(
+    Task Approve(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken

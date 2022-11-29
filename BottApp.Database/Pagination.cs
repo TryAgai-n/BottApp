@@ -2,21 +2,16 @@
 
 public class Pagination
 {
-    public Pagination(int page, int limit)
+    public Pagination(int skip, int take)
         {
-            Page = page;
-            Limit = limit;
+            Skip = skip;
+            Take = take;
         }
 
 
-        public int Page { get;}
+        public int Skip { get;}
 
-        public int Limit { get; }
+        public int Take { get; }
 
-
-        public int GetSkip()
-        {
-            return Page * Limit;
-        }
     
 }

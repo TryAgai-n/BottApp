@@ -1,6 +1,7 @@
 ﻿using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
+using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -10,11 +11,16 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentService _documentService;
+    private readonly IMessageService _messageService;
     
-    public CandidateUploadHandler(IUserRepository userRepository, IDocumentService documentService)
+    private readonly StateService _stateService;
+    
+    public CandidateUploadHandler(IUserRepository userRepository, IDocumentService documentService, StateService stateService, IMessageService messageService)
     {
         _userRepository = userRepository;
         _documentService = documentService;
+        _stateService = stateService;
+        _messageService = messageService;
     }
 
 
@@ -33,40 +39,39 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
     {
+        await _messageService.MarkMessageToDelete(message);
         
         if (message.Document != null)
         {
-            await _documentService.UploadVoteFile(message, botClient);
-            
-            await botClient.SendTextMessageAsync
-            (
-                chatId: message.Chat.Id,
-                text: "Меню: Голосование",
-                replyMarkup: Keyboard.MainVotesKeyboardMarkup,
-                cancellationToken: cancellationToken
-            );
+            if(await _documentService.UploadVoteFile(message, botClient))
+            {
+               await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных."));
 
-            await _userRepository.ChangeOnState(user, OnState.Votes);
+               await Task.Delay(1000);
 
+               _messageService.DeleteMessages(botClient);
+
+               await _stateService.Startup(user, OnState.Votes, botClient, message);
+            }
         }
         
         if (message.Text is not { } messageText)
             return;
 
-        var action = messageText.Split(' ')[0] switch
+        var action = messageText switch
         {
             _ => Usage(botClient, message, cancellationToken)
         };
 
-        static async Task<Message> Usage(ITelegramBotClient botClient, Message message,
+         async Task Usage(ITelegramBotClient botClient, Message message,
             CancellationToken cancellationToken)
         {
-            return await botClient.SendTextMessageAsync
+           await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Отправь мне своего кандидата в виде фото",
+                text: "Отправь мне фотографию своего кандидата в виде документа",
                 cancellationToken: cancellationToken
-            );
+            ));
         }
     }
 

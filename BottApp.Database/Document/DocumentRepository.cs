@@ -68,13 +68,19 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public Task<List<DocumentModel>> ListDocumentsByPath(Pagination pagination, DocumentInPath documentInPath)
     {
         return PrepareDocumentPath(documentInPath)
-            .OrderByDescending(x => x.Id)
+            .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
-            .Skip(pagination.GetSkip())
-            .Take(pagination.Limit)
+            .Skip(pagination.Skip)
+            .Take(pagination.Take)
             .ToListAsync();
     }
 
+    public Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath)
+    {
+        return PrepareDocumentPath(documentInPath)
+            .OrderBy(x => x.Id)
+            .ToListAsync();
+    }
 
     public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {

@@ -3,6 +3,7 @@ using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BottApp.Host.Services.Handlers.Auth
@@ -47,6 +48,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text == "/start" && !_isAllDataGrip)
             {
+                await SendMainPicture(botClient, message);
                 await RequestContactAndLocation(botClient, message, cancellationToken);
                 return;
             }
@@ -208,12 +210,20 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendPhotoAsync(
                 AdminChatID, photo[0].FileId,
                 $" Пользователь |{user.TelegramFirstName}|\n" + 
-                       $" @{message.From.Username} |{user.UId}|\n" +
+                       $" @{message.From.Username}    |{user.UId}|\n" +
                        $" Моб.тел. |{user.Phone}|\n" +
                        $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
                        $" Хочет авторизоваться в системе",
                 replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup
             );
         }
+        
+        private static async Task SendMainPicture(ITelegramBotClient botClient, Message? message)
+        {  
+            var filePath = @"Files/BOT_MAIN_PICTURE1.jpg";
+            await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            await botClient.SendPhotoAsync(chatId: message.Chat.Id, new InputOnlineFile(fileStream));
+        }
+                
     }
 }

@@ -25,7 +25,7 @@ public static class Factory
             new MainMenuHandler(
                 databaseContainer.User, 
                 serviceContainer.Document,
-                new StateStart(databaseContainer.User)
+                new StateService(databaseContainer.User, serviceContainer.Message)
             ),
             
             new VotesHandler(
@@ -33,12 +33,14 @@ public static class Factory
                 databaseContainer.Document,
                 serviceContainer.Document,
                 serviceContainer.Message, 
-                new StateStart(databaseContainer.User)
+                new StateService(databaseContainer.User, serviceContainer.Message)
             ),
             
             new CandidateUploadHandler(
                 databaseContainer.User,
-                serviceContainer.Document
+                serviceContainer.Document,
+                new StateService(databaseContainer.User, serviceContainer.Message),
+                serviceContainer.Message
             )
         );
     }

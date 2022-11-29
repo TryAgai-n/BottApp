@@ -59,7 +59,7 @@ public class DocumentService : IDocumentService
     
 
 
-    public async Task UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient)
+    public async Task<bool> UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient)
     {
         var documentType = message.Type.ToString();
         var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
@@ -88,8 +88,6 @@ public class DocumentService : IDocumentService
         await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
         await _botClient.DownloadFileAsync(filePath, fileStream);
         fileStream.Close();
-
-
-        await _botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
+        return true;
     }
 }

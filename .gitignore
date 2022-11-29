@@ -22,9 +22,6 @@ appsettings.json
 /Logs/*
 
 #Test ignore
-*.png
-*.jpg
-*.docx
 /.vs/BottApp/v17/
 BottApp.Host/wwwroot/*
 BottApp.Host/DATA/*

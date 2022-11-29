@@ -16,14 +16,14 @@ public class MainMenuHandler : IMainMenuHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentService _documentService;
-    private readonly StateStart _stateStart;
+    private readonly StateService _stateService;
     
 
-    public MainMenuHandler(IUserRepository userRepository, IDocumentService documentService, StateStart stateStart)
+    public MainMenuHandler(IUserRepository userRepository, IDocumentService documentService, StateService stateService)
     {
         _userRepository = userRepository;
         _documentService = documentService;
-        _stateStart = stateStart;
+        _stateService = stateService;
     }
     
     public async Task OnStart(ITelegramBotClient botClient, Message message)
@@ -100,7 +100,7 @@ public class MainMenuHandler : IMainMenuHandler
                 break;
             
             case nameof(MenuButton.ToVotes):
-                await _stateStart.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
+                await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 break;
             
             default:

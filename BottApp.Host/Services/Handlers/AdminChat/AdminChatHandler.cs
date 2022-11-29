@@ -48,17 +48,20 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
             
-            var action = callbackQuery.Data.Split(' ')[0] switch
+            switch (callbackQuery.Data)
             {
-                nameof(AdminButton.Approve) => await Approve(botClient, callbackQuery, cancellationToken),
-                nameof(AdminButton.Decline) => await Decline(botClient, callbackQuery, cancellationToken),
-                _ => await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken)
-            };
-            
-
+                case nameof(AdminButton.Approve):
+                    await Approve(botClient, callbackQuery, cancellationToken);
+                    break;
+                case nameof(AdminButton.Decline):
+                    await Decline(botClient, callbackQuery, cancellationToken);
+                    break;
+                default: await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken);
+                    break;
+            }
         }
 
-        public async Task<Message> Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        public async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             await botClient.SendTextMessageAsync
             (
@@ -74,15 +77,14 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             var findUserByUid = await _userRepository.FindOneByUid(approveId);
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
-            
-            
-            return await botClient.SendTextMessageAsync
+
+            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
                 text: "Вы авторизованы!",
                 replyMarkup: Keyboard.MainKeyboardMarkup,
                 cancellationToken: cancellationToken
-            );
+            ));
             
         }
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)

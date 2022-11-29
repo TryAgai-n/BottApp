@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Service;
@@ -22,19 +23,23 @@ public class VotesHandler : IVotesHandler
     
     private readonly IDocumentService _documentService;
     private readonly IMessageService _messageService;
-    private readonly StateStart _stateStart;
+    private readonly StateService _stateService;
+
+    private int Limit { get; set; } = 0;
+    
+    
 
     public VotesHandler(
         IUserRepository userRepository,
         IDocumentRepository documentRepository,
         IDocumentService documentService, IMessageService messageService,
-        StateStart stateStart)
+        StateService stateService)
     {
         _userRepository = userRepository;
         _documentRepository = documentRepository;
         _documentService = documentService;
         _messageService = messageService;
-        _stateStart = stateStart;
+        _stateService = stateService;
     }
     
     public async Task OnStart(ITelegramBotClient botClient, Message message)
@@ -51,25 +56,37 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
+
         switch (callbackQuery.Data)
         {
             case nameof(MainVoteButton.AddCandidate):
-                await _stateStart.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message);
+                await _stateService.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message);
                 return;
             
             case nameof(MainVoteButton.Back):
-                await _stateStart.Startup(user, OnState.Menu, botClient, callbackQuery.Message);
+                await _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message);
+                return;
+            
+            case nameof(VotesButton.Right):
+                await NextCandidate(botClient, callbackQuery, cancellationToken, 1);
+                return;
+            
+            case nameof(VotesButton.Left):
+                await NextCandidate(botClient, callbackQuery, cancellationToken, -1);
+                return;
+            
+            case nameof(VotesButton.ToVotes):
+                await BackToVotes(botClient, callbackQuery, cancellationToken, user);
+                return;
+            
+            case nameof(MainVoteButton.GiveAVote):
+                await GiveAVote(botClient, callbackQuery, cancellationToken);
+                return;
+            
+            default:
+                await TryEditMessage(botClient, callbackQuery, cancellationToken);
                 return;
         }
-        
-        var action = callbackQuery.Data switch
-        {
-            nameof(VotesButton.Right)        => await NextCandidate(botClient, callbackQuery, cancellationToken),
-            nameof(VotesButton.Left)         => await NextCandidate(botClient, callbackQuery, cancellationToken),
-            nameof(VotesButton.ToVotes)      => await BackToVotes(botClient, callbackQuery, cancellationToken, user),
-            nameof(MainVoteButton.GiveAVote) => await GiveAVote(botClient, callbackQuery, cancellationToken),
-            _                                => await TryEditMessage(botClient, callbackQuery, cancellationToken)
-        };
     }
     
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
@@ -99,13 +116,18 @@ public class VotesHandler : IVotesHandler
     }
     
 
-     #region TestSomeMethods
+    #region TestSomeMethods
 
     async Task<Message> GiveAVote(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken)
     {
+        await botClient.DeleteMessageAsync(
+            callbackQuery.Message.Chat.Id,
+            callbackQuery.Message.MessageId,
+            cancellationToken: cancellationToken
+        );
 
         var firstDocument = await _documentRepository.GetFirstDocumentByPath(DocumentInPath.Votes);
 
@@ -119,20 +141,19 @@ public class VotesHandler : IVotesHandler
     }
 
 
-
-    async Task<Message> BackToVotes(
+    async Task BackToVotes(
         ITelegramBotClient botClient,
-        CallbackQuery callbackQuery,
+        CallbackQuery? callbackQuery,
         CancellationToken cancellationToken,
         UserModel user)
     {
         await botClient.DeleteMessageAsync(
-            callbackQuery.Message.Chat.Id,
+            user.UId,
             callbackQuery.Message.MessageId,
             cancellationToken: cancellationToken
         );
-        
-        return await botClient.SendTextMessageAsync
+
+         await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
             text: "Меню: Голосование",
@@ -142,31 +163,39 @@ public class VotesHandler : IVotesHandler
     }
 
 
-    async Task<Message> NextCandidate(
+    private async Task<Message> NextCandidate(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, 
+        int limit
+    )
     {
-
-      
         await botClient.SendChatActionAsync(
             callbackQuery.Message.Chat.Id,
             ChatAction.UploadPhoto,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
+        
+        var docCount = await _documentRepository.GetCountDocumentByPath(DocumentInPath.Votes);
 
+        Limit += limit;
+        
+        if (Limit < 0)
+            Limit = docCount.Count-1;
+        
+        if (Limit > docCount.Count-1)
+            Limit = 0;
+        
+        var pagination = new Pagination(Limit, 1);
+        var listDocumentsForVotes = await _documentRepository.ListDocumentsByPath(pagination, DocumentInPath.Votes);
+        var file = listDocumentsForVotes.First();
 
-        var listDocumentsForVotes =
-            await _documentRepository.ListDocumentsByPath(new Pagination(0, 10), DocumentInPath.Votes);
-
-
-        var ww = listDocumentsForVotes.First();
-
-        await using FileStream fileStream = new(ww.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        await using FileStream fileStream = new(file.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
         
       return await botClient.EditMessageMediaAsync(
           chatId: callbackQuery.Message.Chat.Id,
           messageId: callbackQuery.Message.MessageId,
-          media: new InputMediaPhoto(new InputMedia(fileStream, ww.DocumentType)),
+          media: new InputMediaPhoto(new InputMedia(fileStream, file.DocumentType)),
           replyMarkup: Keyboard.VotesKeyboardMarkup,
           cancellationToken: cancellationToken);
       
@@ -184,10 +213,7 @@ public class VotesHandler : IVotesHandler
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-
-
     
-
 
     public async Task<Message> TryEditMessage(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
@@ -234,6 +260,7 @@ public class VotesHandler : IVotesHandler
             );
         }
     }
+    
     public async Task HandlePollingErrorAsync(
         ITelegramBotClient botClient,
         Exception exception,
