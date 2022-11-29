@@ -1,7 +1,7 @@
+using BottApp.Database.Service;
+using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Keyboards;
 using Telegram.Bot;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -15,13 +15,13 @@ namespace BottApp.Host.Services.Handlers.Auth
         private bool _isAllDataGrip;
 
         private readonly IUserRepository _userRepository;
-        private readonly MessageManager _messageManager;
+        private readonly IMessageService _messageService;
 
 
-        public AuthHandler(IUserRepository userRepository, MessageManager messageManager)
+        public AuthHandler(IUserRepository userRepository, IMessageService messageService)
         {
             _userRepository = userRepository;
-            _messageManager = messageManager;
+            _messageService = messageService;
         }
 
 
@@ -43,7 +43,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             long AdminChatID
         )
         {
-            await _messageManager.MarkMessageToDelete(message);
+            await _messageService.MarkMessageToDelete(message);
 
             if (message.Text == "/start" && !_isAllDataGrip)
             {
@@ -63,22 +63,22 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && _isAllDataGrip)
             {
-                _messageManager.DeleteMessages(botClient);
+                _messageService.DeleteMessages(botClient);
 
-                await _messageManager.MarkMessageToDelete(
+                await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
                     )
                 );
                 await Task.Delay(10000);
-                _messageManager.DeleteMessages(botClient);
+                _messageService.DeleteMessages(botClient);
             }
 
             if ((message.Contact != null && !_isSendPhone))
             {
-                _messageManager.DeleteMessages(botClient);
+                _messageService.DeleteMessages(botClient);
 
-                await _messageManager.MarkMessageToDelete(
+                await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь свое имя",
                         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken
@@ -95,9 +95,9 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    _messageManager.DeleteMessages(botClient);
+                    _messageService.DeleteMessages(botClient);
 
-                    await _messageManager.MarkMessageToDelete(
+                    await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь фамилию"
                         )
@@ -112,9 +112,9 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await Task.Delay(1000);
 
-                _messageManager.DeleteMessages(botClient);
+                _messageService.DeleteMessages(botClient);
 
-                await _messageManager.MarkMessageToDelete(
+                await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Отправьте имя в виде текста")
                 );
                 return;
@@ -124,7 +124,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    _messageManager.DeleteMessages(botClient);
+                    _messageService.DeleteMessages(botClient);
                     
                     await _userRepository.UpdateUserLastName(user, message.Text);
 
@@ -133,22 +133,22 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                     await SendUserFormToAdmin(botClient, message, user, AdminChatID);
                     
-                    await _messageManager.MarkMessageToDelete(
+                    await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             text: "Отлично!\nПередал заявку на модерацию.\nОжидай уведомление :)"
                         )
                     );
                     await Task.Delay(10000);
-                    _messageManager.DeleteMessages(botClient);
+                    _messageService.DeleteMessages(botClient);
                     return;
                 }
 
                 await Task.Delay(1000);
 
-                 _messageManager.DeleteMessages(botClient);
+                 _messageService.DeleteMessages(botClient);
 
-                await _messageManager.MarkMessageToDelete(
+                await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста"
                     )
@@ -163,7 +163,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             CancellationToken cancellationToken
         )
         {
-            await _messageManager.MarkMessageToDelete(
+            await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text: "Привет! Мне необходимо собрать некоторую информацию, чтобы я мог идентифицировать тебя.",
@@ -173,7 +173,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             
             await Task.Delay(1500);
             
-            await _messageManager.MarkMessageToDelete(
+            await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text:
@@ -184,7 +184,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             
             await Task.Delay(1500);
             
-            await _messageManager.MarkMessageToDelete(
+            await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken

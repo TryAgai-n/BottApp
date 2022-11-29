@@ -27,7 +27,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BottApp.Client\BottApp.Client.csproj" />
+        <ProjectReference Include="..\BottApp.Database.Service\BottApp.Database.Service.csproj" />
         <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Keyboards" />
     </ItemGroup>
 
 </Project>

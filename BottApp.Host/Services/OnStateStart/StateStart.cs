@@ -1,5 +1,5 @@
-﻿using BottApp.Database.User;
-using BottApp.Host.Keyboards;
+﻿using BottApp.Database.Service.Keyboards;
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;

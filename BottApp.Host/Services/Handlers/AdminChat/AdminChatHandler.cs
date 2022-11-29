@@ -1,7 +1,7 @@
+using BottApp.Database.Service;
+using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Keyboards;
 using Telegram.Bot;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 
 namespace BottApp.Host.Services.Handlers.AdminChat
@@ -9,12 +9,13 @@ namespace BottApp.Host.Services.Handlers.AdminChat
     public class AdminChatHandler : IAdminChatHandler
     {
         private readonly IUserRepository _userRepository;
-        private readonly MessageManager _messageManager;
+        private readonly IMessageService _messageService;
 
-        public AdminChatHandler(IUserRepository userRepository,MessageManager messageManager)
+        public AdminChatHandler(IUserRepository userRepository, IMessageService messageService)
         {
             _userRepository = userRepository;
-            _messageManager = messageManager;
+            _messageService = messageService;
+          
         }
 
         public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
@@ -51,7 +52,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             {
                 nameof(AdminButton.Approve) => await Approve(botClient, callbackQuery, cancellationToken),
                 nameof(AdminButton.Decline) => await Decline(botClient, callbackQuery, cancellationToken),
-                _ => await _messageManager.TryEditInlineMessage(botClient, callbackQuery, cancellationToken, new Keyboard())
+                _ => await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken)
             };
             
 

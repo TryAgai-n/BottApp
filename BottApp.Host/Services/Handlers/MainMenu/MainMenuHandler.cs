@@ -1,5 +1,6 @@
+using BottApp.Database.Service;
+using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Keyboards;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -7,21 +8,21 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
-using MenuButton = BottApp.Host.Keyboards.MenuButton;
+using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Services.Handlers.MainMenu;
 
 public class MainMenuHandler : IMainMenuHandler
 {
     private readonly IUserRepository _userRepository;
-    private readonly DocumentManager _documentManager;
+    private readonly IDocumentService _documentService;
     private readonly StateStart _stateStart;
     
 
-    public MainMenuHandler(IUserRepository userRepository, DocumentManager documentManager, StateStart stateStart)
+    public MainMenuHandler(IUserRepository userRepository, IDocumentService documentService, StateStart stateStart)
     {
         _userRepository = userRepository;
-        _documentManager = documentManager;
+        _documentService = documentService;
         _stateStart = stateStart;
     }
     
@@ -118,7 +119,7 @@ public class MainMenuHandler : IMainMenuHandler
     {
         if (message.Document != null)
         {
-            await _documentManager.UploadFile(message, botClient);
+            await _documentService.UploadFile(message, botClient);
         }
 
         await Usage(botClient, message, cancellationToken, user);

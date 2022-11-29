@@ -1,15 +1,10 @@
 ﻿using BottApp.Database;
-using BottApp.Host.Services;
+using BottApp.Database.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using BottApp.Host.Services.Handlers;
-using BottApp.Host.Services.Handlers.AdminChat;
-using BottApp.Host.Services.Handlers.Auth;
-using BottApp.Host.Services.Handlers.MainMenu;
-using BottApp.Host.Services.Handlers.UploadHandler;
-using BottApp.Host.Services.Handlers.Votes;
-using BottApp.Host.Services.OnStateStart;
-using Telegram.Bot.Polling;
+using HandlerFactory = BottApp.Host.Services.Handlers.Factory;
+using ServiceFactory = BottApp.Database.Service.Factory;
 
 namespace BottApp.Host
 {
@@ -64,15 +59,15 @@ namespace BottApp.Host
         private void ConfigureCoreServices(IServiceCollection services, IWebHostEnvironment env)
         {
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
-            services.AddScoped<IHandlerContainer>(x => Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
-            //
-            // services.AddScoped<IUpdateHandler>();
-            // services.AddScoped<IMainMenuHandler>();
-            // services.AddScoped<IVotesHandler>();
-            // services.AddScoped<IAuthHandler>();
-            // services.AddScoped<ICandidateUploadHandler>();
-            // services.AddScoped<StateStart>();
-            // services.AddScoped<IAdminChatHandler>();
+
+            services.AddScoped<IHandlerContainer>(x => HandlerFactory.Create(
+                x.GetRequiredService<IDatabaseContainer>(),
+                x.GetRequiredService<IServiceContainer>()
+            ));
+
+
+            services.AddScoped<IServiceContainer>(
+                x => ServiceFactory.Create(x.GetRequiredService<IDatabaseContainer>()));
 
             TelegramBotStartup.ConfigureServices(services, Configuration);
             

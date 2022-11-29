@@ -1,16 +1,16 @@
 using BottApp.Database;
 using BottApp.Database.Document;
+using BottApp.Database.Service;
+using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Keyboards;
 using BottApp.Host.Services.Handlers.MainMenu;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using MenuButton = BottApp.Host.Keyboards.MenuButton;
+using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 
 namespace BottApp.Host.Services.Handlers.Votes;
@@ -19,17 +19,22 @@ public class VotesHandler : IVotesHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentRepository _documentRepository;
-    private readonly DocumentManager _documentManager;
-    private readonly MessageManager _messageManager;
+    
+    private readonly IDocumentService _documentService;
+    private readonly IMessageService _messageService;
     private readonly StateStart _stateStart;
-    public VotesHandler(IUserRepository userRepository, IDocumentRepository documentRepository, DocumentManager documentManager,MessageManager messageManager, StateStart stateStart)
+
+    public VotesHandler(
+        IUserRepository userRepository,
+        IDocumentRepository documentRepository,
+        IDocumentService documentService, IMessageService messageService,
+        StateStart stateStart)
     {
         _userRepository = userRepository;
         _documentRepository = documentRepository;
-        _documentManager = documentManager;
-        _messageManager = messageManager;
+        _documentService = documentService;
+        _messageService = messageService;
         _stateStart = stateStart;
-        
     }
     
     public async Task OnStart(ITelegramBotClient botClient, Message message)
@@ -72,7 +77,7 @@ public class VotesHandler : IVotesHandler
         if (message.Text is not { } messageText)
             return;
 
-        await _messageManager.MarkMessageToDelete(message);
+        await _messageService.MarkMessageToDelete(message);
 
         var action = messageText switch
         {
@@ -81,7 +86,7 @@ public class VotesHandler : IVotesHandler
 
         async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-             await _messageManager.MarkMessageToDelete(
+             await _messageService.MarkMessageToDelete(
                  await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Используй вирутальные кнопки", cancellationToken: cancellationToken
                 )
@@ -89,7 +94,7 @@ public class VotesHandler : IVotesHandler
 
             await Task.Delay(1000);
 
-            _messageManager.DeleteMessages(botClient);
+            _messageService.DeleteMessages(botClient);
         }
     }
     

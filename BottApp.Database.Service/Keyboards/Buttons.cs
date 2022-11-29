@@ -1,4 +1,4 @@
-﻿namespace BottApp.Host.Keyboards;
+﻿namespace BottApp.Database.Service.Keyboards;
 
 public enum MenuButton
 {

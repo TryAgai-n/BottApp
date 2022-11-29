@@ -27,6 +27,5 @@ internal static class TelegramBotStartup
         services.AddScoped<ReceiverService>();
         
         services.AddScoped<IUpdateHandler, UpdateHandler>();
-        services.AddScoped<SimpleFSM>();
     }
 }

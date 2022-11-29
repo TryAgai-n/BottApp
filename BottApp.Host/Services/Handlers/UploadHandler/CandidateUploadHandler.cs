@@ -1,5 +1,6 @@
-﻿using BottApp.Database.User;
-using BottApp.Host.Keyboards;
+﻿using BottApp.Database.Service;
+using BottApp.Database.Service.Keyboards;
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -8,12 +9,12 @@ namespace BottApp.Host.Services.Handlers.UploadHandler;
 public class CandidateUploadHandler : ICandidateUploadHandler
 {
     private readonly IUserRepository _userRepository;
-    private readonly DocumentManager _documentManager;
+    private readonly IDocumentService _documentService;
     
-    public CandidateUploadHandler(IUserRepository userRepository, DocumentManager documentManager)
+    public CandidateUploadHandler(IUserRepository userRepository, IDocumentService documentService)
     {
         _userRepository = userRepository;
-        _documentManager = documentManager;
+        _documentService = documentService;
     }
 
 
@@ -35,7 +36,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         
         if (message.Document != null)
         {
-            await _documentManager.UploadVoteFile(message, botClient);
+            await _documentService.UploadVoteFile(message, botClient);
             
             await botClient.SendTextMessageAsync
             (
