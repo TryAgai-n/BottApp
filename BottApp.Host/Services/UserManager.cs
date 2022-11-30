@@ -60,7 +60,7 @@
 //             await botClient.SendTextMessageAsync(
 //                 chatId: message.Chat.Id,
 //                 text: "Вы авторизованы!",
-//                 replyMarkup: Keyboard.MainKeyboardMarkup,
+//                 replyMarkup: Keyboard.MainKeyboard,
 //                 cancellationToken: cancellationToken);
 //         } else {
 //             
@@ -82,7 +82,7 @@
 //             await botClient.SendTextMessageAsync(
 //                 chatId: message.Chat.Id,
 //                 text: "Вы уже отправляли контакт, спасибо!",
-//                 replyMarkup: Keyboard.MainKeyboardMarkup,
+//                 replyMarkup: Keyboard.MainKeyboard,
 //                 cancellationToken: cancellationToken);
 //         }
 //     }

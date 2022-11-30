@@ -41,7 +41,7 @@ public class StateService
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
 
            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Меню: Голосование", replyMarkup: Keyboard.MainVotesKeyboardMarkup
+            chatId: message.Chat.Id, text: "Меню: Голосование", replyMarkup: Keyboard.MainVotesKeyboard
         ));
     }
 
@@ -53,7 +53,7 @@ public class StateService
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
 
         await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboardMarkup
+            chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboard
         ));
     }
     private async Task UploadCandidateStart(ITelegramBotClient botClient, Message message)
@@ -63,7 +63,7 @@ public class StateService
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
         
          await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Отправь мне фотографию своего кандидата в виде документа"
+            chatId: message.Chat.Id, text: "Выберете номинацию", replyMarkup: Keyboard.NominationKeyboard
         ));
     }
 }

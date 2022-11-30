@@ -13,6 +13,7 @@ public enum MainVoteButton
     GiveAVote,
     AddCandidate,
     ToMainMenu,
+    ToChooseNomination,
     ToHelp,
 }
 
@@ -24,6 +25,12 @@ public enum VotesButton
     Like,
     ToVotes,
     ToHelp,
+}
+public enum NominationButton
+{
+  ToFirstNomination,
+  ToSecondNomination,
+  ToThirdNomination,
 }
 
 public enum UploadCandidateButton

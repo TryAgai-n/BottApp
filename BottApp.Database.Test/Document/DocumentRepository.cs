@@ -14,8 +14,8 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
    
         
-        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Base).Result;
-        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", DocumentInPath.Votes).Result;
+        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Biggest).Result;
+        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Fast).Result;
 
         Assert.NotNull(document);
         Assert.NotNull(document2);
@@ -42,20 +42,51 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
 
         var pagination = new Pagination(0, 10);
-        var basePathCollection = new List<DocumentModel>();
+        // var basePathCollection = new List<DocumentModel>();
         var votesPathCollection = new List<DocumentModel>();
-
-        for (var i = 1; i <= 20; i++)
+        //
+        // for (var i = 1; i <= 20; i++)
+        // {
+        //     basePathCollection.Add(DatabaseContainer.Document.CreateModel(user.Id, $"Base Type {i}", ".jpeg", DateTime.Now, "Base Path", DocumentInPath.Base, null).Result);
+        // }
+        for (var i = 1; i <= 3; i++)
         {
-            basePathCollection.Add(DatabaseContainer.Document.CreateModel(user.Id, $"Base Type {i}", ".jpeg", DateTime.Now, "Base Path", DocumentInPath.Base).Result);
+            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
+                user.Id,
+                $"Votes Type {i}",
+                ".jpeg",
+                DateTime.Now,
+                "Vote Path",
+                "Описание",
+                DocumentInPath.Votes,
+                DocumentNomination.Biggest).Result);
         }
-        for (var i = 1; i <= 20; i++)
+        
+        
+        for (var i = 1; i <= 6; i++)
         {
-            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(user.Id, $"Votes Type {i}", ".jpeg", DateTime.Now, "Vote Path", DocumentInPath.Votes).Result);
+            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
+                user.Id,
+                $"Votes Type {i}",
+                ".jpeg",
+                DateTime.Now,
+                "Vote Path",
+                "Описание",
+                DocumentInPath.Votes,
+                DocumentNomination.Fast).Result);
         }
+        
 
-        Assert.Equal(20, basePathCollection.Count);
-        Assert.Equal(20, votesPathCollection.Count);
+        // Assert.Equal(20, basePathCollection.Count);
+        Assert.Equal(9, votesPathCollection.Count);
+        
+        Assert.Equal(DocumentNomination.Biggest, votesPathCollection[1].DocumentNomination);
+        
+        // var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(new Pagination(0, 4), DocumentNomination.Biggest).Result;
+        // var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(new Pagination(0, 6), DocumentNomination.Fast).Result;
+        //
+        // Assert.Equal(3, CountInBiggest.Count);
+        // Assert.Equal(6, CountInFast.Count);
 
         // var listInBase = DatabaseContainer.Document.ListDocumentsByPath(pagination, DocumentInPath.Base).Result;
         // Assert.Equal(1000, listInBase.Count);

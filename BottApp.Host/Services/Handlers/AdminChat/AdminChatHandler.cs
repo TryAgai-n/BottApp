@@ -82,7 +82,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             (
                 chatId: approveId,
                 text: "Вы авторизованы!",
-                replyMarkup: Keyboard.MainKeyboardMarkup,
+                replyMarkup: Keyboard.MainKeyboard,
                 cancellationToken: cancellationToken
             ));
             
@@ -98,8 +98,8 @@ namespace BottApp.Host.Services.Handlers.AdminChat
               
               var subs = callbackQuery.Message.Caption.Split('|');
               var declineId = Convert.ToInt64(subs[3]);
-            
-            return await botClient.SendTextMessageAsync
+
+              return await botClient.SendTextMessageAsync
             (
                 chatId: declineId,
                 text: "Вы не авторизованы в системе, попробуйте позже!",

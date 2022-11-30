@@ -16,20 +16,22 @@ public class MainMenuHandler : IMainMenuHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentService _documentService;
+    private readonly IMessageService _messageService;
     private readonly StateService _stateService;
     
 
-    public MainMenuHandler(IUserRepository userRepository, IDocumentService documentService, StateService stateService)
+    public MainMenuHandler(IUserRepository userRepository, IDocumentService documentService, IMessageService messageService,StateService stateService)
     {
         _userRepository = userRepository;
         _documentService = documentService;
         _stateService = stateService;
+        _messageService = messageService;
     }
     
     public async Task OnStart(ITelegramBotClient botClient, Message message)
     {
         await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboardMarkup
+            chatId: message.Chat.Id, text: "Главное меню", replyMarkup: Keyboard.MainKeyboard
         );
     }
    //Todo: убрать рерализации вспомогательных методов редактирования сообщений в MessageManager
@@ -58,7 +60,7 @@ public class MainMenuHandler : IMainMenuHandler
             {
                 return await botClient.EditMessageTextAsync(
                     chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId, text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+                    replyMarkup: Keyboard.MainKeyboard, cancellationToken: cancellationToken
                 );
             }
             catch
@@ -67,7 +69,7 @@ public class MainMenuHandler : IMainMenuHandler
 
                 return await botClient.EditMessageTextAsync(
                     chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId, text: editText,
-                    replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+                    replyMarkup: Keyboard.MainKeyboard, cancellationToken: cancellationToken
                 );
             }
         }
@@ -75,7 +77,7 @@ public class MainMenuHandler : IMainMenuHandler
         {
             return await botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id, text: viewExceptionText + "\n" + e,
-                replyMarkup: Keyboard.MainKeyboardMarkup, cancellationToken: cancellationToken
+                replyMarkup: Keyboard.MainKeyboard, cancellationToken: cancellationToken
             );
         }
     }
@@ -100,6 +102,7 @@ public class MainMenuHandler : IMainMenuHandler
                 break;
             
             case nameof(MenuButton.ToVotes):
+                _messageService.DeleteMessages(botClient);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 break;
             
@@ -117,24 +120,26 @@ public class MainMenuHandler : IMainMenuHandler
         UserModel user
     )
     {
-        if (message.Document != null)
-        {
-            await _documentService.UploadFile(message, botClient);
-        }
+        await _messageService.MarkMessageToDelete(message);
+        // if (message.Document != null)
+        // {
+        //     await _documentService.UploadFile(message, botClient);
+        // }
 
         await Usage(botClient, message, cancellationToken, user);
 
-        static async Task<Message> Usage(
+         async Task Usage(
             ITelegramBotClient botClient,
             Message message,
             CancellationToken cancellationToken,
             UserModel user
         )
         {
-            return await botClient.SendTextMessageAsync(
-                chatId: user.UId, text: "Главное Меню", replyMarkup: Keyboard.MainKeyboardMarkup,
+            _messageService.DeleteMessages(botClient);
+            await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
+                chatId: user.UId, text: "Главное Меню", replyMarkup: Keyboard.MainKeyboard,
                 cancellationToken: cancellationToken
-            );
+            ));
         }
     }
 

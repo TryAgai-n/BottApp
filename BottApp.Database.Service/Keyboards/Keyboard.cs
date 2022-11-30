@@ -5,7 +5,7 @@ namespace BottApp.Database.Service.Keyboards;
 public class Keyboard
 {
 
-    public static InlineKeyboardMarkup MainKeyboardMarkup = new(
+    public static InlineKeyboardMarkup MainKeyboard = new(
         new[]
         {
             // first row
@@ -22,13 +22,13 @@ public class Keyboard
             },
         });
     
-    public static InlineKeyboardMarkup MainVotesKeyboardMarkup = new(
+    public static InlineKeyboardMarkup MainVotesKeyboard = new(
         new[]
         {
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Оставить голос", nameof(MainVoteButton.GiveAVote)),
+                InlineKeyboardButton.WithCallbackData("Выбрать номинацию", nameof(MainVoteButton.ToChooseNomination)),
                 
             },
             // second row
@@ -44,7 +44,7 @@ public class Keyboard
             },
         });
     
-    public static InlineKeyboardMarkup VotesKeyboardMarkup = new(
+    public static InlineKeyboardMarkup VotesKeyboard = new(
         new[]
         {
             // first row
@@ -66,7 +66,7 @@ public class Keyboard
             },
         });
     
-    public static InlineKeyboardMarkup ApproveDeclineKeyboardMarkup = new(
+    public static InlineKeyboardMarkup ApproveDeclineKeyboard = new(
         new[]
         {
             // first row
@@ -82,12 +82,30 @@ public class Keyboard
         new[]
         {
             KeyboardButton.WithRequestContact("Поделиться контактом")
-        })
+        });
+        
+    public static InlineKeyboardMarkup NominationKeyboard = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Самый забавный", nameof(NominationButton.ToFirstNomination)),
+                InlineKeyboardButton.WithCallbackData("Самый круглый", nameof(NominationButton.ToSecondNomination)),
+                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.ToThirdNomination)),
+            },
+            // second row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Back", nameof(VotesButton.ToVotes)),
+            },
+        });
 
-    {
-        ResizeKeyboard = true
-        //OneTimeKeyboard = true
-    };
+    //
+    // {
+    //     ResizeKeyboard = true
+    //     //OneTimeKeyboard = true
+    // };
 
     public const string usage = "Usage:\n" +
                                 "/votes       - send votes keyboard\n" +

@@ -45,7 +45,7 @@ public class DocumentService : IDocumentService
         var destinationFilePath = newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
-        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, DocumentInPath.Base);
+        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, null, DocumentInPath.Base, null);
         ///
 
         await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
@@ -59,7 +59,7 @@ public class DocumentService : IDocumentService
     
 
 
-    public async Task<bool> UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient)
+    public async Task<bool> UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption)
     {
         var documentType = message.Type.ToString();
         var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
@@ -82,7 +82,7 @@ public class DocumentService : IDocumentService
             newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
-        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, DocumentInPath.Votes);
+        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, caption, DocumentInPath.Votes, documentNomination);
         ///
 
         await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);

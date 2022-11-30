@@ -1,4 +1,5 @@
-﻿using BottApp.Database.Service;
+﻿using BottApp.Database.Document;
+using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using BottApp.Host.Services.OnStateStart;
@@ -12,6 +13,13 @@ public class CandidateUploadHandler : ICandidateUploadHandler
     private readonly IUserRepository _userRepository;
     private readonly IDocumentService _documentService;
     private readonly IMessageService _messageService;
+    
+    
+    private bool _isSendDocument;
+    private bool _isSendCaption;
+    private bool _isSendNomination;
+    private DocumentNomination nomination;
+    private string _caption;
     
     private readonly StateService _stateService;
     
@@ -34,26 +42,100 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
     public async Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken, UserModel user)
     {
-        throw new NotImplementedException();
+        switch (callbackQuery.Data)
+        {
+            case nameof(NominationButton.ToFirstNomination):
+                
+                nomination = DocumentNomination.Biggest;
+                _isSendNomination = true;
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(
+                        chatId: callbackQuery.Message.Chat.Id, text: "Внесите краткое описание кандидата.", cancellationToken: cancellationToken
+                    )
+                );
+                
+                return;
+            
+            case nameof(NominationButton.ToSecondNomination):
+                nomination = DocumentNomination.Smaller;
+                _isSendNomination = true;
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(
+                        chatId: callbackQuery.Message.Chat.Id, text: "Внесите краткое описание кандидата.", cancellationToken: cancellationToken
+                    )
+                );
+
+                return;
+            
+            case nameof(NominationButton.ToThirdNomination):
+                nomination = DocumentNomination.Fast;
+                _isSendNomination = true;
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(
+                        chatId: callbackQuery.Message.Chat.Id, text: "Внесите краткое описание кандидата.", cancellationToken: cancellationToken
+                    )
+                );
+
+                return;
+            
+            case nameof(VotesButton.ToVotes):
+          
+                _isSendNomination = false;
+                _isSendCaption = false;
+                _isSendDocument = false;
+                _messageService.DeleteMessages(botClient);
+                await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
+                return;
+        }
     }
 
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
     {
         await _messageService.MarkMessageToDelete(message);
         
-        if (message.Document != null)
+        if (!_isSendNomination)
         {
-            if(await _documentService.UploadVoteFile(message, botClient))
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Выберете номинацию", replyMarkup: Keyboard.NominationKeyboard, cancellationToken: cancellationToken
+                )
+            );
+            
+            return;
+        }
+        
+        if (_isSendNomination && !_isSendCaption)
+        {
+           
+            if (message.Text != null)
             {
-               await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных."));
+                _caption = message.Text;
+                _isSendCaption = true;
+                _messageService.DeleteMessages(botClient);
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Наконец загрузите фотографию в виде документа :)"));
+                return;
+            }
+            
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(message.Chat.Id, "Внесите описание в виде текста"));
+            return;
+        }
 
-               await Task.Delay(1000);
-
-               _messageService.DeleteMessages(botClient);
-
-               await _stateService.Startup(user, OnState.Votes, botClient, message);
+        if (_isSendCaption && !_isSendDocument)
+        {
+            if (message.Document!=null)
+            {
+                await _documentService.UploadVoteFile(message, botClient, nomination,
+                    _caption);
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Все сохранил, спасибо!"));
+                await Task.Delay(1000);
+                _messageService.DeleteMessages(botClient);
+                await _stateService.Startup(user, OnState.Votes, botClient, message);
             }
         }
+        
         
         if (message.Text is not { } messageText)
             return;

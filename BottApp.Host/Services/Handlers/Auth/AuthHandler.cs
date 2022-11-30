@@ -205,17 +205,37 @@ namespace BottApp.Host.Services.Handlers.Auth
         {
             //TODO: Фотография может быть null, тогда неоходимо вставлять фото-заглушку
            var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
-           var photo = getPhotoAsync.Result.Photos[0];
+           
+           if (getPhotoAsync.Result.TotalCount > 0)
+           {
+               var photo = getPhotoAsync.Result.Photos[0];
+               await botClient.SendPhotoAsync(
+                   AdminChatID, photo[0].FileId,
+                   $" Пользователь |{user.TelegramFirstName}|\n" + 
+                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" Моб.тел. |{user.Phone}|\n" +
+                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                   $" Хочет авторизоваться в системе",
+                   replyMarkup: Keyboard.ApproveDeclineKeyboard
+               );
+           }
+           else
+           {
+               var filePath = @"Files/BOT_MAIN_PICTURE1.jpg";
+               await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+               await botClient.SendPhotoAsync(
+                   AdminChatID, fileStream,
+                   $" Пользователь |{user.TelegramFirstName}|\n" +
+                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" Моб.тел. |{user.Phone}|\n" +
+                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                   $" Хочет авторизоваться в системе",
+                   replyMarkup: Keyboard.ApproveDeclineKeyboard);
+                   fileStream.Close();
+               
+           }
+        
 
-            await botClient.SendPhotoAsync(
-                AdminChatID, photo[0].FileId,
-                $" Пользователь |{user.TelegramFirstName}|\n" + 
-                       $" @{message.From.Username}    |{user.UId}|\n" +
-                       $" Моб.тел. |{user.Phone}|\n" +
-                       $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
-                       $" Хочет авторизоваться в системе",
-                replyMarkup: Keyboard.ApproveDeclineKeyboardMarkup
-            );
         }
         
         private static async Task SendMainPicture(ITelegramBotClient botClient, Message? message)

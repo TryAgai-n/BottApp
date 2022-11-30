@@ -25,6 +25,7 @@ public static class Factory
             new MainMenuHandler(
                 databaseContainer.User, 
                 serviceContainer.Document,
+                serviceContainer.Message,
                 new StateService(databaseContainer.User, serviceContainer.Message)
             ),
             

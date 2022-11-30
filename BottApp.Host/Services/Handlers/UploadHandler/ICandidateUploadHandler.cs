@@ -1,4 +1,5 @@
-﻿using BottApp.Database.User;
+﻿using BottApp.Database.Document;
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

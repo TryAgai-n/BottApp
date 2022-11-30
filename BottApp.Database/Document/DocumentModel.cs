@@ -26,12 +26,16 @@ public class DocumentModel : AbstractModel
 
     public string? Path { get; set; }
     
+    public string? Caption { get; set; }
+    
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
     
     [Required]
     public DocumentInPath DocumentInPath { get; set; }
-
+    
+    public DocumentNomination? DocumentNomination { get; set; }
+    
     public DocumentStatisticModel DocumentStatisticModel { get; set; }
     
     public List<LikedDocumentModel> Likes { get; set; }
@@ -43,7 +47,9 @@ public class DocumentModel : AbstractModel
         string? documentExtension,
         DateTime createdAt,
         string? path,
-        DocumentInPath documentInPath
+        string? caption,
+        DocumentInPath documentInPath,
+        DocumentNomination? documentNomination
     )
     {
         return new DocumentModel
@@ -53,7 +59,9 @@ public class DocumentModel : AbstractModel
             DocumentType = documentType,
             CreatedAt = createdAt,
             Path = path,
+            Caption = caption,
             DocumentInPath = documentInPath,
+            DocumentNomination = documentNomination,
             DocumentStatisticModel = DocumentStatisticModel.CreateEmpty(),
             Likes = new List<LikedDocumentModel>()
         };

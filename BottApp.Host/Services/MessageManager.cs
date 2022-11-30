@@ -49,7 +49,7 @@
 //                     chatId: callbackQuery.Message.Chat.Id,
 //                     messageId: callbackQuery.Message.MessageId,
 //                     text: editText,
-//                     replyMarkup: Keyboard.MainKeyboardMarkup,
+//                     replyMarkup: Keyboard.MainKeyboard,
 //                     cancellationToken: cancellationToken
 //                 );
 //             }
@@ -62,7 +62,7 @@
 //                     chatId: callbackQuery.Message.Chat.Id,
 //                     messageId: callbackQuery.Message.MessageId,
 //                     text: editText,
-//                     replyMarkup: Keyboard.MainKeyboardMarkup,
+//                     replyMarkup: Keyboard.MainKeyboard,
 //                     cancellationToken: cancellationToken
 //                 );
 //             }
@@ -73,7 +73,7 @@
 //             (
 //                 chatId: callbackQuery.Message.Chat.Id,
 //                 text: viewExceptionText + "\n" + e,
-//                 replyMarkup: Keyboard.MainKeyboardMarkup,
+//                 replyMarkup: Keyboard.MainKeyboard,
 //                 cancellationToken: cancellationToken
 //             );
 //         }

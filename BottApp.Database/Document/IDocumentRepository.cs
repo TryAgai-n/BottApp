@@ -13,15 +13,18 @@ public interface IDocumentRepository
         string? documentExtension,
         DateTime createdAt,
         string? path,
-        DocumentInPath documentInPath
+        string? caption,
+        DocumentInPath documentInPath,
+        DocumentNomination? documentNomination
     );
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);
     
     Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);
-
-    Task<List<DocumentModel>> ListDocumentsByPath(Pagination pagination, DocumentInPath documentInPath);
-    Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath);
+    Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination);
+    Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath);
+    Task<List<DocumentModel>> ListDocumentsByNomination(Pagination pagination, DocumentNomination documentNomination);
+    Task<List<DocumentModel>> GetListCountByNomination(DocumentNomination documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
 }
