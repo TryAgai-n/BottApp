@@ -12,13 +12,13 @@ public class Keyboard
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Голосование 🗳 ",nameof(MenuButton.ToVotes)),
-                InlineKeyboardButton.WithCallbackData("Сказать привет ✋ ", nameof(MenuButton.Hi)),
+                InlineKeyboardButton.WithCallbackData("Сказать✋администратору  ", nameof(MenuButton.Hi)),
                 
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Help❕ ", nameof(MenuButton.ToHelp)),
+                InlineKeyboardButton.WithCallbackData("Нужна помощь❕ ", nameof(MenuButton.ToHelp)),
             },
         });
     
@@ -39,8 +39,7 @@ public class Keyboard
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", nameof(MainVoteButton.Back)),
-                InlineKeyboardButton.WithCallbackData("Help", nameof(MainVoteButton.ToHelp)),
+                InlineKeyboardButton.WithCallbackData("Назад", nameof(MainVoteButton.Back)),
             },
         });
     
@@ -61,8 +60,7 @@ public class Keyboard
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", nameof(VotesButton.ToVotes)),
-                InlineKeyboardButton.WithCallbackData("Help", nameof(VotesButton.ToHelp)),
+                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
             },
         });
     
@@ -87,17 +85,21 @@ public class Keyboard
     public static InlineKeyboardMarkup NominationKeyboard = new(
         new[]
         {
-            // first row
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Самый забавный", nameof(NominationButton.ToFirstNomination)),
-                InlineKeyboardButton.WithCallbackData("Самый круглый", nameof(NominationButton.ToSecondNomination)),
-                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.ToThirdNomination)),
             },
-            // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Back", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("Самый круглый", nameof(NominationButton.ToSecondNomination)),
+            },
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.ToThirdNomination)),
+            },
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
             },
         });
 

@@ -63,21 +63,24 @@ namespace BottApp.Host.Services.Handlers.AdminChat
 
         public async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
-            await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Заявка принята",
-                cancellationToken: cancellationToken
-            );
-            
+               
             var subs = callbackQuery.Message.Caption.Split('|');
             var approveId = Convert.ToInt64(subs[3]);
             var approvePhone = subs[5]; 
-          
+
+         
             var findUserByUid = await _userRepository.FindOneByUid(approveId);
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
-
+            
+            await botClient.SendTextMessageAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nПРИНЯТА",
+                cancellationToken: cancellationToken
+            );
+            
+            _messageService.DeleteMessages(botClient);
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
@@ -85,20 +88,28 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 replyMarkup: Keyboard.MainKeyboard,
                 cancellationToken: cancellationToken
             ));
-            
+           
+
         }
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
-              await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Заявка отклонена",
-                cancellationToken: cancellationToken
-            );
+            
+         
               
               var subs = callbackQuery.Message.Caption.Split('|');
               var declineId = Convert.ToInt64(subs[3]);
+              
+              var findUserByUid = await _userRepository.FindOneByUid(declineId);
 
+              await botClient.SendTextMessageAsync
+              (
+                  chatId: callbackQuery.Message.Chat.Id,
+                  text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nОТКЛОНЕНА",
+                  cancellationToken: cancellationToken
+              );
+              
+              _messageService.DeleteMessages(botClient);
+              
               return await botClient.SendTextMessageAsync
             (
                 chatId: declineId,

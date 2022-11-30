@@ -106,7 +106,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         
         if (_isSendNomination && !_isSendCaption)
         {
-           
             if (message.Text != null)
             {
                 _caption = message.Text;
@@ -132,6 +131,11 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Все сохранил, спасибо!"));
                 await Task.Delay(1000);
                 _messageService.DeleteMessages(botClient);
+                
+                _isSendNomination = false;
+                _isSendCaption = false;
+                _isSendDocument = false;
+                _caption = "";
                 await _stateService.Startup(user, OnState.Votes, botClient, message);
             }
         }

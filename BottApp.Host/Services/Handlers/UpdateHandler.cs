@@ -15,7 +15,8 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
     private readonly IDatabaseContainer _databaseContainer;
 
 
-    private const long AdminChatId = -1001824488986;
+   // private const long AdminChatId = -1001824488986;
+    private const long AdminChatId = -1001897483007;
 
 
     public UpdateHandler(

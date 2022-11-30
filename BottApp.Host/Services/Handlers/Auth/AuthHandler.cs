@@ -156,6 +156,14 @@ namespace BottApp.Host.Services.Handlers.Auth
                     )
                 );
             }
+            
+            _messageService.DeleteMessages(botClient);
+
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Если все сломалось - тыкай /start"
+                )
+            );
         }
 
 
@@ -168,7 +176,17 @@ namespace BottApp.Host.Services.Handlers.Auth
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
-                    text: "Привет! Мне необходимо собрать некоторую информацию, чтобы я мог идентифицировать тебя.",
+                    text: "Привет! Я чат бот - Чатик",
+                    cancellationToken: cancellationToken
+                )
+            );
+            
+            await Task.Delay(1500);
+            
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "Давай знакомиться!",
                     cancellationToken: cancellationToken
                 )
             );
@@ -179,7 +197,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text:
-                    "Не переживай! Какие-либо данные не передаются третьим лицам и хранятся на безопасном сервере.",
+                    "Для начала поделись телефоном, чтобы я мог идентифицировать тебя.",
                     cancellationToken: cancellationToken
                 )
             );
@@ -188,7 +206,18 @@ namespace BottApp.Host.Services.Handlers.Auth
             
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Для начала нажми на кнопку\n 'Поделиться контактом'",
+                    chatId: message.Chat.Id,
+                    text:
+                    "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере.",
+                    cancellationToken: cancellationToken
+                )
+            );
+
+            await Task.Delay(1500);
+            
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Чтобы отправить телефон нажми на кнопку\n 'Поделиться контактом'",
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
                 )
             );
@@ -209,6 +238,7 @@ namespace BottApp.Host.Services.Handlers.Auth
            if (getPhotoAsync.Result.TotalCount > 0)
            {
                var photo = getPhotoAsync.Result.Photos[0];
+               _messageService.MarkMessageToDelete(
                await botClient.SendPhotoAsync(
                    AdminChatID, photo[0].FileId,
                    $" Пользователь |{user.TelegramFirstName}|\n" + 
@@ -217,12 +247,13 @@ namespace BottApp.Host.Services.Handlers.Auth
                    $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
                    $" Хочет авторизоваться в системе",
                    replyMarkup: Keyboard.ApproveDeclineKeyboard
-               );
+               ));
            }
            else
            {
-               var filePath = @"Files/BOT_MAIN_PICTURE1.jpg";
+               var filePath = @"Files/BOT_MAIN_PICTURE1.png";
                await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+               _messageService.MarkMessageToDelete(
                await botClient.SendPhotoAsync(
                    AdminChatID, fileStream,
                    $" Пользователь |{user.TelegramFirstName}|\n" +
@@ -230,17 +261,14 @@ namespace BottApp.Host.Services.Handlers.Auth
                    $" Моб.тел. |{user.Phone}|\n" +
                    $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
                    $" Хочет авторизоваться в системе",
-                   replyMarkup: Keyboard.ApproveDeclineKeyboard);
+                   replyMarkup: Keyboard.ApproveDeclineKeyboard));
                    fileStream.Close();
-               
            }
-        
-
         }
         
         private static async Task SendMainPicture(ITelegramBotClient botClient, Message? message)
         {  
-            var filePath = @"Files/BOT_MAIN_PICTURE1.jpg";
+            var filePath = @"Files/BOT_MAIN_PICTURE1.png";
             await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             await botClient.SendPhotoAsync(chatId: message.Chat.Id, new InputOnlineFile(fileStream));
         }
