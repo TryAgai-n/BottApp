@@ -100,14 +100,14 @@ public class MessageService : IMessageService
 
     public void DeleteMessages(ITelegramBotClient? botClient)
     {
-        for (int i = _deleteMessageList.Count - 1; i >= 0; i--)
-        {
-            botClient.DeleteMessageAsync(
-                chatId: _deleteMessageList[i].Chat.Id,
-                messageId: _deleteMessageList[i].MessageId);
-
-            _deleteMessageList.RemoveAt(i);
-        }
+        // for (int i = _deleteMessageList.Count - 1; i >= 0; i--)
+        // {
+        //     botClient.DeleteMessageAsync(
+        //         chatId: _deleteMessageList[i].Chat.Id,
+        //         messageId: _deleteMessageList[i].MessageId);
+        //
+        //     _deleteMessageList.RemoveAt(i);
+        // }
 
 
         // foreach (var message in _deleteMessageList)

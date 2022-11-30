@@ -25,8 +25,7 @@ public class VotesHandler : IVotesHandler
     private readonly IMessageService _messageService;
     private readonly StateService _stateService;
 
-    private int Skip { get; set; } = 0;
-    private DocumentNomination CurrentNomination { get; set; }
+    private int Skip { get; set; }
     
     
 
@@ -159,7 +158,7 @@ public class VotesHandler : IVotesHandler
     
         //ToDo: Кандидатов может не быть в номинации, тогда буит null
         
-        CurrentNomination = nomination;
+
         
         //var firstDocument = await _documentRepository.GetFirstDocumentByPath(DocumentInPath.Votes);
 
@@ -176,12 +175,12 @@ public class VotesHandler : IVotesHandler
         // }
         // else
         // {
-            var firstDocument = await _documentRepository.GetFirstDocumentByNomination(nomination);
-            await using FileStream fileStream = new(firstDocument.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var firstDocument = await _documentRepository.ListDocumentsByNomination(new Pagination(0, 1), nomination);
+            await using FileStream fileStream = new(firstDocument.First().Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             await botClient.SendPhotoAsync(
                 chatId: callbackQuery.Message.Chat.Id,
-                photo: new InputOnlineFile(fileStream, firstDocument.DocumentType),
-                caption: firstDocument.Caption,
+                photo: new InputOnlineFile(fileStream, firstDocument.First().DocumentType),
+                caption: firstDocument.First().Caption,
                 replyMarkup: Keyboard.VotesKeyboard,
                 cancellationToken: cancellationToken);
      //   }
@@ -199,14 +198,14 @@ public class VotesHandler : IVotesHandler
             cancellationToken: cancellationToken
         );
 
-        var docCount = await _documentRepository.GetListCountByNomination(CurrentNomination);
+        var docCount = await _documentRepository.GetCountByNomination(CurrentNomination);
 
         Skip += skip;
         
         if (Skip < 0)
-            Skip = docCount.Count-1;
+            Skip = docCount-1;
         
-        if (Skip > docCount.Count-1)
+        if (Skip > docCount-1)
             Skip = 0;
         var pagination = new Pagination(Skip, 1);
         

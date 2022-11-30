@@ -9,7 +9,6 @@ namespace BottApp.Database.Document;
 
 public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRepository
 {
-    private IDocumentRepository _documentRepositoryImplementation;
 
     public DocumentRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
@@ -20,18 +19,28 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         return DbModel.Where(x => x.DocumentInPath == documentInPath);
     }
-    
+
+
     private IQueryable<DocumentModel> PrepareDocumentNomination(DocumentNomination? documentNomination)
     {
         return DbModel.Where(x => x.DocumentNomination == documentNomination);
     }
 
-    
-    public async Task<DocumentModel> CreateModel(int userId, string? documentType, string? documentExtension,
-        DateTime createdAt, string? path, string? caption,
-    DocumentInPath documentInPath, DocumentNomination? documentNomination)
+
+    public async Task<DocumentModel> CreateModel(
+        int userId,
+        string? documentType,
+        string? documentExtension,
+        DateTime createdAt,
+        string? path,
+        string? caption,
+        DocumentInPath documentInPath,
+        DocumentNomination? documentNomination
+    )
     {
-        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt, path, caption, documentInPath, documentNomination );
+        var model = DocumentModel.CreateModel(
+            userId, documentType, documentExtension, createdAt, path, caption, documentInPath, documentNomination
+        );
 
         var result = await CreateModelAsync(model);
         if (result == null)
@@ -41,7 +50,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
         return result;
     }
-    
+
 
     public async Task<DocumentModel> GetOneByDocumentId(int documentId)
     {
@@ -49,30 +58,28 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .Where(x => x.Id == documentId)
             .Include(x => x.DocumentStatisticModel)
             .FirstAsync();
-        
-        if(model == null)
+
+        if (model == null)
         {
             throw new Exception($"Document with id: {documentId} is not found");
         }
-        
+
         return model;
     }
 
 
     public async Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath)
     {
-        var model =  await PrepareDocumentPath(documentInPath)
-            .Include(x => x.DocumentStatisticModel)
-            .FirstAsync();
-        
-        if(model == null)
+        var model = await PrepareDocumentPath(documentInPath).Include(x => x.DocumentStatisticModel).FirstAsync();
+
+        if (model == null)
         {
             throw new Exception($"Document is not found");
         }
-        
+
         return model;
     }
-    
+
 
     public async Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination)
     {
@@ -80,56 +87,54 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
             .FirstAsync();
-        
-        if(model.DocumentNomination == null)
+
+        if (model.DocumentNomination == null)
         {
             throw new Exception($"Document by nomination is not found");
         }
-        
+
         return model;
     }
 
 
-    public Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath)
+    public async Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath)
     {
-        return PrepareDocumentPath(documentInPath)
+        return await PrepareDocumentPath(documentInPath)
             .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
             .ToListAsync();
     }
 
-    public Task<List<DocumentModel>> ListDocumentsByNomination(Pagination pagination, DocumentNomination documentNomination)
+
+    public async Task<List<DocumentModel>> ListDocumentsByNomination(
+        Pagination pagination,
+        DocumentNomination documentNomination
+    )
     {
-        return PrepareDocumentNomination(documentNomination)
+        return await PrepareDocumentNomination(documentNomination)
             .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
             .Skip(pagination.Skip)
             .Take(pagination.Take)
             .ToListAsync();
     }
-    
-    public Task<List<DocumentModel>> GetListCountByNomination(DocumentNomination documentNomination)
+
+
+    public Task<int> GetCountByNomination(DocumentNomination documentNomination)
     {
-        return PrepareDocumentNomination(documentNomination)
-            .OrderBy(x => x.Id)
-            .Include(x => x.DocumentStatisticModel)
-            .ToListAsync();
+        return PrepareDocumentNomination(documentNomination).CountAsync();
     }
+
 
     public Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath)
     {
-        return PrepareDocumentPath(documentInPath)
-            .OrderBy(x => x.Id)
-            .ToListAsync();
+        return PrepareDocumentPath(documentInPath).OrderBy(x => x.Id).ToListAsync();
     }
+
 
     public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
-        return DbModel
-            .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
-            .Include(x => x.DocumentStatisticModel)
-            .Skip(skip)
-            .Take(take)
-            .ToListAsync();
+        return DbModel.OrderByDescending(x => x.DocumentStatisticModel.LikeCount).Include(x => x.DocumentStatisticModel)
+            .Skip(skip).Take(take).ToListAsync();
     }
 }
