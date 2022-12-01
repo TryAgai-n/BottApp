@@ -44,7 +44,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
     {
         switch (callbackQuery.Data)
         {
-            case nameof(NominationButton.ToFirstNomination):
+            case nameof(NominationButton.Biggest):
                 
                 nomination = DocumentNomination.Biggest;
                 _isSendNomination = true;
@@ -56,7 +56,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 
                 return;
             
-            case nameof(NominationButton.ToSecondNomination):
+            case nameof(NominationButton.Smaller):
                 nomination = DocumentNomination.Smaller;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
@@ -67,8 +67,8 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
                 return;
             
-            case nameof(NominationButton.ToThirdNomination):
-                nomination = DocumentNomination.Fast;
+            case nameof(NominationButton.Fastest):
+                nomination = DocumentNomination.Fastest;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(

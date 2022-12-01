@@ -15,7 +15,7 @@ public class DocumentRepository: DbTestCase
    
         
         var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Biggest).Result;
-        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Fast).Result;
+        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Fastest).Result;
 
         Assert.NotNull(document);
         Assert.NotNull(document2);
@@ -40,8 +40,7 @@ public class DocumentRepository: DbTestCase
     {
         var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
         Assert.NotNull(user);
-
-        var pagination = new Pagination(0, 10);
+        
         // var basePathCollection = new List<DocumentModel>();
         var votesPathCollection = new List<DocumentModel>();
         //
@@ -73,7 +72,7 @@ public class DocumentRepository: DbTestCase
                 "Vote Path",
                 "Описание",
                 DocumentInPath.Votes,
-                DocumentNomination.Fast).Result);
+                DocumentNomination.Fastest).Result);
         }
         
 
@@ -82,23 +81,23 @@ public class DocumentRepository: DbTestCase
         
         Assert.Equal(DocumentNomination.Biggest, votesPathCollection[1].DocumentNomination);
         
-        // var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(new Pagination(0, 4), DocumentNomination.Biggest).Result;
-        // var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(new Pagination(0, 6), DocumentNomination.Fast).Result;
-        //
-        // Assert.Equal(3, CountInBiggest.Count);
-        // Assert.Equal(6, CountInFast.Count);
+        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(0, DocumentNomination.Biggest).Result;
+        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(0, DocumentNomination.Fastest).Result;
+        
+        Assert.Equal(3, CountInBiggest.Count);
+        Assert.Equal(6, CountInFast.Count);
 
-        // var listInBase = DatabaseContainer.Document.ListDocumentsByPath(pagination, DocumentInPath.Base).Result;
-        // Assert.Equal(1000, listInBase.Count);
+        var listInBase = DatabaseContainer.Document.ListDocumentsByPath(DocumentInPath.Base).Result;
+        Assert.Equal(1000, listInBase.Count);
 
-        //
-        // var firstDocumentInVotes = DatabaseContainer.Document.GetFirstDocumentByPath(DocumentInPath.Votes).Result;
-        //
-        // Assert.Equal("Votes Type 1", firstDocumentInVotes.DocumentType);
-        //
-        // var documentCollection = DatabaseContainer.Document.ListDocumentsByPath(new Pagination(3, 2), DocumentInPath.Votes).Result;
-        //
-        //
-        // Assert.Equal(2, documentCollection.Count);
+        
+        var firstDocumentInVotes = DatabaseContainer.Document.GetFirstDocumentByPath(DocumentInPath.Votes).Result;
+        
+        Assert.Equal("Votes Type 1", firstDocumentInVotes.DocumentType);
+        
+        var documentCollection = DatabaseContainer.Document.ListDocumentsByPath(DocumentInPath.Votes).Result;
+        
+        
+        Assert.Equal(2, documentCollection.Count);
     }
 }
