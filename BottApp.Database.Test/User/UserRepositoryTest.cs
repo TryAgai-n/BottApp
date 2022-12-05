@@ -21,20 +21,13 @@ public class UserRepositoryTest : DbTestCase
         Assert.Equal(123, userByUid.UId);
 
 
-        var findUserByUid = DatabaseContainer.User.FindOneByUid(20).Result;
-        if (findUserByUid == null)
-        {
-            findUserByUid = DatabaseContainer.User.CreateUser(20, "First", null).Result;
-        }
 
+        // var updatedUserPhone = DatabaseContainer.User.UpdateUserPhone(user, "12345").Result;
+        user.Phone = "54321";
 
-        Assert.NotNull(findUserByUid);
-        Assert.Equal(20, findUserByUid.UId);
-        Assert.NotEqual(50, findUserByUid.UId);
-        Assert.Equal("First", findUserByUid.TelegramFirstName);
-        Assert.Null(findUserByUid.Phone);
-        Assert.Equal(OnState.Auth, findUserByUid.OnState);
-
+        var findUser = DatabaseContainer.User.FindOneByUid(123).Result;
+        Assert.NotNull(findUser.Phone);
+        Assert.Equal("54321", findUser.Phone);
 
 
 

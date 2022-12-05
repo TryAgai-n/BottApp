@@ -3,6 +3,6 @@
 public enum DocumentNomination
 {
     Biggest,
-    Fast,
+    Fastest,
     Smaller,
 }

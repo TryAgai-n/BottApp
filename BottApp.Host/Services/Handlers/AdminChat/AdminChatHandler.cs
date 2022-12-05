@@ -80,7 +80,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 cancellationToken: cancellationToken
             );
             
-            _messageService.DeleteMessages(botClient);
+            await _messageService.DeleteMessages(botClient, findUserByUid);
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
@@ -108,7 +108,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                   cancellationToken: cancellationToken
               );
               
-              _messageService.DeleteMessages(botClient);
+              await _messageService.DeleteMessages(botClient, findUserByUid);
               
               return await botClient.SendTextMessageAsync
             (

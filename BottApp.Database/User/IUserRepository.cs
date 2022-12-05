@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BottApp.Database.Document;
 
 namespace BottApp.Database.User
 {
@@ -17,8 +18,13 @@ namespace BottApp.Database.User
         
         Task<bool> UpdateUserFirstName(UserModel model, string? firstName);
         Task<bool> UpdateUserLastName(UserModel model, string? lastName);
-        
         Task<bool> ChangeOnState(UserModel model, OnState onState);
+
+        #region TestList
+
+        // Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination);
+
+        #endregion
         
     }
 }

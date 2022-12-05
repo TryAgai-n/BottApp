@@ -3,6 +3,7 @@ using System;
 using BottApp.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    partial class PostgreSqlContextModelSnapshot : ModelSnapshot
+    [Migration("20221201070353_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,7 +60,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Document", (string)null);
+                    b.ToTable("Document");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
@@ -82,7 +84,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("LikedDocument", (string)null);
+                    b.ToTable("LikedDocument");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -107,7 +109,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("DocumentId")
                         .IsUnique();
 
-                    b.ToTable("DocumentStatistic", (string)null);
+                    b.ToTable("DocumentStatistic");
                 });
 
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
@@ -134,7 +136,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message", (string)null);
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
@@ -171,7 +173,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("UId")
                         .IsUnique();
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>

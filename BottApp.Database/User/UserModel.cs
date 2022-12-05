@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.Document;
-using BottApp.Database.Message;
+using BottApp.Database.UserMessage;
 using Microsoft.EntityFrameworkCore;
 
 namespace BottApp.Database.User;
@@ -27,6 +27,9 @@ public class UserModel : AbstractModel
 
     public List<MessageModel> Messages { get; set; }
     public List<DocumentModel> Documents { get; set; }
+
+    
+    public DocumentNomination? Nomination { get; set; }
 
 
     public static UserModel Create(long uid, string? telegramFirstName, string? phone)

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BottApp.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace BottApp.Database.Message;
+namespace BottApp.Database.UserMessage;
 
 public class MessageRepository : AbstractRepository<MessageModel>, IMessageRepository
 {

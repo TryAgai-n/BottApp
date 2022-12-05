@@ -1,8 +1,8 @@
 ﻿using BottApp.Database.Document;
 using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
-using BottApp.Database.Message;
 using BottApp.Database.User;
+using BottApp.Database.UserMessage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

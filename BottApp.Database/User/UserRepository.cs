@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using BottApp.Database.Document;
 using Microsoft.EntityFrameworkCore;
 
 namespace BottApp.Database.User
@@ -105,7 +106,16 @@ namespace BottApp.Database.User
 
             return result > 0;
         }
-        
+
+
+        // public async Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination)
+        // {
+        //     var user = await GetOneByUid(model.UId);
+        //
+        //     return true;
+        // }
+
+
         public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
         {
             var user = await GetOneByUid(uid);

@@ -107,20 +107,20 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
 
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
-        Pagination pagination,
-        DocumentNomination documentNomination
+        int skip,
+        DocumentNomination? documentNomination
     )
     {
         return await PrepareDocumentNomination(documentNomination)
             .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
-            .Skip(pagination.Skip)
-            .Take(pagination.Take)
+            .Skip(skip)
+            .Take(1)
             .ToListAsync();
     }
 
 
-    public Task<int> GetCountByNomination(DocumentNomination documentNomination)
+    public Task<int> GetCountByNomination(DocumentNomination? documentNomination)
     {
         return PrepareDocumentNomination(documentNomination).CountAsync();
     }

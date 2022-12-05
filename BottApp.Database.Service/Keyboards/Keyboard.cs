@@ -87,15 +87,15 @@ public class Keyboard
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый забавный", nameof(NominationButton.ToFirstNomination)),
+                InlineKeyboardButton.WithCallbackData("Самый забавный", nameof(NominationButton.Biggest)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый круглый", nameof(NominationButton.ToSecondNomination)),
+                InlineKeyboardButton.WithCallbackData("Самый круглый", nameof(NominationButton.Smaller)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.ToThirdNomination)),
+                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.Fastest)),
             },
             new []
             {

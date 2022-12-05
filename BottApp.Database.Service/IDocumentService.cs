@@ -7,7 +7,7 @@ namespace BottApp.Database.Service;
 
 public interface IDocumentService
 {
-    Task UploadFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient);
+    Task UploadFile(Message message, ITelegramBotClient _botClient);
 
-    Task<bool> UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption);
+    Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption);
 }

@@ -1,6 +1,6 @@
-﻿using BottApp.Database.Message;
-using BottApp.Database.Service.Keyboards;
+﻿using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
+using BottApp.Database.UserMessage;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -10,7 +10,7 @@ public class MessageService : IMessageService
 {
     private readonly IUserRepository _userRepository;
     private readonly IMessageRepository _messageRepository;
-    private List<Telegram.Bot.Types.Message> _deleteMessageList = new();
+    private List<Message> _messageList = new();
 
 
     public MessageService(IUserRepository userRepository, IMessageRepository messageRepository)
@@ -20,7 +20,7 @@ public class MessageService : IMessageService
     }
 
 
-    public async Task SaveMessage(Telegram.Bot.Types.Message message)
+    public async Task SaveMessage(Message message)
     {
         var user = await _userRepository.FindOneByUid((int)message.Chat.Id);
         string type = message.Type.ToString();
@@ -34,7 +34,7 @@ public class MessageService : IMessageService
         await _messageRepository.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
     }
 
-    public async Task<Telegram.Bot.Types.Message> TryEditInlineMessage(
+    public async Task<Message> TryEditInlineMessage(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
@@ -94,26 +94,39 @@ public class MessageService : IMessageService
     
     public Task MarkMessageToDelete(Telegram.Bot.Types.Message message)
     {
-        _deleteMessageList.Add(message);
+        _messageList.Add(message);
         return Task.CompletedTask;
     }
 
-    public void DeleteMessages(ITelegramBotClient? botClient)
+  
+    
+    public async Task DeleteMessages(ITelegramBotClient botClient, UserModel user)
     {
-        // for (int i = _deleteMessageList.Count - 1; i >= 0; i--)
-        // {
-        //     botClient.DeleteMessageAsync(
-        //         chatId: _deleteMessageList[i].Chat.Id,
-        //         messageId: _deleteMessageList[i].MessageId);
-        //
-        //     _deleteMessageList.RemoveAt(i);
-        // }
-
-
-        // foreach (var message in _deleteMessageList)
-        // { 
-        //    
-        //     _deleteMessageList.RemoveAt(message.MessageId);
-        // }
+        var tempMessageList = new List<Message>();
+        
+        foreach (var message in _messageList)
+        {
+            if (message.Chat.Id == user.UId)
+            {
+                tempMessageList.Add(message);
+            }
+        }
+        
+        if (tempMessageList.Count != 0)
+        {
+            foreach (var message in tempMessageList)
+            {
+                _messageList.Remove(message);
+            }
+            
+            for (var i = tempMessageList.Count - 1; i >= 0; i--)
+            {
+                await botClient.DeleteMessageAsync(
+                    chatId: tempMessageList[i].Chat.Id,
+                    messageId: tempMessageList[i].MessageId);
+                
+                tempMessageList.RemoveAt(i);
+            }
+        }
     }
 }

@@ -65,7 +65,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && _isAllDataGrip)
             {
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -73,12 +73,12 @@ namespace BottApp.Host.Services.Handlers.Auth
                     )
                 );
                 await Task.Delay(10000);
-                _messageService.DeleteMessages(botClient);
+               await _messageService.DeleteMessages(botClient, user);
             }
 
             if ((message.Contact != null && !_isSendPhone))
             {
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -97,7 +97,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    _messageService.DeleteMessages(botClient);
+                    await _messageService.DeleteMessages(botClient, user);
 
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
@@ -114,7 +114,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await Task.Delay(1000);
 
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Отправьте имя в виде текста")
@@ -126,7 +126,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    _messageService.DeleteMessages(botClient);
+                    await _messageService.DeleteMessages(botClient, user);
                     
                     await _userRepository.UpdateUserLastName(user, message.Text);
 
@@ -142,13 +142,13 @@ namespace BottApp.Host.Services.Handlers.Auth
                         )
                     );
                     await Task.Delay(10000);
-                    _messageService.DeleteMessages(botClient);
+                    await _messageService.DeleteMessages(botClient, user);
                     return;
                 }
 
                 await Task.Delay(1000);
 
-                 _messageService.DeleteMessages(botClient);
+                 await _messageService.DeleteMessages(botClient, user);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -157,7 +157,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 );
             }
             
-            _messageService.DeleteMessages(botClient);
+            await _messageService.DeleteMessages(botClient, user);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(

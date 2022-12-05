@@ -44,7 +44,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
     {
         switch (callbackQuery.Data)
         {
-            case nameof(NominationButton.ToFirstNomination):
+            case nameof(NominationButton.Biggest):
                 
                 nomination = DocumentNomination.Biggest;
                 _isSendNomination = true;
@@ -56,7 +56,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 
                 return;
             
-            case nameof(NominationButton.ToSecondNomination):
+            case nameof(NominationButton.Smaller):
                 nomination = DocumentNomination.Smaller;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
@@ -67,8 +67,8 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
                 return;
             
-            case nameof(NominationButton.ToThirdNomination):
-                nomination = DocumentNomination.Fast;
+            case nameof(NominationButton.Fastest):
+                nomination = DocumentNomination.Fastest;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -83,7 +83,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 _isSendNomination = false;
                 _isSendCaption = false;
                 _isSendDocument = false;
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 return;
         }
@@ -110,7 +110,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             {
                 _caption = message.Text;
                 _isSendCaption = true;
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Наконец загрузите фотографию в виде документа :)"));
                 return;
@@ -130,7 +130,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Все сохранил, спасибо!"));
                 await Task.Delay(1000);
-                _messageService.DeleteMessages(botClient);
+                await _messageService.DeleteMessages(botClient, user);
                 
                 _isSendNomination = false;
                 _isSendCaption = false;

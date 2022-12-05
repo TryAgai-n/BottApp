@@ -22,7 +22,7 @@ public class StateService
 
     public async Task Startup(UserModel user, OnState state, ITelegramBotClient bot, Message message)
     {
-         _messageService.DeleteMessages(bot);
+         await _messageService.DeleteMessages(bot, user);
         await _userRepository.ChangeOnState(user, state);
 
         var start = state switch

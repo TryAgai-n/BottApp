@@ -28,9 +28,9 @@ public enum VotesButton
 }
 public enum NominationButton
 {
-  ToFirstNomination,
-  ToSecondNomination,
-  ToThirdNomination,
+  Biggest,
+  Smaller,
+  Fastest,
 }
 
 public enum UploadCandidateButton

@@ -22,7 +22,7 @@ public class DocumentService : IDocumentService
     }
 
     
-    public async Task UploadFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient)
+    public async Task UploadFile(Message message, ITelegramBotClient _botClient)
     {
         var documentType = message.Type.ToString();
         var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
@@ -59,7 +59,7 @@ public class DocumentService : IDocumentService
     
 
 
-    public async Task<bool> UploadVoteFile(Telegram.Bot.Types.Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption)
+    public async Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption)
     {
         var documentType = message.Type.ToString();
         var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
