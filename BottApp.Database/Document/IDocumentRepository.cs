@@ -22,7 +22,7 @@ public interface IDocumentRepository
     Task<DocumentModel> GetOneByDocumentId(int documentId);
     
     Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);
-    Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination);
+    Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? nomination);
     Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath);
     Task<List<DocumentModel>> ListDocumentsByNomination(int skip, DocumentNomination documentNomination);
     Task<int> GetCountByNomination(DocumentNomination documentNomination);

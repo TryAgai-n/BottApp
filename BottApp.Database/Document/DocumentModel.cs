@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
-using BottApp.Utils;
 
 namespace BottApp.Database.Document;
 

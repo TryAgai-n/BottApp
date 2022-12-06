@@ -81,16 +81,15 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
 
 
-    public async Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination)
+    public async Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? nomination)
     {
-        var model = await PrepareDocumentNomination(documentNomination)
-            .OrderBy(x => x.Id)
+        var model = await PrepareDocumentNomination(nomination)
             .Include(x => x.DocumentStatisticModel)
             .FirstAsync();
 
         if (model.DocumentNomination == null)
         {
-            throw new Exception($"Document by nomination is not found");
+            throw new Exception($"Document by nomination {nomination} is not found");
         }
 
         return model;
