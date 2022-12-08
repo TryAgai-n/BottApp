@@ -18,7 +18,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
     private bool _isSendDocument;
     private bool _isSendCaption;
     private bool _isSendNomination;
-    private DocumentNomination nomination;
+    private InNomination nomination;
     private string _caption;
     
     private readonly StateService _stateService;
@@ -46,7 +46,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         {
             case nameof(NominationButton.Biggest):
                 
-                nomination = DocumentNomination.Biggest;
+                nomination = InNomination.Biggest;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -57,7 +57,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Smaller):
-                nomination = DocumentNomination.Smaller;
+                nomination = InNomination.Smaller;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -68,7 +68,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Fastest):
-                nomination = DocumentNomination.Fastest;
+                nomination = InNomination.Fastest;
                 _isSendNomination = true;
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(

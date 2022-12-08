@@ -15,16 +15,16 @@ public interface IDocumentRepository
         string? path,
         string? caption,
         DocumentInPath documentInPath,
-        DocumentNomination? documentNomination
+        InNomination? documentNomination
     );
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);
     
     Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);
-    Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination);
+    Task<DocumentModel> GetFirstDocumentByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath);
-    Task<List<DocumentModel>> ListDocumentsByNomination(int skip, DocumentNomination? documentNomination);
-    Task<int> GetCountByNomination(DocumentNomination? documentNomination);
+    Task<List<DocumentModel>> ListDocumentsByNomination(int skip, InNomination? documentNomination);
+    Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
 }

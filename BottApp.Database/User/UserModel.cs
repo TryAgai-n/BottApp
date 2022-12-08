@@ -27,8 +27,10 @@ public class UserModel : AbstractModel
 
     public List<MessageModel> Messages { get; set; }
     public List<DocumentModel> Documents { get; set; }
-
     
+    public Profile Profile => new Profile(FirstName, LastName);
+
+
     public DocumentNomination? Nomination { get; set; }
 
 

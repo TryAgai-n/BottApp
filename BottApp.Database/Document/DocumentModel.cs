@@ -34,7 +34,7 @@ public class DocumentModel : AbstractModel
     [Required]
     public DocumentInPath DocumentInPath { get; set; }
     
-    public DocumentNomination? DocumentNomination { get; set; }
+    public InNomination? DocumentNomination { get; set; }
     
     public DocumentStatisticModel DocumentStatisticModel { get; set; }
     
@@ -49,7 +49,7 @@ public class DocumentModel : AbstractModel
         string? path,
         string? caption,
         DocumentInPath documentInPath,
-        DocumentNomination? documentNomination
+        InNomination? documentNomination
     )
     {
         return new DocumentModel

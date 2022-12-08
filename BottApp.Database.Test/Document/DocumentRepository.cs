@@ -14,8 +14,8 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
    
         
-        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Biggest).Result;
-        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, DocumentNomination.Fastest).Result;
+        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.Biggest).Result;
+        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.Fastest).Result;
 
         Assert.NotNull(document);
         Assert.NotNull(document2);
@@ -58,7 +58,7 @@ public class DocumentRepository: DbTestCase
                 "Vote Path",
                 "Описание",
                 DocumentInPath.Votes,
-                DocumentNomination.Biggest).Result);
+                InNomination.Biggest).Result);
         }
         
         
@@ -72,17 +72,17 @@ public class DocumentRepository: DbTestCase
                 "Vote Path",
                 "Описание",
                 DocumentInPath.Votes,
-                DocumentNomination.Fastest).Result);
+                InNomination.Fastest).Result);
         }
         
 
         // Assert.Equal(20, basePathCollection.Count);
         Assert.Equal(9, votesPathCollection.Count);
         
-        Assert.Equal(DocumentNomination.Biggest, votesPathCollection[1].DocumentNomination);
+        Assert.Equal(InNomination.Biggest, votesPathCollection[1].DocumentNomination);
         
-        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(0, DocumentNomination.Biggest).Result;
-        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(0, DocumentNomination.Fastest).Result;
+        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(0, InNomination.Biggest).Result;
+        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(0, InNomination.Fastest).Result;
         
         Assert.Equal(3, CountInBiggest.Count);
         Assert.Equal(6, CountInFast.Count);

@@ -1,6 +1,6 @@
 ﻿namespace BottApp.Database.Document;
 
-public enum DocumentNomination
+public enum InNomination
 {
     Biggest,
     Fastest,

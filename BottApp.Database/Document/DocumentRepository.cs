@@ -21,7 +21,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
 
 
-    private IQueryable<DocumentModel> PrepareDocumentNomination(DocumentNomination? documentNomination)
+    private IQueryable<DocumentModel> PrepareDocumentNomination(InNomination? documentNomination)
     {
         return DbModel.Where(x => x.DocumentNomination == documentNomination);
     }
@@ -35,7 +35,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         string? path,
         string? caption,
         DocumentInPath documentInPath,
-        DocumentNomination? documentNomination
+        InNomination? documentNomination
     )
     {
         var model = DocumentModel.CreateModel(
@@ -81,7 +81,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
 
 
-    public async Task<DocumentModel> GetFirstDocumentByNomination(DocumentNomination? documentNomination)
+    public async Task<DocumentModel> GetFirstDocumentByNomination(InNomination? documentNomination)
     {
         var model = await PrepareDocumentNomination(documentNomination)
             .OrderBy(x => x.Id)
@@ -108,7 +108,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
         int skip,
-        DocumentNomination? documentNomination
+        InNomination? documentNomination
     )
     {
         return await PrepareDocumentNomination(documentNomination)
@@ -120,7 +120,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
 
 
-    public Task<int> GetCountByNomination(DocumentNomination? documentNomination)
+    public Task<int> GetCountByNomination(InNomination? documentNomination)
     {
         return PrepareDocumentNomination(documentNomination).CountAsync();
     }

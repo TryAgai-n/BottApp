@@ -59,7 +59,7 @@ public class DocumentService : IDocumentService
     
 
 
-    public async Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, DocumentNomination documentNomination, string? caption)
+    public async Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, InNomination inNomination, string? caption)
     {
         var documentType = message.Type.ToString();
         var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
@@ -82,7 +82,7 @@ public class DocumentService : IDocumentService
             newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
-        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, caption, DocumentInPath.Votes, documentNomination);
+        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, caption, DocumentInPath.Votes, inNomination);
         ///
 
         await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);

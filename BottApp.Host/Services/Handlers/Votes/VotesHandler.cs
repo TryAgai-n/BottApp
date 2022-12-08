@@ -67,24 +67,24 @@ public class VotesHandler : IVotesHandler
                 return;
             
             case nameof(NominationButton.Biggest):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  DocumentNomination.Biggest, user);
+                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  InNomination.Biggest, user);
                 return;
             
             case nameof(NominationButton.Smaller):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  DocumentNomination.Smaller, user);
+                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  InNomination.Smaller, user);
                 return;
             
             case nameof(NominationButton.Fastest):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken, DocumentNomination.Fastest, user);
+                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken, InNomination.Fastest, user);
                 return;
             
             
             case nameof(VotesButton.Right):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.Nomination);//TODO
+                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.InNomination);//TODO
                 return;
             
             case nameof(VotesButton.Left):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.Nomination);//TODO:
+                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.InNomination);//TODO:
                 return;
             
             
@@ -104,14 +104,14 @@ public class VotesHandler : IVotesHandler
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
-        DocumentNomination nomination,
+        InNomination nomination,
         UserModel user,
         int skip = 0
         )
     {
         await _messageService.DeleteMessages(botClient, user);
         
-        user.Nomination = nomination;
+        user.InNomination = nomination;
 
         var firstDocument = await _documentRepository.ListDocumentsByNomination(skip, nomination);
             await using FileStream fileStream = new(firstDocument.First().Path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -130,7 +130,7 @@ public class VotesHandler : IVotesHandler
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken, 
-        DocumentNomination? nomination,
+        InNomination? nomination,
         int take = 0
         )
     {
