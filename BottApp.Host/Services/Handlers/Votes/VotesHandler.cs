@@ -1,4 +1,3 @@
-using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
@@ -103,7 +102,7 @@ public class VotesHandler : IVotesHandler
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
         InNomination nomination,
-        UserModel? user,
+        UserModel user,
         int skip = 0
     )
     {
@@ -134,7 +133,7 @@ public class VotesHandler : IVotesHandler
         await botClient.SendPhotoAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 photo: new InputOnlineFile(fileStream, document.DocumentType),
-                caption: document.Id + " " + document.DocumentNomination,
+                caption: 1 + " " + document.DocumentNomination,
                 replyMarkup: Keyboard.VotesKeyboard,
                 cancellationToken: cancellationToken
                 ));
@@ -155,23 +154,24 @@ public class VotesHandler : IVotesHandler
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
         
-         var docCount = await _documentRepository.GetCountByNomination(user.InNomination);
+        
          
         
         var captionItem = callbackQuery.Message.Caption.Split(' ');
-        var _skip = Convert.ToInt32(captionItem[0]);
+        var offset = Convert.ToInt32(captionItem[0]);
         var nomination = (InNomination)Enum.Parse(typeof(InNomination), captionItem[1]);
+        var docCount = await _documentRepository.GetCountByNomination(nomination);
         
-        _skip += skip;
-        if (_skip <= 0)
-            _skip = docCount;
+        offset += skip;
+        if (offset <= 0)
+            offset = docCount;
         
-        if (_skip > docCount)
-            _skip = 1;
+        if (offset > docCount)
+            offset = 1;
         
-        var listDocumentsForVotes = await _documentRepository.ListDocumentsByNomination(nomination, _skip-1);
+        var documents = await _documentRepository.ListDocumentsByNomination(nomination, offset-1);
         
-        var document = listDocumentsForVotes.First();
+        var document = documents.First();
 
         await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
         
@@ -185,10 +185,11 @@ public class VotesHandler : IVotesHandler
 
          fileStream.Close();
          
+         
          return await botClient.EditMessageCaptionAsync(
             chatId: callbackQuery.Message.Chat.Id,
             messageId: callbackQuery.Message.MessageId,
-            caption: document.Id + " " + document.DocumentNomination,
+            caption: offset + " " + document.DocumentNomination,
             replyMarkup: Keyboard.VotesKeyboard,
             cancellationToken: cancellationToken);
     }
