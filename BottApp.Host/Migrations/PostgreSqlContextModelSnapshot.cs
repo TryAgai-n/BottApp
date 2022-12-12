@@ -58,7 +58,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Document", (string)null);
+                    b.ToTable("Document");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
@@ -82,7 +82,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("LikedDocument", (string)null);
+                    b.ToTable("LikedDocument");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -107,10 +107,50 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("DocumentId")
                         .IsUnique();
 
-                    b.ToTable("DocumentStatistic", (string)null);
+                    b.ToTable("DocumentStatistic");
                 });
 
-            modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
+            modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("InNomination")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("OnState")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TelegramFirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TelegramLastName")
+                        .HasColumnType("text");
+
+                    b.Property<long>("UId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UId")
+                        .IsUnique();
+
+                    b.ToTable("User");
+                });
+
+            modelBuilder.Entity("BottApp.Database.UserMessage.MessageModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,44 +174,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message", (string)null);
-                });
-
-            modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Nomination")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OnState")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TelegramFirstName")
-                        .HasColumnType("text");
-
-                    b.Property<long>("UId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UId")
-                        .IsUnique();
-
-                    b.ToTable("User", (string)null);
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
@@ -207,7 +210,7 @@ namespace BottApp.Host.Migrations
                     b.Navigation("DocumentModel");
                 });
 
-            modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
+            modelBuilder.Entity("BottApp.Database.UserMessage.MessageModel", b =>
                 {
                     b.HasOne("BottApp.Database.User.UserModel", "UserModel")
                         .WithMany("Messages")

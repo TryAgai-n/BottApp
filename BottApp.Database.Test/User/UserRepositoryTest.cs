@@ -9,10 +9,13 @@ public class UserRepositoryTest : DbTestCase
     [Fact]
     public void CreateUserTest()
     {
-        var user = DatabaseContainer.User.CreateUser(123, "Hello", null).Result;
-        Assert.NotNull(user);
+        
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
+        
+        
         Assert.Equal(123, user.UId);
-        Assert.Equal("Hello", user.TelegramFirstName);
+        Assert.Equal("FirstName", user.TelegramFirstName);
         Assert.Null(user.Phone);
 
 
@@ -38,7 +41,9 @@ public class UserRepositoryTest : DbTestCase
     [Fact]
     public void ChangeUserOnStateTest()
     {
-        var user = DatabaseContainer.User.CreateUser(123, "Hello", null).Result;
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
+        
         Assert.Equal(OnState.Auth, user.OnState);
 
         var changeUserOnState = DatabaseContainer.User.ChangeOnState(user, OnState.Menu).Result;
@@ -48,43 +53,30 @@ public class UserRepositoryTest : DbTestCase
 
 
     [Fact]
-    public void UpdateUserFullName()
+    public void UpdateUserProfileTest()
     {
-        var user = DatabaseContainer.User.CreateUser(011, "TgFirstName", null).Result;
-        
-        var updateFirstname = DatabaseContainer.User.UpdateUserFullName(user,"Имя", null).Result;
-        
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
         Assert.NotNull(user);
-        Assert.NotNull(user.FirstName);
-        Assert.Null(user.LastName);
+
+        var profile = new Profile("Name", "Last");
+        var updateProfile = DatabaseContainer.User.UpdateUserFullName(user, profile).Result;
         
-        _ = DatabaseContainer.User.UpdateUserFullName(user,"Имя", "Фамилия").Result;
+        Assert.Equal(profile.FirstName, user.FirstName);
+        Assert.Equal(profile.LastName,user.LastName);
         
-        Assert.Equal("Имя", user.FirstName);
-        Assert.Equal("Фамилия",user.LastName);
 
         
-        _ = DatabaseContainer.User.UpdateUserFirstName(user,"Новое имя").Result;
-        _ = DatabaseContainer.User.UpdateUserLastName(user,"Новая фамилия").Result;
-        
-        Assert.Equal("Новое имя", user.FirstName);
-        Assert.Equal("Новая фамилия",user.LastName);
+        // _ = DatabaseContainer.User.UpdateUserFullName(user,"Новое имя", null).Result;
+        // _ = DatabaseContainer.User.UpdateUserFullName(user, null,"Новая фамилия").Result;
+        //
+        // Assert.Equal("Новое имя", user.FirstName);
+        // Assert.Equal("Новая фамилия",user.LastName);
+        //
+        // Assert.Equal("Новая фамилия" + ", " + "Новое имя",user.FullName);
         
      //   _ = DatabaseContainer.User.UpdateUserFirstName(user,"Новое имя").Result;
      //  _ = DatabaseContainer.User.UpdateUserLastName(user,"Новая фамилия").Result;
     }
     
-// [Fact]
-    // public void UpdateUserPhoneTest()
-    // {
-    //     var user = DatabaseContainer.User.CreateUser(3435, "Hello", null, UserState.Auth).Result;
-    //     Assert.NotNull(user);
-    //     Assert.Null(user.Phone);
-
-
-    // var updatedUser = DatabaseContainer.User.UpdateUserPhone(user, "500").Result;
-    //
-    // Assert.NotNull(user.Phone);
-    //     // Assert.Equal("500", user.Phone);
-    // }
 }

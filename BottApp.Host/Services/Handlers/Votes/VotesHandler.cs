@@ -22,7 +22,7 @@ public class VotesHandler : IVotesHandler
     private readonly IMessageService _messageService;
     private readonly StateService _stateService;
 
-    private int Take { get; set; }
+
     public VotesHandler(
         IUserRepository userRepository,
         IDocumentRepository documentRepository,
@@ -67,26 +67,24 @@ public class VotesHandler : IVotesHandler
                 return;
             
             case nameof(NominationButton.Biggest):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  InNomination.Biggest, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Biggest, user);
                 return;
             
             case nameof(NominationButton.Smaller):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken,  InNomination.Smaller, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Smaller, user);
                 return;
             
             case nameof(NominationButton.Fastest):
-                await ViewFirstCandidate(botClient, callbackQuery, cancellationToken, InNomination.Fastest, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Fastest, user);
                 return;
             
-            
             case nameof(VotesButton.Right):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.InNomination);//TODO
+                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user, 1);
                 return;
             
             case nameof(VotesButton.Left):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user.InNomination);//TODO:
+                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user, -1);
                 return;
-            
             
             case nameof(VotesButton.ToVotes):
                 await BackToVotes(botClient, callbackQuery, cancellationToken, user);
@@ -100,29 +98,47 @@ public class VotesHandler : IVotesHandler
     
     #region TestSomeMethods
 
-    async Task ViewFirstCandidate(
+    async Task ViewCandidates(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
         InNomination nomination,
-        UserModel user,
+        UserModel? user,
         int skip = 0
-        )
+    )
     {
         await _messageService.DeleteMessages(botClient, user);
         
-        user.InNomination = nomination;
+        var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip);
+        var document = documents.FirstOrDefault();
+        
+        if (document == null)
+        {
+            await _messageService.DeleteMessages(botClient, user);
 
-        var firstDocument = await _documentRepository.ListDocumentsByNomination(skip, nomination);
-            await using FileStream fileStream = new(firstDocument.First().Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!"
+            ));
+
+            await Task.Delay(3000, cancellationToken);
             
+            await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
+            return;
+        }
+
+        await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        
+        await _messageService.MarkMessageToDelete(
         await botClient.SendPhotoAsync(
                 chatId: callbackQuery.Message.Chat.Id,
-                photo: new InputOnlineFile(fileStream, firstDocument.First().DocumentType),
-                caption: firstDocument.First().Caption + " UserInNomination "+ nomination,
+                photo: new InputOnlineFile(fileStream, document.DocumentType),
+                caption: document.Id + " " + document.DocumentNomination,
                 replyMarkup: Keyboard.VotesKeyboard,
                 cancellationToken: cancellationToken
-                );
+                ));
+        
     }
     
     
@@ -130,36 +146,40 @@ public class VotesHandler : IVotesHandler
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken, 
-        InNomination? nomination,
-        int take = 0
-        )
+        UserModel user,
+        int skip
+    )
     {
         await botClient.SendChatActionAsync(
             callbackQuery.Message.Chat.Id,
             ChatAction.UploadPhoto,
             cancellationToken: cancellationToken);
         
-        var docCount = await _documentRepository.GetCountByNomination(nomination);
+         var docCount = await _documentRepository.GetCountByNomination(user.InNomination);
+         
+        
+        var captionItem = callbackQuery.Message.Caption.Split(' ');
+        var _skip = Convert.ToInt32(captionItem[0]);
+        var nomination = (InNomination)Enum.Parse(typeof(InNomination), captionItem[1]);
+        
+        _skip += skip;
+        if (_skip <= 0)
+            _skip = docCount;
+        
+        if (_skip > docCount)
+            _skip = 1;
+        
+        var listDocumentsForVotes = await _documentRepository.ListDocumentsByNomination(nomination, _skip-1);
+        
+        var document = listDocumentsForVotes.First();
 
-        Take += take;
-        
-        if (Take < 0)
-            Take = docCount-1;
-        
-        if (Take > docCount-1)
-            Take = 0;
-        
-        var listDocumentsForVotes = await _documentRepository.ListDocumentsByNomination(Take, nomination);
-        
-        var file = listDocumentsForVotes.First();
-
-        await using FileStream fileStream = new(file.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
         
         
          await botClient.EditMessageMediaAsync(
             chatId: callbackQuery.Message.Chat.Id,
             messageId: callbackQuery.Message.MessageId,
-            media: new InputMediaPhoto(new InputMedia(fileStream, file.DocumentType)),
+            media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentType)),
             replyMarkup: Keyboard.VotesKeyboard,
             cancellationToken: cancellationToken);
 
@@ -168,7 +188,7 @@ public class VotesHandler : IVotesHandler
          return await botClient.EditMessageCaptionAsync(
             chatId: callbackQuery.Message.Chat.Id,
             messageId: callbackQuery.Message.MessageId,
-            caption: file.Caption,
+            caption: document.Id + " " + document.DocumentNomination,
             replyMarkup: Keyboard.VotesKeyboard,
             cancellationToken: cancellationToken);
     }

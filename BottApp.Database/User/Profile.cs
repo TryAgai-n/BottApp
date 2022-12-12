@@ -2,12 +2,19 @@
 
 public class Profile
 {
-    public Profile(string firstName, string lastName)
-    {
-        _firstName = firstName;
-        _lastName = lastName;
-    }
-    private readonly string _firstName;
-    private readonly string _lastName;
 
+    public string? FirstName { get; }
+    public string? LastName { get; }
+    
+    
+    public Profile(string? firstName, string? lastName)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+    }
+
+    
+    
+    public string GetFullName => LastName + ", " + FirstName;
+    
 }

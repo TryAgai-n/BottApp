@@ -105,7 +105,8 @@ namespace BottApp.Host.Services.Handlers.Auth
                         )
                     );
 
-                    await _userRepository.UpdateUserFirstName(user, message.Text);
+                    var profile = new Profile(message.Text, null);
+                    await _userRepository.UpdateUserFullName(user, profile);
 
                     _isSendFirstName = true;
 
@@ -128,7 +129,10 @@ namespace BottApp.Host.Services.Handlers.Auth
                 {
                     await _messageService.DeleteMessages(botClient, user);
                     
-                    await _userRepository.UpdateUserLastName(user, message.Text);
+                    
+                    var profile = new Profile(null, message.Text);
+
+                    await _userRepository.UpdateUserFullName(user, profile);
 
                     _isSendLastName = true;
                     _isAllDataGrip = true;
@@ -237,32 +241,32 @@ namespace BottApp.Host.Services.Handlers.Auth
            
            if (getPhotoAsync.Result.TotalCount > 0)
            {
-               var photo = getPhotoAsync.Result.Photos[0];
-               _messageService.MarkMessageToDelete(
-               await botClient.SendPhotoAsync(
-                   AdminChatID, photo[0].FileId,
-                   $" Пользователь |{user.TelegramFirstName}|\n" + 
-                   $" @{message.From.Username}    |{user.UId}|\n" +
-                   $" Моб.тел. |{user.Phone}|\n" +
-                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
-                   $" Хочет авторизоваться в системе",
-                   replyMarkup: Keyboard.ApproveDeclineKeyboard
-               ));
+               // var photo = getPhotoAsync.Result.Photos[0];
+               // _messageService.MarkMessageToDelete(
+               // await botClient.SendPhotoAsync(
+               //     AdminChatID, photo[0].FileId,
+               //     $" Пользователь |{user.TelegramFirstName}|\n" + 
+               //     $" @{message.From.Username}    |{user.UId}|\n" +
+               //     $" Моб.тел. |{user.Phone}|\n" +
+               //     $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+               //     $" Хочет авторизоваться в системе",
+               //     replyMarkup: Keyboard.ApproveDeclineKeyboard
+               // ));
            }
            else
            {
-               var filePath = @"Files/BOT_MAIN_PICTURE1.png";
-               await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-               _messageService.MarkMessageToDelete(
-               await botClient.SendPhotoAsync(
-                   AdminChatID, fileStream,
-                   $" Пользователь |{user.TelegramFirstName}|\n" +
-                   $" @{message.From.Username}    |{user.UId}|\n" +
-                   $" Моб.тел. |{user.Phone}|\n" +
-                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
-                   $" Хочет авторизоваться в системе",
-                   replyMarkup: Keyboard.ApproveDeclineKeyboard));
-                   fileStream.Close();
+               // var filePath = @"Files/BOT_MAIN_PICTURE1.png";
+               // await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+               // _messageService.MarkMessageToDelete(
+               // await botClient.SendPhotoAsync(
+               //     AdminChatID, fileStream,
+               //     $" Пользователь |{user.TelegramFirstName}|\n" +
+               //     $" @{message.From.Username}    |{user.UId}|\n" +
+               //     $" Моб.тел. |{user.Phone}|\n" +
+               //     $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+               //     $" Хочет авторизоваться в системе",
+               //     replyMarkup: Keyboard.ApproveDeclineKeyboard));
+               //     fileStream.Close();
            }
         }
         

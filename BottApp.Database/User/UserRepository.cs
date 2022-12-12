@@ -16,10 +16,10 @@ namespace BottApp.Database.User
         {
 
         }
-        public async Task<UserModel> CreateUser(long uid, string? telegramFirstName, string? phone)
+        public async Task<UserModel> CreateUser(TelegramProfile telegramProfile)
         {
 
-            var model = UserModel.Create(uid, telegramFirstName, phone);
+            var model = UserModel.Create(telegramProfile);
 
 
             var result = await CreateModelAsync(model);
@@ -60,40 +60,15 @@ namespace BottApp.Database.User
             return result > 0;
         }
         
-        public async Task<bool> UpdateUserFullName(UserModel model, string? firstName, string? lastName)
+        public async Task<bool> UpdateUserFullName(UserModel model, Profile profile)
         {
-            model.FirstName = firstName;
-            model.LastName = lastName;
-            
+
+            model.SetUserProfile(profile);
             var result = await UpdateModelAsync(model);
+            
             return result > 0;
         }
-
-
-        public async Task<bool> UpdateUserFirstName(UserModel model, string? firstName)
-        {
-           
-            if (model.LastName == firstName)
-                throw new Exception($"User on the same FirstName. FirstName: {firstName}");
-            
-            model.FirstName = firstName;
-            var result = await UpdateModelAsync(model);
-            return result > 0;
-        }
-
-
-        public async Task<bool> UpdateUserLastName(UserModel model, string? lastName)
-        {
-           
-            if (model.LastName == lastName)
-                throw new Exception($"User on the same LastName. LastName: {lastName}");
-            
-            model.LastName = lastName;
-            var result = await UpdateModelAsync(model);
-            return result > 0;
-        }
-
-
+        
         public async Task<bool> ChangeOnState(UserModel model, OnState onState)
         {
             if (model.OnState == onState)

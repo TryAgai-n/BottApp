@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20221207085858_UserProfileTest")]
-    partial class UserProfileTest
+    [Migration("20221208105821_addTgLastNameForUser")]
+    partial class addTgLastNameForUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -121,15 +121,13 @@ namespace BottApp.Host.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("InNomination")
+                        .HasColumnType("integer");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int?>("Nomination")
-                        .HasColumnType("integer");
 
                     b.Property<int>("OnState")
                         .HasColumnType("integer");
@@ -138,6 +136,9 @@ namespace BottApp.Host.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("TelegramFirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TelegramLastName")
                         .HasColumnType("text");
 
                     b.Property<long>("UId")

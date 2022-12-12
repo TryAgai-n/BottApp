@@ -73,12 +73,12 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
             await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
             
-            await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nПРИНЯТА",
-                cancellationToken: cancellationToken
-            );
+            // await botClient.SendTextMessageAsync
+            // (
+            //     chatId: callbackQuery.Message.Chat.Id,
+            //     text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nПРИНЯТА",
+            //     cancellationToken: cancellationToken
+            // );
             
             await _messageService.DeleteMessages(botClient, findUserByUid);
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
@@ -100,13 +100,13 @@ namespace BottApp.Host.Services.Handlers.AdminChat
               var declineId = Convert.ToInt64(subs[3]);
               
               var findUserByUid = await _userRepository.FindOneByUid(declineId);
-
-              await botClient.SendTextMessageAsync
-              (
-                  chatId: callbackQuery.Message.Chat.Id,
-                  text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nОТКЛОНЕНА",
-                  cancellationToken: cancellationToken
-              );
+              //
+              // await botClient.SendTextMessageAsync
+              // (
+              //     chatId: callbackQuery.Message.Chat.Id,
+              //     text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nОТКЛОНЕНА",
+              //     cancellationToken: cancellationToken
+              // );
               
               await _messageService.DeleteMessages(botClient, findUserByUid);
               

@@ -6,7 +6,8 @@ namespace BottApp.Database.User
 {
     public interface IUserRepository
     {
-        Task<UserModel> CreateUser(long uid, string telegramFirstName, string? phone);
+        
+        Task<UserModel> CreateUser(TelegramProfile telegramProfile);
 
         Task<UserModel> GetOneByUid(long uid);
 
@@ -14,10 +15,7 @@ namespace BottApp.Database.User
 
         Task<bool> UpdateUserPhone(UserModel model, string phone);
 
-        Task<bool> UpdateUserFullName(UserModel model, string? firstName, string? lastName);
-        
-        Task<bool> UpdateUserFirstName(UserModel model, string? firstName);
-        Task<bool> UpdateUserLastName(UserModel model, string? lastName);
+        Task<bool> UpdateUserFullName(UserModel model, Profile profile);
         Task<bool> ChangeOnState(UserModel model, OnState onState);
 
         #region TestList

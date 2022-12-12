@@ -53,9 +53,9 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
         }
         else
         {
-            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
-                       ??
-                       await _databaseContainer.User.CreateUser(updateMessage.Chat.Id, updateMessage.Chat.FirstName, null);
+            var telegramProfile = new TelegramProfile(updateMessage.Chat.Id, updateMessage.Chat.FirstName, updateMessage.Chat.LastName, null);
+            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) ??
+                       await _databaseContainer.User.CreateUser(telegramProfile);
 
             //Todo: методы сохранения сообщений необходимо вынести в отдельные состояния(опционально)
             

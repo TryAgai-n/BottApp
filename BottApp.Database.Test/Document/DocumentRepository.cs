@@ -1,4 +1,5 @@
 ﻿using BottApp.Database.Document;
+using BottApp.Database.User;
 using BottApp.Host.SimpleStateMachine;
 using Xunit;
 
@@ -6,11 +7,11 @@ namespace BottApp.Database.Test.Document;
 
 public class DocumentRepository: DbTestCase
 {
-
     [Fact]
     public void CreateDocumentTest()
     {
-        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
         Assert.NotNull(user);
    
         
@@ -38,7 +39,8 @@ public class DocumentRepository: DbTestCase
     [Fact]
     public void ListDocumentsTest()
     {
-        var user = DatabaseContainer.User.CreateUser(3435, "Hello", null).Result;
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
         Assert.NotNull(user);
         
         // var basePathCollection = new List<DocumentModel>();
@@ -81,8 +83,8 @@ public class DocumentRepository: DbTestCase
         
         Assert.Equal(InNomination.Biggest, votesPathCollection[1].DocumentNomination);
         
-        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(0, InNomination.Biggest).Result;
-        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(0, InNomination.Fastest).Result;
+        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.Biggest, 0).Result;
+        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.Fastest, 0).Result;
         
         Assert.Equal(3, CountInBiggest.Count);
         Assert.Equal(6, CountInFast.Count);

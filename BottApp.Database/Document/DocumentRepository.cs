@@ -107,15 +107,16 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
 
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
+        InNomination? documentNomination,
         int skip,
-        InNomination? documentNomination
+        int take
     )
     {
         return await PrepareDocumentNomination(documentNomination)
             .OrderBy(x => x.Id)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
-            .Take(1)
+            .Take(take)
             .ToListAsync();
     }
 
