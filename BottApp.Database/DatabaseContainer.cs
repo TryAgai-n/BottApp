@@ -1,4 +1,5 @@
 ﻿using BottApp.Database.Document;
+using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
 using BottApp.Database.UserMessage;
@@ -17,6 +18,8 @@ namespace BottApp.Database
 
         public IDocumentStatisticRepository DocumentStatistic { get; }
 
+        public ILikedDocumentRepository LikeDocument { get; set; }
+
 
         public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
         {
@@ -24,6 +27,7 @@ namespace BottApp.Database
             Message = new MessageRepository(db, loggerFactory);
             Document = new DocumentRepository(db, loggerFactory);
             DocumentStatistic = new DocumentStatisticRepository(db, loggerFactory);
+            LikeDocument = new LikedDocumentRepository(db, loggerFactory);
         }
 
 

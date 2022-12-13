@@ -52,7 +52,7 @@ public class UserModel : AbstractModel
             TelegramFirstName = telegramProfile.TelegramFirstName,
             TelegramLastName = telegramProfile.TelegramLastName,
             Phone = telegramProfile.Phone,
-            InNomination = Document.InNomination.Biggest,
+            InNomination = Document.InNomination.ㅤ,
             OnState = OnState.Auth,
             Messages = new List<MessageModel>(),
             Documents = new List<DocumentModel>()

@@ -1,10 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.SqlClient;
 
 namespace BottApp.Database.Document.Statistic;
 
@@ -33,7 +33,7 @@ public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticM
         
         if (result == null)
         {
-            
+            throw new Exception($"DocumentStatisticModel ");
         }
 
         return result;
@@ -41,12 +41,26 @@ public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticM
     
     
     
-    //TODO:
-    // [Obsolete("Obsolete")]
-    // public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
-    // {
+    
+    public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
+    {
+        
+
+        Context.Database.ExecuteSqlRaw
+            ("UPDATE \"DocumentStatistic\" SET \"ViewCount\" = 1 WHERE \"DocumentId\" = 1", documentId, viewCountIncrement);
+        
+        
+        
+        // var items = Context.Database.ExecuteSqlRaw
+            // ($"UPDATE \"DocumentStatistic\" SET \"ViewCount\" = @{viewCountIncrement} WHERE \"DocumentId\" = @{documentId}");
+        
+        // return Task.Delay(0);
+
+        return Task.Delay(0);
+
         // var commandText =
-            // $"UPDATE \"DocumentStatisticModel\" SET \"ViewCount\" = \"ViewCount\" + {viewCountIncrement} WHERE \"DocumentId\" = {documentId}";
-        // return Context.Database.ExecuteSqlCommandAsync(commandText, documentId, viewCountIncrement);
-    // }
+        // $"UPDATE \"DocumentStatistic\" SET \"ViewCount\" = \"ViewCount\" + {viewCountIncrement} WHERE \"DocumentId\" = {documentId}";
+
+        // return Context.Database.ExecuteSqlRawAsync(commandText, documentId, viewCountIncrement);
+    }
 }

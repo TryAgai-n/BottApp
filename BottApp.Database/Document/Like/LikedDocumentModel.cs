@@ -17,5 +17,15 @@ public class LikedDocumentModel : AbstractModel
     public DocumentModel DocumentModel { get; set; }
 
     public bool isLiked { get; set; }
-    
+
+
+    public static LikedDocumentModel CreateModel(int userId, int documentId, bool isLiked)
+    {
+        return new LikedDocumentModel()
+        {
+            UserId = userId,
+            DocumentId = documentId, 
+            isLiked = isLiked
+        };
+    }
 }

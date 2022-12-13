@@ -8,6 +8,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 
 namespace BottApp.Host.Services.Handlers.Votes;
@@ -66,27 +67,31 @@ public class VotesHandler : IVotesHandler
                 return;
             
             case nameof(NominationButton.Biggest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Biggest, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.ㅤ, user, 0, true, false);
                 return;
             
             case nameof(NominationButton.Smaller):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Smaller, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.ㅤㅤㅤ, user, 0, true, false);
                 return;
             
             case nameof(NominationButton.Fastest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Fastest, user);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.ㅤㅤ, user, 0, true, false);
                 return;
             
             case nameof(VotesButton.Right):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user, 1);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true);
                 return;
             
             case nameof(VotesButton.Left):
-                await ViewNextCandidate(botClient, callbackQuery, cancellationToken, user, -1);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, -1, false, true);
                 return;
             
             case nameof(VotesButton.ToVotes):
                 await BackToVotes(botClient, callbackQuery, cancellationToken, user);
+                return;
+            
+            case nameof(VotesButton.Like):
+                await AddLike(botClient, callbackQuery, cancellationToken, user);
                 return;
             
             default:
@@ -97,102 +102,121 @@ public class VotesHandler : IVotesHandler
     
     #region TestSomeMethods
 
-    async Task ViewCandidates(
+    async Task AddLike(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
-        InNomination nomination,
-        UserModel user,
-        int skip = 0
-    )
+        UserModel user)
     {
-        await _messageService.DeleteMessages(botClient, user);
-        
-        var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip);
-        var document = documents.FirstOrDefault();
-        
-        if (document == null)
-        {
-            await _messageService.DeleteMessages(botClient, user);
-
-            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
-            (
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!"
-            ));
-
-            await Task.Delay(3000, cancellationToken);
-            
-            await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
-            return;
-        }
-
-        await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        
-        await _messageService.MarkMessageToDelete(
-        await botClient.SendPhotoAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                photo: new InputOnlineFile(fileStream, document.DocumentType),
-                caption: 1 + " " + document.DocumentNomination,
-                replyMarkup: Keyboard.VotesKeyboard,
-                cancellationToken: cancellationToken
-                ));
         
     }
-    
-    
-    private async Task<Message> ViewNextCandidate(
+
+
+   private async Task ViewCandidates(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
-        CancellationToken cancellationToken, 
+        CancellationToken cancellationToken,
+        InNomination? nomination,
         UserModel user,
-        int skip
+        int skip,
+        bool first,
+        bool next
     )
     {
-        await botClient.SendChatActionAsync(
-            callbackQuery.Message.Chat.Id,
-            ChatAction.UploadPhoto,
-            cancellationToken: cancellationToken);
-        
-        
-         
-        
-        var captionItem = callbackQuery.Message.Caption.Split(' ');
-        var offset = Convert.ToInt32(captionItem[0]);
-        var nomination = (InNomination)Enum.Parse(typeof(InNomination), captionItem[1]);
-        var docCount = await _documentRepository.GetCountByNomination(nomination);
-        
-        offset += skip;
-        if (offset <= 0)
-            offset = docCount;
-        
-        if (offset > docCount)
-            offset = 1;
-        
-        var documents = await _documentRepository.ListDocumentsByNomination(nomination, offset-1);
-        
-        var document = documents.First();
+        if (first)
+        {
+            await _messageService.DeleteMessages(botClient, user);
+            var docCount = await _documentRepository.GetCountByNomination(nomination);
+            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip);
+            var document = documents.FirstOrDefault();
 
-        await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        
-        
-         await botClient.EditMessageMediaAsync(
-            chatId: callbackQuery.Message.Chat.Id,
-            messageId: callbackQuery.Message.MessageId,
-            media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentType)),
-            replyMarkup: Keyboard.VotesKeyboard,
-            cancellationToken: cancellationToken);
+            if (document == null)
+            {
+                await _messageService.DeleteMessages(botClient, user);
 
-         fileStream.Close();
-         
-         
-         return await botClient.EditMessageCaptionAsync(
-            chatId: callbackQuery.Message.Chat.Id,
-            messageId: callbackQuery.Message.MessageId,
-            caption: offset + " " + document.DocumentNomination,
-            replyMarkup: Keyboard.VotesKeyboard,
-            cancellationToken: cancellationToken);
+                await _messageService.MarkMessageToDelete(
+                    await botClient.SendTextMessageAsync(
+                        chatId: callbackQuery.Message.Chat.Id,
+                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!"
+                    )
+                );
+
+                await Task.Delay(3000, cancellationToken);
+
+                await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
+                return;
+            }
+
+            await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            
+            var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
+                docCount, 2, nomination);
+
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendPhotoAsync(
+                    chatId: callbackQuery.Message.Chat.Id,
+                    photo: new InputOnlineFile(fileStream, document.DocumentType),
+                    caption: 1 + " " + document.DocumentNomination, replyMarkup: dynamicKeyboardMarkup,
+                    cancellationToken: cancellationToken
+                )
+            );
+        }
+
+        if (next)
+        {
+            await botClient.SendChatActionAsync(
+                callbackQuery.Message.Chat.Id, ChatAction.UploadPhoto, cancellationToken: cancellationToken
+            );
+
+           // var buttonItem = callbackQuery.Message.ReplyMarkup.InlineKeyboard.Select(x => x.Select(x => x.Text));
+            
+            
+            var captionItem = callbackQuery.Message.Caption.Split(' ');
+            var offset = Convert.ToInt32(captionItem[0]);
+            var _nomination = (InNomination) Enum.Parse(typeof(InNomination), captionItem[1]);
+            var docCount = await _documentRepository.GetCountByNomination(_nomination);
+
+            offset += skip;
+            if (offset <= 0)
+                offset = docCount;
+
+            if (offset > docCount)
+                offset = 1;
+
+            var documents = await _documentRepository.ListDocumentsByNomination(_nomination, offset - 1);
+
+            var document = documents.First();
+
+            await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            var leftButtonOffset = (offset - 1);
+            if (leftButtonOffset <= 0)
+                leftButtonOffset = docCount;
+
+            var rightButtonOffset = (offset + 1);
+            if (rightButtonOffset > docCount)
+                rightButtonOffset = 1;
+
+            var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
+                leftButtonOffset, rightButtonOffset, _nomination);
+
+            await botClient.EditMessageMediaAsync(
+                chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
+                media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentType)),
+                replyMarkup: dynamicKeyboardMarkup, cancellationToken: cancellationToken
+            );
+
+            fileStream.Close();
+            
+            await botClient.EditMessageCaptionAsync(
+                chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
+                caption: offset + " " + document.DocumentNomination, replyMarkup: dynamicKeyboardMarkup,
+                cancellationToken: cancellationToken
+            );
+        }
     }
+    
+    
 
     async Task ChooseNomination(
         ITelegramBotClient botClient,

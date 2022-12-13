@@ -1,11 +1,43 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using BottApp.Database.Document;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BottApp.Database.Service.Keyboards;
 
 public class Keyboard
 {
 
-    public static InlineKeyboardMarkup MainKeyboard = new(
+    public async Task<InlineKeyboardMarkup> GetDynamicVotesKeyboard(int leftButtonOffset, int rightButtonOffset, InNomination? nomination)
+    {
+         InlineKeyboardMarkup VotesKeyboard = new(
+            new[]
+            {
+                // first row
+                new []
+                {
+                    InlineKeyboardButton.WithCallbackData(
+                        (leftButtonOffset) + " <"  + nomination, nameof(VotesButton.Left)
+                    ),
+                    InlineKeyboardButton.WithCallbackData(
+                        nomination + "> " + (rightButtonOffset), nameof(VotesButton.Right)
+                    ),
+                },
+                // second row
+                new []
+                {
+                    InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Like)),
+                },
+                // third row
+                new []
+                {
+                    InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                },
+            });
+         
+        return VotesKeyboard;
+    }
+
+
+        public static InlineKeyboardMarkup MainKeyboard = new(
         new[]
         {
             // first row

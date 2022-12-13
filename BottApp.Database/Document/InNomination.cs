@@ -2,7 +2,13 @@
 
 public enum InNomination
 {
-    Biggest,
-    Fastest,
-    Smaller,
+    ㅤ,   
+    ㅤㅤ,
+    ㅤㅤㅤ,
+    
+    
+    // Biggest
+    // Fastest
+    // Smaller
 }
+
