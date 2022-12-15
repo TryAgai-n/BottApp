@@ -109,11 +109,13 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
         InNomination? documentNomination,
         int skip,
-        int take
+        int take,
+        bool withOrderByView = false
     )
     {
         return await PrepareDocumentNomination(documentNomination)
-            .OrderBy(x => x.Id)
+            .OrderBy(x => withOrderByView ? x.DocumentStatisticModel.ViewCount : x.DocumentStatisticModel.Id)
+            .ThenBy(x => x.DocumentStatisticModel.LikeCount)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
             .Take(take)
