@@ -27,4 +27,6 @@ public interface IDocumentRepository
     Task<List<DocumentModel>> ListDocumentsByNomination(InNomination? documentNomination, int skip, int take = 1);
     Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
+
+    Task IncrementViewByDocument(DocumentModel model);
 }

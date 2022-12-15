@@ -29,15 +29,16 @@ public class DocumentRepository: DbTestCase
         Assert.Equal(0, document.DocumentStatisticModel.LikeCount);
 
 
-        var getDocumetById = DatabaseContainer.Document.GetOneByDocumentId(document.Id).Result;
-        Assert.NotNull(getDocumetById);
-        Assert.Equal(document.Path, getDocumetById.Path);
+        var documentModel = DatabaseContainer.Document.GetOneByDocumentId(document.Id).Result;
+        Assert.NotNull(documentModel);
+        Assert.Equal(document.Path, documentModel.Path);
 
-        var incrementViewCount = DatabaseContainer.DocumentStatistic.IncrementViewById(document.Id);
+        var incrementViewCount =  DatabaseContainer.Document.IncrementViewByDocument(documentModel);
+        incrementViewCount =  DatabaseContainer.Document.IncrementViewByDocument(documentModel);
         // document = DatabaseContainer.Document.GetOneByDocumentId(document.Id).Result;
         
         
-        Assert.Equal(1, document.DocumentStatisticModel.ViewCount);
+        Assert.Equal(2, documentModel.DocumentStatisticModel.ViewCount);
 
     }
 

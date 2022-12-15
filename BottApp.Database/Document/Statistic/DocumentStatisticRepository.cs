@@ -25,9 +25,9 @@ public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticM
             .ToListAsync();
     }
 
-    public async Task<DocumentStatisticModel> CreateModel(int viewCount, int likeCount)
+    public async Task<DocumentStatisticModel> CreateModel(int documentId, int viewCount, int likeCount)
     {
-        var model = DocumentStatisticModel.CreateModel(viewCount, likeCount);
+        var model = DocumentStatisticModel.CreateModel(documentId, viewCount, likeCount);
 
         var result = await CreateModelAsync(model);
         
@@ -37,30 +37,5 @@ public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticM
         }
 
         return result;
-    }
-    
-    
-    
-    
-    public Task IncrementViewById(int documentId, int viewCountIncrement = 1)
-    {
-        
-
-        Context.Database.ExecuteSqlRaw
-            ("UPDATE \"DocumentStatistic\" SET \"ViewCount\" = 1 WHERE \"DocumentId\" = 1", documentId, viewCountIncrement);
-        
-        
-        
-        // var items = Context.Database.ExecuteSqlRaw
-            // ($"UPDATE \"DocumentStatistic\" SET \"ViewCount\" = @{viewCountIncrement} WHERE \"DocumentId\" = @{documentId}");
-        
-        // return Task.Delay(0);
-
-        return Task.Delay(0);
-
-        // var commandText =
-        // $"UPDATE \"DocumentStatistic\" SET \"ViewCount\" = \"ViewCount\" + {viewCountIncrement} WHERE \"DocumentId\" = {documentId}";
-
-        // return Context.Database.ExecuteSqlRawAsync(commandText, documentId, viewCountIncrement);
     }
 }

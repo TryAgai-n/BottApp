@@ -138,4 +138,11 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return DbModel.OrderByDescending(x => x.DocumentStatisticModel.LikeCount).Include(x => x.DocumentStatisticModel)
             .Skip(skip).Take(take).ToListAsync();
     }
+    
+    
+    public async Task IncrementViewByDocument(DocumentModel model)
+    {
+        model.DocumentStatisticModel.ViewCount++;
+        await UpdateModelAsync(model);
+    }
 }

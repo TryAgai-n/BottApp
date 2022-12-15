@@ -22,10 +22,11 @@ public class DocumentStatisticModel : AbstractModel
     public int LikeCount { get; set; }
 
 
-    public static DocumentStatisticModel CreateModel(int viewCount, int likeCount)
+    public static DocumentStatisticModel CreateModel(int documentId, int viewCount, int likeCount)
     {
         return new DocumentStatisticModel()
         {
+            DocumentId = documentId,
             ViewCount = viewCount,
             LikeCount = likeCount
         };
