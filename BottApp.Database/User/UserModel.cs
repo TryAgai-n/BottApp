@@ -34,16 +34,12 @@ public class UserModel : AbstractModel
     
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-    
-    
+
     public List<MessageModel> Messages { get; set; }
     public List<DocumentModel> Documents { get; set; }
-
-    [Required]
-
-    public InNomination? InNomination { get; set; }
-
-
+    
+    public int ViewDocumentID { get; set; }
+    
     public static UserModel Create(TelegramProfile telegramProfile)
     {
         return new UserModel
@@ -52,15 +48,12 @@ public class UserModel : AbstractModel
             TelegramFirstName = telegramProfile.TelegramFirstName,
             TelegramLastName = telegramProfile.TelegramLastName,
             Phone = telegramProfile.Phone,
-            InNomination = Document.InNomination.ㅤ,
             OnState = OnState.Auth,
             Messages = new List<MessageModel>(),
             Documents = new List<DocumentModel>()
         };
     }
-
-
-
+    
     public void SetUserProfile(Profile profile)
     {
         FirstName = profile.FirstName;

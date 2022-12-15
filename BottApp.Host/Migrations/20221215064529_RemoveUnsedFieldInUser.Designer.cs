@@ -3,6 +3,7 @@ using System;
 using BottApp.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BottApp.Host.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    partial class PostgreSqlContextModelSnapshot : ModelSnapshot
+    [Migration("20221215064529_RemoveUnsedFieldInUser")]
+    partial class RemoveUnsedFieldInUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,9 +140,6 @@ namespace BottApp.Host.Migrations
 
                     b.Property<long>("UId")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("ViewDocumentID")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
