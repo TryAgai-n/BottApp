@@ -2,9 +2,9 @@
 
 public enum InNomination
 {
-    ㅤ,   
-    ㅤㅤ,
-    ㅤㅤㅤ,
+    First,   
+    Second,
+    Third,
     
     
     // Biggest
