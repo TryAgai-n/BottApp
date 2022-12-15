@@ -121,6 +121,12 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .Take(take)
             .ToListAsync();
     }
+    
+    public async Task<IOrderedQueryable<DocumentModel>> IndexByNominationInList(DocumentModel documentModel)
+    {
+       return PrepareDocumentNomination(documentModel.DocumentNomination)
+            .OrderBy(x => x.Id);
+    }
 
 
     public Task<int> GetCountByNomination(InNomination? documentNomination)

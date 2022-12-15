@@ -15,8 +15,8 @@ public class DocumentRepository: DbTestCase
         Assert.NotNull(user);
    
         
-        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.ㅤ).Result;
-        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.ㅤㅤ).Result;
+        var document = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.First).Result;
+        var document2 = DatabaseContainer.Document.CreateModel(user.Id, "Photo", ".jpeg", DateTime.Now, "//path//saqwe//fsa", "Описание",DocumentInPath.Votes, InNomination.Second).Result;
 
         Assert.NotNull(document);
         Assert.NotNull(document2);
@@ -68,7 +68,7 @@ public class DocumentRepository: DbTestCase
                 "Vote Path",
                 "Описание",
                 DocumentInPath.Votes,
-                InNomination.ㅤ).Result);
+                InNomination.First).Result);
         }
         
         
@@ -82,17 +82,17 @@ public class DocumentRepository: DbTestCase
                 "Vote Path",
                 "Описание",
                 DocumentInPath.Votes,
-                InNomination.ㅤㅤ).Result);
+                InNomination.Second).Result);
         }
         
 
         // Assert.Equal(20, basePathCollection.Count);
         Assert.Equal(9, votesPathCollection.Count);
         
-        Assert.Equal(InNomination.ㅤ, votesPathCollection[1].DocumentNomination);
+        Assert.Equal(InNomination.First, votesPathCollection[1].DocumentNomination);
         
-        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.ㅤ, 0).Result;
-        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.ㅤㅤ, 0).Result;
+        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.First, 0).Result;
+        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.Second, 0).Result;
         
         Assert.Equal(3, CountInBiggest.Count);
         Assert.Equal(6, CountInFast.Count);
@@ -110,4 +110,50 @@ public class DocumentRepository: DbTestCase
         
         Assert.Equal(2, documentCollection.Count);
     }
+
+
+
+
+    [Fact]
+    public void IndexDocumentIDTest()
+    {
+        var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
+        var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
+        Assert.NotNull(user);
+        
+        var votesPathCollection = new List<DocumentModel>();
+
+        for (var i = 1; i <= 3; i++)
+        {
+            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
+                user.Id,
+                $"Votes Type {i}",
+                ".jpeg",
+                DateTime.Now,
+                "Vote Path",
+                "Описание",
+                DocumentInPath.Votes,
+                InNomination.First).Result);
+        }
+
+
+        for (var i = 1; i <= 6; i++)
+        {
+            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
+                user.Id,
+                $"Votes Type {i}",
+                ".jpeg",
+                DateTime.Now,
+                "Vote Path",
+                "Описание",
+                DocumentInPath.Votes,
+                InNomination.Second).Result);
+        }
+
+        // var docID = DatabaseContainer.Document.IndexByNominationInList(votesPathCollection[2]).Result;
+        // Assert.Equal(3, docID.);
+
+
+    }
+
 }

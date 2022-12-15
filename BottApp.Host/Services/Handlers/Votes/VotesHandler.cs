@@ -67,15 +67,15 @@ public class VotesHandler : IVotesHandler
                 return;
             
             case nameof(NominationButton.Biggest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.ㅤ, user, 0, true, false);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.First, user, 0, true, false);
                 return;
             
             case nameof(NominationButton.Smaller):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.ㅤㅤㅤ, user, 0, true, false);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Third, user, 0, true, false);
                 return;
             
             case nameof(NominationButton.Fastest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.ㅤㅤ, user, 0, true, false);
+                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false);
                 return;
             
             case nameof(VotesButton.Right):
@@ -102,12 +102,15 @@ public class VotesHandler : IVotesHandler
     
     #region TestSomeMethods
 
-    async Task AddLike(
+    private async Task AddLike(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
-        UserModel user)
+        UserModel user
+    )
     {
+        var captionItem = callbackQuery.Message.Caption.Split(' ');
+        var documentID = Convert.ToInt32(captionItem[3]);
         
     }
 
@@ -126,10 +129,13 @@ public class VotesHandler : IVotesHandler
         if (first)
         {
             await _messageService.DeleteMessages(botClient, user);
+            
+        
             var docCount = await _documentRepository.GetCountByNomination(nomination);
-            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip);
+            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1, true);
             var document = documents.FirstOrDefault();
-
+            user.ViewDocumentID = document.Id;
+            
             if (document == null)
             {
                 await _messageService.DeleteMessages(botClient, user);
@@ -156,10 +162,12 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
                     photo: new InputOnlineFile(fileStream, document.DocumentType),
-                    caption: 1 + " " + document.DocumentNomination, replyMarkup: dynamicKeyboardMarkup,
+                    caption: $"Описание кандидата: {document.Caption}", replyMarkup: dynamicKeyboardMarkup,
                     cancellationToken: cancellationToken
                 )
             );
+
+            await _documentRepository.IncrementViewByDocument(document);
         }
 
         if (next)
@@ -168,22 +176,22 @@ public class VotesHandler : IVotesHandler
                 callbackQuery.Message.Chat.Id, ChatAction.UploadPhoto, cancellationToken: cancellationToken
             );
 
-           // var buttonItem = callbackQuery.Message.ReplyMarkup.InlineKeyboard.Select(x => x.Select(x => x.Text));
-            
-            
-            var captionItem = callbackQuery.Message.Caption.Split(' ');
-            var offset = Convert.ToInt32(captionItem[0]);
-            var _nomination = (InNomination) Enum.Parse(typeof(InNomination), captionItem[1]);
-            var docCount = await _documentRepository.GetCountByNomination(_nomination);
 
+            var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+            var documentCount = await _documentRepository.GetCountByNomination(documentModel.DocumentNomination);
+            //var documentIndexInNomination = await _documentRepository.ListDocumentsByNomination();
+            
+            var offset = documentCount;
+            
             offset += skip;
             if (offset <= 0)
-                offset = docCount;
+                offset = documentCount;
 
-            if (offset > docCount)
+            if (offset > documentCount)
                 offset = 1;
 
-            var documents = await _documentRepository.ListDocumentsByNomination(_nomination, offset - 1);
+            var documents =
+                await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, offset - 1);
 
             var document = documents.First();
 
@@ -191,14 +199,14 @@ public class VotesHandler : IVotesHandler
 
             var leftButtonOffset = (offset - 1);
             if (leftButtonOffset <= 0)
-                leftButtonOffset = docCount;
+                leftButtonOffset = documentCount;
 
             var rightButtonOffset = (offset + 1);
-            if (rightButtonOffset > docCount)
+            if (rightButtonOffset > documentCount)
                 rightButtonOffset = 1;
 
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                leftButtonOffset, rightButtonOffset, _nomination);
+                leftButtonOffset, rightButtonOffset, documentModel.DocumentNomination);
 
             await botClient.EditMessageMediaAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
@@ -210,9 +218,13 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: offset + " " + document.DocumentNomination, replyMarkup: dynamicKeyboardMarkup,
+                caption: $"Кандидат: {offset} {document.DocumentNomination} {document.Id} \nОписание: {document.Caption}",
+                replyMarkup: dynamicKeyboardMarkup,
                 cancellationToken: cancellationToken
             );
+            
+            await _documentRepository.IncrementViewByDocument(document);
+
         }
     }
     
