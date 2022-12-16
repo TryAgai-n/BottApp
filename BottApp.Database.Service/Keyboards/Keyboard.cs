@@ -14,11 +14,9 @@ public class Keyboard
                 // first row
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData(
-                        (leftButtonOffset) + " <"  + nomination, nameof(VotesButton.Left)
+                    InlineKeyboardButton.WithCallbackData((leftButtonOffset) + " <", nameof(VotesButton.Left)
                     ),
-                    InlineKeyboardButton.WithCallbackData(
-                        nomination + "> " + (rightButtonOffset), nameof(VotesButton.Right)
+                    InlineKeyboardButton.WithCallbackData("> " + (rightButtonOffset), nameof(VotesButton.Right)
                     ),
                 },
                 // second row

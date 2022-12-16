@@ -123,35 +123,41 @@ public class DocumentRepository: DbTestCase
         
         var votesPathCollection = new List<DocumentModel>();
 
-        for (var i = 1; i <= 3; i++)
+        for (var i = 0; i <= 3; i++)
         {
             votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
                 user.Id,
-                $"Votes Type {i}",
+                "Votes Type",
                 ".jpeg",
                 DateTime.Now,
                 "Vote Path",
-                "Описание",
+                $"ID {i} in { InNomination.First}",
                 DocumentInPath.Votes,
                 InNomination.First).Result);
         }
 
 
-        for (var i = 1; i <= 6; i++)
+        for (var i = 0; i <= 6; i++)
         {
             votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
                 user.Id,
-                $"Votes Type {i}",
+                $"Votes Type",
                 ".jpeg",
                 DateTime.Now,
                 "Vote Path",
-                "Описание",
+                $"ID {i} in { InNomination.Second}",
                 DocumentInPath.Votes,
                 InNomination.Second).Result);
         }
 
-        // var docID = DatabaseContainer.Document.IndexByNominationInList(votesPathCollection[2]).Result;
-        // Assert.Equal(3, docID.);
+        var currentDocument = votesPathCollection[7];
+        
+         var docID = DatabaseContainer.Document.GetListByNomination(currentDocument).Result;
+         var listIndex = docID.IndexOf(docID.FirstOrDefault(x => x.Id == currentDocument.Id));
+         // var id = docID.ElementAt(currentDocument.Id);
+                 
+                 
+         Console.WriteLine();
 
 
     }

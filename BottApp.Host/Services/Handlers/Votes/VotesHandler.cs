@@ -132,7 +132,7 @@ public class VotesHandler : IVotesHandler
             
         
             var docCount = await _documentRepository.GetCountByNomination(nomination);
-            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1, true);
+            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1);
             var document = documents.FirstOrDefault();
             user.ViewDocumentID = document.Id;
             
@@ -162,7 +162,8 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
                     photo: new InputOnlineFile(fileStream, document.DocumentType),
-                    caption: $"Описание кандидата: {document.Caption}", replyMarkup: dynamicKeyboardMarkup,
+                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}"
+                    , replyMarkup: dynamicKeyboardMarkup,
                     cancellationToken: cancellationToken
                 )
             );
@@ -176,33 +177,32 @@ public class VotesHandler : IVotesHandler
                 callbackQuery.Message.Chat.Id, ChatAction.UploadPhoto, cancellationToken: cancellationToken
             );
 
-
             var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+            var docList = await _documentRepository.GetListByNomination(documentModel);
+            var docId = docList.IndexOf(docList.FirstOrDefault(x => x!.Id == documentModel.Id));
             var documentCount = await _documentRepository.GetCountByNomination(documentModel.DocumentNomination);
-            //var documentIndexInNomination = await _documentRepository.ListDocumentsByNomination();
             
-            var offset = documentCount;
             
-            offset += skip;
-            if (offset <= 0)
-                offset = documentCount;
+            docId += skip;
+            if (docId <= 0)
+                docId = documentCount-1;
 
-            if (offset > documentCount)
-                offset = 1;
+            if (docId > documentCount-1)
+                docId = 0;
 
-            var documents =
-                await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, offset - 1);
+            var documents = await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, docId);
 
             var document = documents.First();
+            user.ViewDocumentID = document.Id;
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            var leftButtonOffset = (offset - 1);
+            var leftButtonOffset = (docId);
             if (leftButtonOffset <= 0)
                 leftButtonOffset = documentCount;
 
-            var rightButtonOffset = (offset + 1);
-            if (rightButtonOffset > documentCount)
+            var rightButtonOffset = (docId+1);
+            if (rightButtonOffset > documentCount+1)
                 rightButtonOffset = 1;
 
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
@@ -218,7 +218,7 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"Кандидат: {offset} {document.DocumentNomination} {document.Id} \nОписание: {document.Caption}",
+                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}",
                 replyMarkup: dynamicKeyboardMarkup,
                 cancellationToken: cancellationToken
             );

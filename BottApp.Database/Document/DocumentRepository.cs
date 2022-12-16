@@ -21,7 +21,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
 
 
-    private IQueryable<DocumentModel> PrepareDocumentNomination(InNomination? documentNomination)
+    private IQueryable<DocumentModel?> PrepareDocumentNomination(InNomination? documentNomination)
     {
         return DbModel.Where(x => x.DocumentNomination == documentNomination);
     }
@@ -122,10 +122,16 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
     
-    public async Task<IOrderedQueryable<DocumentModel>> IndexByNominationInList(DocumentModel documentModel)
+    public Task<List<DocumentModel?>> GetListByNomination(DocumentModel documentModel)
     {
-       return PrepareDocumentNomination(documentModel.DocumentNomination)
-            .OrderBy(x => x.Id);
+        return PrepareDocumentNomination(documentModel.DocumentNomination)
+            .OrderBy(x => x.Id)
+            .ToListAsync();
+        
+        // return PrepareDocumentNomination(documentModel.DocumentNomination)
+        //     .OrderBy(x => x.Id)
+        //     .Select((item, index) => new { item, index })
+        //     .FirstOrDefault(x=>x.item.Id == documentModel.Id).index;
     }
 
 
