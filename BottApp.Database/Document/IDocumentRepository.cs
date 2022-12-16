@@ -31,4 +31,5 @@ public interface IDocumentRepository
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
 
     Task IncrementViewByDocument(DocumentModel model);
+    Task IncrementLikeByDocument(DocumentModel model);
 }

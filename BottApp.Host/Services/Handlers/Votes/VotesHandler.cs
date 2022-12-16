@@ -109,9 +109,19 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
-        var captionItem = callbackQuery.Message.Caption.Split(' ');
-        var documentID = Convert.ToInt32(captionItem[3]);
+        var model = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+        await _documentRepository.IncrementLikeByDocument(model);
         
+        
+        await _messageService.MarkMessageToDelete(
+            await botClient.SendTextMessageAsync(
+                chatId: callbackQuery.Message.Chat.Id,
+                text: "Ваш голос учтен!\nЗа кандидата можно голосовать только один раз, не пытайся проверить это"
+            )
+        );
+        
+        
+
     }
 
 
@@ -162,7 +172,7 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
                     photo: new InputOnlineFile(fileStream, document.DocumentType),
-                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}"
+                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nЛайки{document.Likes}"
                     , replyMarkup: dynamicKeyboardMarkup,
                     cancellationToken: cancellationToken
                 )
@@ -184,7 +194,7 @@ public class VotesHandler : IVotesHandler
             
             
             docId += skip;
-            if (docId <= 0)
+            if (docId <= -1)
                 docId = documentCount-1;
 
             if (docId > documentCount-1)
@@ -218,7 +228,7 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}",
+                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nЛайки{document.Likes}",
                 replyMarkup: dynamicKeyboardMarkup,
                 cancellationToken: cancellationToken
             );

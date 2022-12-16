@@ -159,4 +159,10 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         model.DocumentStatisticModel.ViewCount++;
         await UpdateModelAsync(model);
     }
+    
+    public async Task IncrementLikeByDocument(DocumentModel model)
+    {
+        model.DocumentStatisticModel.LikeCount++;
+        await UpdateModelAsync(model);
+    }
 }
