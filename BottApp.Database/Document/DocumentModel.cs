@@ -38,7 +38,7 @@ public class DocumentModel : AbstractModel
     
     public DocumentStatisticModel DocumentStatisticModel { get; set; }
     
-    public List<LikedDocumentModel> Likes { get; set; }
+    public List<LikedDocumentModel>? Likes { get; set; }
 
     
     public static DocumentModel CreateModel(

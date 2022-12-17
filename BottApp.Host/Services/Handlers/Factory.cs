@@ -32,6 +32,7 @@ public static class Factory
             new VotesHandler(
                 databaseContainer.User,
                 databaseContainer.Document,
+                databaseContainer.LikeDocument,
                 serviceContainer.Document,
                 serviceContainer.Message, 
                 new StateService(databaseContainer.User, serviceContainer.Message)

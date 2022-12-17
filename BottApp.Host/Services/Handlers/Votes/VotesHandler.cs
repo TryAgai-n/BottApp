@@ -1,4 +1,5 @@
 using BottApp.Database.Document;
+using BottApp.Database.Document.Like;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
@@ -17,7 +18,7 @@ public class VotesHandler : IVotesHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentRepository _documentRepository;
-    
+    private ILikedDocumentRepository _likedDocumentRepository;
     private readonly IDocumentService _documentService;
     private readonly IMessageService _messageService;
     private readonly StateService _stateService;
@@ -26,12 +27,14 @@ public class VotesHandler : IVotesHandler
     public VotesHandler(
         IUserRepository userRepository,
         IDocumentRepository documentRepository,
+        ILikedDocumentRepository likedDocumentRepository,
         IDocumentService documentService,
         IMessageService messageService,
         StateService stateService)
     {
         _userRepository = userRepository;
         _documentRepository = documentRepository;
+        _likedDocumentRepository = likedDocumentRepository;
         _documentService = documentService;
         _messageService = messageService;
         _stateService = stateService;
@@ -109,8 +112,22 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
+        
+        if (await _likedDocumentRepository.CheckLikeByUser(user.Id, user.ViewDocumentID))
+        {
+
+            await _messageService.MarkMessageToDelete(
+                await botClient.SendTextMessageAsync(
+                    chatId: callbackQuery.Message.Chat.Id, text: "Вы уже голосовали за этого кандидата!"
+                )
+            );
+            return;
+        }
+        
         var model = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+
         await _documentRepository.IncrementLikeByDocument(model);
+        await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentID, true);
         
         
         await _messageService.MarkMessageToDelete(
@@ -171,8 +188,8 @@ public class VotesHandler : IVotesHandler
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
-                    photo: new InputOnlineFile(fileStream, document.DocumentType),
-                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nЛайки{document.Likes}"
+                    photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
+                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nDocID{document.Id}"
                     , replyMarkup: dynamicKeyboardMarkup,
                     cancellationToken: cancellationToken
                 )
@@ -220,7 +237,7 @@ public class VotesHandler : IVotesHandler
 
             await botClient.EditMessageMediaAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentType)),
+                media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension)),
                 replyMarkup: dynamicKeyboardMarkup, cancellationToken: cancellationToken
             );
 
@@ -228,7 +245,7 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nЛайки{document.Likes}",
+                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nDocID{document.Id}",
                 replyMarkup: dynamicKeyboardMarkup,
                 cancellationToken: cancellationToken
             );

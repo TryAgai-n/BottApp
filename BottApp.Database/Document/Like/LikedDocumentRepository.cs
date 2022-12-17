@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database.Document.Like;
@@ -24,4 +26,22 @@ public class LikedDocumentRepository : AbstractRepository<LikedDocumentModel>, I
 
         return result;
     }
+
+
+    public async Task<bool> CheckLikeByUser(int userId, int documentId)
+    {
+        
+        var model = DbModel
+            .Where(x => x.UserId == userId)
+            .FirstOrDefault(x => x.DocumentId == documentId);
+
+        if (model == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    
 }

@@ -127,11 +127,6 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return PrepareDocumentNomination(documentModel.DocumentNomination)
             .OrderBy(x => x.Id)
             .ToListAsync();
-        
-        // return PrepareDocumentNomination(documentModel.DocumentNomination)
-        //     .OrderBy(x => x.Id)
-        //     .Select((item, index) => new { item, index })
-        //     .FirstOrDefault(x=>x.item.Id == documentModel.Id).index;
     }
 
 
