@@ -144,8 +144,11 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
-        return DbModel.OrderByDescending(x => x.DocumentStatisticModel.LikeCount).Include(x => x.DocumentStatisticModel)
-            .Skip(skip).Take(take).ToListAsync();
+        return DbModel.OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
+            .Include(x => x.DocumentStatisticModel)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
     }
     
     

@@ -1,3 +1,5 @@
+using System.Text;
+using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
@@ -10,12 +12,20 @@ namespace BottApp.Host.Services.Handlers.AdminChat
     {
         private readonly IUserRepository _userRepository;
         private readonly IMessageService _messageService;
+        private readonly IDocumentService _documentService;
 
-        public AdminChatHandler(IUserRepository userRepository, IMessageService messageService)
+        private readonly IDocumentRepository _documentRepository;
+
+        private string _exampleTop10 = "Top 10:\n" + "1. ID 23 View 31 Like 14\n" + "2. ID 4  View 40 Like 9 \n" +
+                                      "3. ID 9  View 22 Like 7 \n" + "4. ID 2  View 34 Like 4 \n" +
+                                      "5. ID 16 View 18 Like 3 \n" + "6. ID 11 View 10 Like 1 \n";
+
+        public AdminChatHandler(IUserRepository userRepository, IMessageService messageService, IDocumentService documentService, IDocumentRepository documentRepository)
         {
             _userRepository = userRepository;
             _messageService = messageService;
-          
+            _documentService = documentService;
+            _documentRepository = documentRepository;
         }
 
         public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
@@ -27,9 +37,9 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             var prepString = message.Text.ToLower();
+            
             if (prepString.Contains("/start"))
             {
-
                 await botClient.SendTextMessageAsync
                 (
                     chatId: message.Chat.Id,
@@ -37,6 +47,41 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     cancellationToken: cancellationToken
                 );
             }
+            
+            if (prepString.Contains("/view_top_10"))
+            {
+
+                var listTop = await _documentRepository.ListMostViewedDocuments();
+                var sb = new StringBuilder("Most View Candidate: \n");
+
+                var i = 1;
+                foreach (var item in listTop)
+                {
+                    sb.Append(
+                        $"{i++}.  ID {item.Id}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n"
+                    );
+                }
+
+                await botClient.SendTextMessageAsync
+                (
+                    chatId: message.Chat.Id,
+                    text: sb.ToString(),
+                    cancellationToken: cancellationToken
+                );
+            }
+            
+            if (prepString.Contains("/help"))
+            {
+                await botClient.SendTextMessageAsync
+                (
+                    chatId: message.Chat.Id,
+                    text: "/start\n" +
+                          "/view_Top_10\n",
+                    cancellationToken: cancellationToken
+                );
+            }
+            
+            
         }
 
         public async Task BotOnCallbackQueryReceived
@@ -69,18 +114,18 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             var approvePhone = subs[5]; 
 
          
-            var findUserByUid = await _userRepository.FindOneByUid(approveId);
-            await _userRepository.UpdateUserPhone(findUserByUid, approvePhone);
-            await _userRepository.ChangeOnState(findUserByUid, OnState.Menu);
+            var user = await _userRepository.FindOneByUid(approveId);
+            await _userRepository.UpdateUserPhone(user, approvePhone);
+            await _userRepository.ChangeOnState(user, OnState.Menu);
             
-            // await botClient.SendTextMessageAsync
-            // (
-            //     chatId: callbackQuery.Message.Chat.Id,
-            //     text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nПРИНЯТА",
-            //     cancellationToken: cancellationToken
-            // );
+            await botClient.SendTextMessageAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                text: $"Заявка на регистрацию Пользователя UID {user.UId} FirstName {user.FirstName} LastName {user.LastName} Phone {user.Phone}\nПРИНЯТА",
+                cancellationToken: cancellationToken
+            );
             
-            await _messageService.DeleteMessages(botClient, findUserByUid);
+            await _messageService.DeleteMessages(botClient, user);
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
@@ -94,21 +139,19 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             
-         
-              
               var subs = callbackQuery.Message.Caption.Split('|');
               var declineId = Convert.ToInt64(subs[3]);
               
-              var findUserByUid = await _userRepository.FindOneByUid(declineId);
-              //
-              // await botClient.SendTextMessageAsync
-              // (
-              //     chatId: callbackQuery.Message.Chat.Id,
-              //     text: $"Заявка на регистрацию Пользователя UID {findUserByUid.UId} FirstName {findUserByUid.FirstName} LastName {findUserByUid.LastName} Phone {findUserByUid.Phone}\nОТКЛОНЕНА",
-              //     cancellationToken: cancellationToken
-              // );
+              var user = await _userRepository.FindOneByUid(declineId);
               
-              await _messageService.DeleteMessages(botClient, findUserByUid);
+              await botClient.SendTextMessageAsync
+              (
+                  chatId: callbackQuery.Message.Chat.Id,
+                  text: $"Заявка на регистрацию Пользователя UID {user.UId} FirstName {user.FirstName} LastName {user.LastName} Phone {user.Phone}\nОТКЛОНЕНА",
+                  cancellationToken: cancellationToken
+              );
+              
+              await _messageService.DeleteMessages(botClient, user);
               
               return await botClient.SendTextMessageAsync
             (

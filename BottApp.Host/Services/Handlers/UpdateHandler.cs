@@ -42,24 +42,13 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
 
         if (updateMessage.Chat.Id == AdminChatId)
         {
-            switch (update)
+            handler = update switch
             {
-                case { Message: { } message }:
-                    handler =  _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken);
-                    break;
-                case { EditedMessage: { } message }:
-                    handler = _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken);
-                    break;
-                case { CallbackQuery: { } callbackQuery }:
-                    handler = _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery,
-                        cancellationToken);
-                    break;
-                default:
-                    handler = _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken);
-                    break;
-            }
-
-            await handler;
+                {Message: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {EditedMessage: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
+                {CallbackQuery: { } callbackQuery} => _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken),
+                _ => _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+            };
         }
         else
         {
@@ -67,57 +56,40 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
             var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) ??
                        await _databaseContainer.User.CreateUser(telegramProfile);
 
-            //Todo: методы сохранения сообщений необходимо вынести в отдельные состояния(опционально)
-            
             var type = updateMessage.Type.ToString();
-            await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
             
+            await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
 
-            switch (user.OnState)
+            handler = user.OnState switch
             {
-                case OnState.Auth:
-                    handler = update switch
-                    {
-                         { Message: { }  message } =>  _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
-                        {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminChatId),
-                        _ => throw new Exception()
-                    };
-                    await handler;
-                    break;
-
-                case OnState.Menu:
-                    handler = update switch
-                    {
-                        {Message: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {EditedMessage: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {CallbackQuery: { } callbackQuery} => _handlerContainer.MainMenuHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                        _ => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-                    };
-                    await handler;
-                    break;
-
-                case OnState.Votes:
-                    handler = update switch
-                    {
-                        {Message: { } message} =>  _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {EditedMessage: { } message} => _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {CallbackQuery: { } callbackQuery} => _handlerContainer.VotesHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                        _ => _handlerContainer.VotesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-                    };
-                    await handler;
-                    break;
-                
-                case OnState.UploadCandidate:
-                    handler = update switch
-                    {
-                        {Message: { } message} =>  _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {EditedMessage: { } message} => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                        {CallbackQuery: { } callbackQuery} => _handlerContainer.CandidateUploadHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                        _ => _handlerContainer.CandidateUploadHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-                    };
-                    await handler;
-                    break;
-            }
+                OnState.Auth => update switch
+                {
+                    {Message: { } message} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminChatId), 
+                    _ => throw new Exception()
+                },
+                OnState.Menu => update switch
+                {
+                    {Message: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {EditedMessage: { } message} => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.MainMenuHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
+                    _ => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                },
+                OnState.Votes => update switch
+                {
+                    {Message: { } message} => _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {EditedMessage: { } message} => _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.VotesHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
+                    _ => _handlerContainer.VotesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                },
+                OnState.UploadCandidate => update switch
+                {
+                    {Message: { } message} => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {EditedMessage: { } message} => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.CandidateUploadHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
+                    _ => _handlerContainer.CandidateUploadHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                },
+            };
         }
     }
 

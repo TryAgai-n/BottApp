@@ -16,7 +16,9 @@ public static class Factory
         return new HandlerContainer(
             new AdminChatHandler(
                 databaseContainer.User, 
-                serviceContainer.Message), 
+                serviceContainer.Message,
+                serviceContainer.Document,
+                databaseContainer.Document), 
             
             new AuthHandler(
                 databaseContainer.User,

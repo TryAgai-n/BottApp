@@ -159,7 +159,7 @@ public class VotesHandler : IVotesHandler
             
         
             var docCount = await _documentRepository.GetCountByNomination(nomination);
-            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1);
+            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1, true);
             var document = documents.FirstOrDefault();
            
             
