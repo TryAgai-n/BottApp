@@ -68,7 +68,7 @@ public class DocumentService : IDocumentService
 
         var rootPath = Directory.GetCurrentDirectory() + "/DATA/Votes";
 
-        var user = await _userRepository.GetOneByUid((int) message.Chat.Id);
+        var user = await _userRepository.GetOneByUid(message.Chat.Id);
 
         var newPath = Path.Combine(rootPath, user.TelegramFirstName + "___" + user.UId, documentType, extension);
 
