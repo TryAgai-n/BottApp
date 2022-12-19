@@ -42,8 +42,7 @@ public class UserRepositoryTest : DbTestCase
 
 
     }
-
-
+    
     [Fact]
     public void ChangeUserOnStateTest()
     {
@@ -56,8 +55,7 @@ public class UserRepositoryTest : DbTestCase
 
         Assert.Equal(OnState.Menu, user.OnState);
     }
-
-
+    
     [Fact]
     public void UpdateUserProfileTest()
     {
@@ -84,5 +82,5 @@ public class UserRepositoryTest : DbTestCase
      //   _ = DatabaseContainer.User.UpdateUserFirstName(user,"Новое имя").Result;
      //  _ = DatabaseContainer.User.UpdateUserLastName(user,"Новая фамилия").Result;
     }
-    
+
 }
