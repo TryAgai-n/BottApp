@@ -1,6 +1,7 @@
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
@@ -10,11 +11,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 {
     public class AuthHandler : IAuthHandler
     {
-        private bool _isSendPhone = false;
-        private bool _isSendLastName = false;
-        private bool _isSendFirstName = false;
-        private bool _isAllDataGrip;
-
+      
         private readonly IUserRepository _userRepository;
         private readonly IMessageService _messageService;
 
@@ -44,26 +41,38 @@ namespace BottApp.Host.Services.Handlers.Auth
             long AdminChatID
         )
         {
+      
             await _messageService.MarkMessageToDelete(message);
+            
+            var localUser = await UserService.Get_One_User(user.Id);
+            if (localUser == null)
+            {
+                await UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+            }
+            
+            
 
-            if (message.Text == "/start" && !_isAllDataGrip)
+             if (message.Text == "/start" && !localUser.IsAllDataGrip)
             {
                 await SendMainPicture(botClient, message);
                 await RequestContactAndLocation(botClient, message, cancellationToken);
                 return;
             }
-
+            
+          
+            
             if (message.Text == "/secretRestart")
             {
                 await RequestContactAndLocation(botClient, message, cancellationToken);
-                _isSendLastName = false;
-                _isSendFirstName = false;
-                _isSendPhone = false;
-                _isAllDataGrip = false;
+                localUser.IsSendFirstName = false;
+                localUser.IsSendLastName = false;
+                localUser.IsSendPhone = false;
+                localUser.IsAllDataGrip = false;
                 return;
             }
 
-            if (message.Text != null && _isAllDataGrip)
+            if (message.Text != null && localUser.IsAllDataGrip)
             {
                 await _messageService.DeleteMessages(botClient, user);
 
@@ -76,7 +85,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                await _messageService.DeleteMessages(botClient, user);
             }
 
-            if ((message.Contact != null && !_isSendPhone))
+            if ((message.Contact != null && !localUser.IsSendPhone))
             {
                 await _messageService.DeleteMessages(botClient, user);
 
@@ -89,11 +98,11 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
 
-                _isSendPhone = true;
+                localUser.IsSendPhone = true;
                 return;
             }
 
-            if (!_isSendFirstName && _isSendPhone)
+            if (!localUser.IsSendFirstName && localUser.IsSendPhone)
             {
                 if (message.Text != null)
                 {
@@ -108,7 +117,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                     var profile = new Profile(message.Text, null);
                     await _userRepository.UpdateUserFullName(user, profile);
 
-                    _isSendFirstName = true;
+                    localUser.IsSendFirstName = true;
 
                     return;
                 }
@@ -123,7 +132,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 return;
             }
 
-            if (!_isSendLastName && _isSendPhone)
+            if (!localUser.IsSendLastName && localUser.IsSendPhone)
             {
                 if (message.Text != null)
                 {
@@ -134,8 +143,8 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                     await _userRepository.UpdateUserFullName(user, profile);
 
-                    _isSendLastName = true;
-                    _isAllDataGrip = true;
+                    localUser.IsSendLastName = true;
+                    localUser.IsAllDataGrip = true;
 
                     await SendUserFormToAdmin(botClient, message, user, AdminChatID);
                     

@@ -16,7 +16,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
     private readonly StateService _stateService;
 
-    private List<LocalUser> _localUsers = new();
+  
 
 
     public CandidateUploadHandler(IUserRepository userRepository, IDocumentService documentService, StateService stateService, IMessageService messageService)
@@ -26,22 +26,8 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         _stateService = stateService;
         _messageService = messageService;
     }
-    public async void Add_User_To_List(int userId, InNomination nomination)
-    {
-         _localUsers.Add(new LocalUser(userId, nomination));
-         var user = _localUsers.FirstOrDefault(x => x.Id == userId);
-    }
     
-    public async void Remove_User_InTo_List(int userId)
-    { 
-        var user = _localUsers.FirstOrDefault(x => x.Id == userId);
-        _localUsers.Remove(user);
-    }
     
-    public async Task<LocalUser> Get_One_User(int userId)
-    {
-        return _localUsers.FirstOrDefault(x => x.Id == userId);
-    }
 
     public async Task OnStart(ITelegramBotClient botClient, Message message)
     {
@@ -58,8 +44,9 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         {
             case nameof(NominationButton.Biggest):
                 
-                Add_User_To_List(user.Id, InNomination.First);
-                localUser = await Get_One_User(user.Id);
+                UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.First;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -71,9 +58,10 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Smaller):
-                
-                Add_User_To_List(user.Id, InNomination.Third);
-                localUser = await Get_One_User(user.Id);
+
+                UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.Third;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -85,9 +73,10 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Fastest):
-                
-                Add_User_To_List(user.Id, InNomination.Second);
-                localUser = await Get_One_User(user.Id);
+
+                UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.Second;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -100,7 +89,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             
             case nameof(VotesButton.ToVotes):
            
-                Remove_User_InTo_List(user.Id);
+                UserService.Remove_User_InTo_List(user.Id);
                 
                 await _messageService.DeleteMessages(botClient, user);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
@@ -110,7 +99,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
     public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
     {
-        var localUser = await Get_One_User(user.Id);
+        var localUser = await UserService.Get_One_User(user.Id);
         
         await _messageService.MarkMessageToDelete(message);
         
@@ -160,7 +149,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await Task.Delay(1000, cancellationToken);
                     await _messageService.DeleteMessages(botClient, user);
 
-                    Remove_User_InTo_List(user.Id);
+                    UserService.Remove_User_InTo_List(user.Id);
 
                     await _stateService.Startup(user, OnState.Votes, botClient, message);
                 }

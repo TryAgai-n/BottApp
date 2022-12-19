@@ -12,8 +12,8 @@ public class SaveLocalUserDataTest: DbTestCase
     [Fact]
     public void Add_And_RemoveUser()
     {
-        _users.Add(new LocalUser(99, InNomination.First));
-        _users.Add(new LocalUser(101, InNomination.Second));
+        _users.Add(new LocalUser(99));
+        _users.Add(new LocalUser(101));
 
         var user = _users.FirstOrDefault(x => x.Id == 99);
         _users.Remove(user);
@@ -25,8 +25,8 @@ public class SaveLocalUserDataTest: DbTestCase
     [Fact]
     public void Change_User_Flags_Test()
     {
-        _users.Add(new LocalUser(1, InNomination.First));
-        _users.Add(new LocalUser(3, InNomination.Second));
+        _users.Add(new LocalUser(1));
+        _users.Add(new LocalUser(3));
 
         var user = _users?
             .FirstOrDefault(x => x.Id == 1);

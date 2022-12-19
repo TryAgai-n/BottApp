@@ -42,13 +42,23 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
 
         if (updateMessage.Chat.Id == AdminChatId)
         {
-            handler = update switch
+            switch (update)
             {
-                {Message: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
-                {EditedMessage: { } message} => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken),
-                _ => _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            };
+                case { Message: { } message }:
+                    handler =  _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken);
+                    break;
+                case { EditedMessage: { } message }:
+                    handler = _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken);
+                    break;
+                case { CallbackQuery: { } callbackQuery }:
+                    handler = _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery,
+                        cancellationToken);
+                    break;
+                default:
+                    handler = _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken);
+                    break;
+            }
+
             await handler;
         }
         else
@@ -68,7 +78,7 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 case OnState.Auth:
                     handler = update switch
                     {
-                        { Message: { } message } => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
+                         { Message: { }  message } =>  _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
                         {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminChatId),
                         _ => throw new Exception()
                     };
