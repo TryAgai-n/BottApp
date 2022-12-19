@@ -161,7 +161,7 @@ public class VotesHandler : IVotesHandler
             var docCount = await _documentRepository.GetCountByNomination(nomination);
             var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1);
             var document = documents.FirstOrDefault();
-            user.ViewDocumentID = document.Id;
+           
             
             if (document == null)
             {
@@ -173,13 +173,14 @@ public class VotesHandler : IVotesHandler
                         text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!"
                     )
                 );
-
+                
                 await Task.Delay(3000, cancellationToken);
 
                 await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
                 return;
             }
-
+            
+            user.ViewDocumentID = document.Id;
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
