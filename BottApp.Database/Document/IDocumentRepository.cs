@@ -25,8 +25,16 @@ public interface IDocumentRepository
     Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);
     Task<DocumentModel> GetFirstDocumentByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListDocumentsByPath(DocumentInPath documentInPath);
-    Task<List<DocumentModel>> ListDocumentsByNomination(InNomination? documentNomination, int skip, int take = 1, bool withOrderByView = false);
-    Task<List<DocumentModel?>> GetListByNomination(DocumentModel documentModel);
+    Task<List<DocumentModel>> ListDocumentsByNomination(
+        InNomination? documentNomination,
+        int skip,
+        int take,
+        bool withOrderByView = false,
+        bool withModerate = false
+    );
+    Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool withModerate = false);
+
+    Task<bool> SetModerate(int documentId, bool isModerate);
     Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination);
     Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);

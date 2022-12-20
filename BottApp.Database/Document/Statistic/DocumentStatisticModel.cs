@@ -21,6 +21,8 @@ public class DocumentStatisticModel : AbstractModel
     [Required]
     public int LikeCount { get; set; }
 
+    public bool IsModerated { get; set; } = false;
+
 
     public static DocumentStatisticModel CreateModel(int documentId, int viewCount, int likeCount)
     {
@@ -31,9 +33,7 @@ public class DocumentStatisticModel : AbstractModel
             LikeCount = likeCount
         };
     }
-
     
-
     public static DocumentStatisticModel CreateEmpty(int viewCount = 0, int likeCount = 0)
     {
         return new DocumentStatisticModel()

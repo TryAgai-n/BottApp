@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database.Document;
@@ -110,7 +111,8 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         InNomination? documentNomination,
         int skip,
         int take,
-        bool withOrderByView = false
+        bool withOrderByView = false,
+        bool withModerate = false
     )
     {
         return await PrepareDocumentNomination(documentNomination)
@@ -122,38 +124,53 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
     
-    public Task<List<DocumentModel?>> GetListByNomination(DocumentModel documentModel)
+    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool withModerate = false)
     {
-        return PrepareDocumentNomination(documentModel.DocumentNomination)
+        return await PrepareDocumentNomination(documentNomination)
+            .Where(x=>  x.DocumentStatisticModel.IsModerated==true)
             .OrderBy(x => x.Id)
             .ToListAsync();
     }
 
 
-    public Task<int> GetCountByNomination(InNomination? documentNomination)
+    public async Task<int> GetCountByNomination(InNomination? documentNomination)
     {
-        return PrepareDocumentNomination(documentNomination).CountAsync();
+        return await PrepareDocumentNomination(documentNomination).CountAsync();
     }
 
 
-    public Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath)
+    public async Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath)
     {
-        return PrepareDocumentPath(documentInPath).OrderBy(x => x.Id).ToListAsync();
+        return await PrepareDocumentPath(documentInPath).OrderBy(x => x.Id).ToListAsync();
     }
 
 
     public async Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination)
     {
-        var result = PrepareDocumentNomination(documentNomination)
-            .FirstOrDefault(x => x.UserModel.Id == user.Id);
+        var result = PrepareDocumentNomination(documentNomination).FirstOrDefault(x => x.UserModel.Id == user.Id);
 
-        return result != null;
+        // return result != null; 
+        // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию
+        return false;
     }
+
+
+    public async Task<bool> SetModerate(int documentId, bool isModerate)
+    {
+        var model = DbModel.FirstOrDefault(x => x.Id == documentId);
+        model.DocumentStatisticModel.IsModerated = isModerate;
+        
+        if (model == null) return false;
+
+        await UpdateModelAsync(model);
+        return true;
+    }
+    
 
     public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
-        return DbModel.OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
-            .Include(x => x.DocumentStatisticModel)
+        return DbModel.Include(x => x.DocumentStatisticModel)
+            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
             .Skip(skip)
             .Take(take)
             .ToListAsync();

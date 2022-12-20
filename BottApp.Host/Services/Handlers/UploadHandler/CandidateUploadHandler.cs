@@ -46,11 +46,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         switch (callbackQuery.Data)
         {
             case nameof(NominationButton.Biggest):
-                //ToDo: Inject UserService like other
-                await UserService.Add_User_To_List(user.Id);
-                localUser = await UserService.Get_One_User(user.Id);
-                localUser.Nomination = InNomination.First;
-
+                
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.First))
                 {
                     await _messageService.MarkMessageToDelete(
@@ -60,12 +56,16 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                         )
                     );
                     await Task.Delay(2000, cancellationToken);
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
                     await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                     
                     return;
                 }
-
+                
+                //ToDo: Inject UserService like other
+                await UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.First;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -77,10 +77,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Smaller):
-
-                await UserService.Add_User_To_List(user.Id);
-                localUser = await UserService.Get_One_User(user.Id);
-                localUser.Nomination = InNomination.Third;
                 
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Third))
                 {
@@ -91,12 +87,15 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                         )
                     );
                     await Task.Delay(2000, cancellationToken);
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
                     await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                     
                     return;
                 }
                 
+                await UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.Third;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -108,10 +107,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             
             case nameof(NominationButton.Fastest):
-
-                await UserService.Add_User_To_List(user.Id);
-                localUser = await UserService.Get_One_User(user.Id);
-                localUser.Nomination = InNomination.Second;
                 
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Second))
                 {
@@ -123,12 +118,15 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     );
                     
                     await Task.Delay(2000, cancellationToken);
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
                     await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                     
                     return;
                 }
                 
+                await UserService.Add_User_To_List(user.Id);
+                localUser = await UserService.Get_One_User(user.Id);
+                localUser.Nomination = InNomination.Second;
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -145,7 +143,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
            
                 await UserService.Remove_User_InTo_List(user.Id);
                 
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 return;
         }
@@ -159,8 +157,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         
         switch (localUser)
         {
-
-
             case { IsSendNomination : false }:
             {
                 await _messageService.MarkMessageToDelete(
@@ -179,10 +175,10 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
                 localUser.IsSendCaption = true;
 
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(message.Chat.Id,
-                        "Отправьте фото кандидата в виде документа :)"));
+                        "Отправьте фото кандидата"));
                 return;
             
             
@@ -194,14 +190,16 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             
             case { IsSendCaption: true, IsSendDocument: false }:
             {
-                if (message.Document != null)
+                if (message.Photo != null)
                 {
-                    await _documentService.UploadVoteFile(message, botClient, localUser.Nomination,
-                        localUser.DocumentCaption);
+                    await _documentService.UploadVoteFile(message, botClient, localUser.Nomination, localUser.DocumentCaption);
+                    
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(message.Chat.Id, "Все сохранил, спасибо!"));
+                    
                     await Task.Delay(1000, cancellationToken);
-                    await _messageService.DeleteMessages(botClient, user);
+                    
+                    await _messageService.DeleteMessages(botClient, user.UId);
 
                     await UserService.Remove_User_InTo_List(user.Id);
 
@@ -226,7 +224,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: message.Chat.Id,
-                text: "Отправь мне фотографию своего кандидата в виде документа",
+                text: "Отправьте фото кандидата",
                 cancellationToken: cancellationToken
             ));
         }

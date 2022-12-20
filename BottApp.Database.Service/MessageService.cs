@@ -92,21 +92,21 @@ public class MessageService : IMessageService
         return preparedString;
     }
     
-    public Task MarkMessageToDelete(Telegram.Bot.Types.Message message)
+    public async Task MarkMessageToDelete(Message message)
     {
-        _messageList.Add(message);
-        return Task.CompletedTask;
+         _messageList.Add(message);
+         
     }
 
   
     
-    public async Task DeleteMessages(ITelegramBotClient botClient, UserModel user)
+    public async Task DeleteMessages(ITelegramBotClient botClient, long UId)
     {
         var tempMessageList = new List<Message>();
         
         foreach (var message in _messageList)
         {
-            if (message.Chat.Id == user.UId)
+            if (message.Chat.Id == UId)
             {
                 tempMessageList.Add(message);
             }

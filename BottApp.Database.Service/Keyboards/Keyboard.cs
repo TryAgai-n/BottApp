@@ -105,7 +105,28 @@ public class Keyboard
             },
         });
 
+    public static InlineKeyboardMarkup ApproveDeclineDocumetKeyboard = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Approve",nameof(AdminButton.DocumentApprove)),
+                InlineKeyboardButton.WithCallbackData("Decline", nameof(AdminButton.DocumentDecline)),
+            },
+        });
 
+    
+    public static InlineKeyboardMarkup Ok = new(
+        new[]
+        {
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Ok","Ok"),
+            },
+        });
+    
     public static ReplyKeyboardMarkup RequestLocationAndContactKeyboard = new(
         new[]
         {

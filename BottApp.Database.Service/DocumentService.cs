@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BottApp.Database.Document;
+using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -62,7 +63,9 @@ public class DocumentService : IDocumentService
     public async Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, InNomination inNomination, string? caption)
     {
         var documentType = message.Type.ToString();
-        var fileInfo = await _botClient.GetFileAsync(message.Document.FileId);
+        if (message.Photo == null) return false;
+
+        var fileInfo = await _botClient.GetFileAsync(message.Photo[^1].FileId);
         var filePath = fileInfo.FilePath;
         var extension = Path.GetExtension(filePath);
 
@@ -82,12 +85,25 @@ public class DocumentService : IDocumentService
             newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
 
         ///
-        await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, caption, DocumentInPath.Votes, inNomination);
+        var model = await _documentRepository.CreateModel(user.Id, documentType, extension, DateTime.Now, destinationFilePath, caption, DocumentInPath.Votes, inNomination);
         ///
 
-        await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
+
+        await _botClient.SendPhotoAsync(
+            -1001897483007,
+            message.Photo[^1].FileId,
+            $"ID: {model.Id} \n" +
+            $"Описание: {caption}\n" +
+            $"Номинация: {model.DocumentNomination}\n" +
+            $"Отправил пользователь ID {user.Id}, UID {user.UId} @{message.Chat.Username}",
+            replyMarkup: Keyboard.ApproveDeclineDocumetKeyboard
+        );
+        
+
+    await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
         await _botClient.DownloadFileAsync(filePath, fileStream);
         fileStream.Close();
+
         return true;
     }
 }

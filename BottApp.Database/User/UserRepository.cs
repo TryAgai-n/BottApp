@@ -62,7 +62,6 @@ namespace BottApp.Database.User
         
         public async Task<bool> UpdateUserFullName(UserModel model, Profile profile)
         {
-
             model.SetUserProfile(profile);
             var result = await UpdateModelAsync(model);
             

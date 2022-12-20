@@ -74,7 +74,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && localUser.IsAllDataGrip)
             {
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -82,12 +82,12 @@ namespace BottApp.Host.Services.Handlers.Auth
                     )
                 );
                 await Task.Delay(10000);
-               await _messageService.DeleteMessages(botClient, user);
+               await _messageService.DeleteMessages(botClient, user.UId);
             }
 
             if ((message.Contact != null && !localUser.IsSendPhone))
             {
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -106,7 +106,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
 
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
@@ -114,9 +114,8 @@ namespace BottApp.Host.Services.Handlers.Auth
                         )
                     );
 
-                    var profile = new Profile(message.Text, null);
-                    await _userRepository.UpdateUserFullName(user, profile);
-
+                  
+                    localUser.FirstName = message.Text;
                     localUser.IsSendFirstName = true;
 
                     return;
@@ -124,7 +123,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await Task.Delay(1000);
 
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Отправьте имя в виде текста")
@@ -136,10 +135,11 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
+
+                    localUser.LasttName = message.Text;
                     
-                    
-                    var profile = new Profile(null, message.Text);
+                    var profile = new Profile(localUser.FirstName, localUser.LasttName);
 
                     await _userRepository.UpdateUserFullName(user, profile);
 
@@ -155,13 +155,13 @@ namespace BottApp.Host.Services.Handlers.Auth
                         )
                     );
                     await Task.Delay(10000);
-                    await _messageService.DeleteMessages(botClient, user);
+                    await _messageService.DeleteMessages(botClient, user.UId);
                     return;
                 }
 
                 await Task.Delay(1000);
 
-                 await _messageService.DeleteMessages(botClient, user);
+                 await _messageService.DeleteMessages(botClient, user.UId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -170,7 +170,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 );
             }
             
-            await _messageService.DeleteMessages(botClient, user);
+            await _messageService.DeleteMessages(botClient, user.UId);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
@@ -250,32 +250,32 @@ namespace BottApp.Host.Services.Handlers.Auth
            
            if (getPhotoAsync.Result.TotalCount > 0)
            {
-               // var photo = getPhotoAsync.Result.Photos[0];
-               // _messageService.MarkMessageToDelete(
-               // await botClient.SendPhotoAsync(
-               //     AdminChatID, photo[0].FileId,
-               //     $" Пользователь |{user.TelegramFirstName}|\n" + 
-               //     $" @{message.From.Username}    |{user.UId}|\n" +
-               //     $" Моб.тел. |{user.Phone}|\n" +
-               //     $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
-               //     $" Хочет авторизоваться в системе",
-               //     replyMarkup: Keyboard.ApproveDeclineKeyboard
-               // ));
+               var photo = getPhotoAsync.Result.Photos[0];
+               await _messageService.MarkMessageToDelete(
+               await botClient.SendPhotoAsync(
+                   AdminChatID, photo[0].FileId,
+                   $" Пользователь |{user.TelegramFirstName}|\n" + 
+                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" Моб.тел. |{user.Phone}|\n" +
+                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                   $" Хочет авторизоваться в системе",
+                   replyMarkup: Keyboard.ApproveDeclineKeyboard
+               ));
            }
            else
            {
-               // var filePath = @"Files/BOT_MAIN_PICTURE1.png";
-               // await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-               // _messageService.MarkMessageToDelete(
-               // await botClient.SendPhotoAsync(
-               //     AdminChatID, fileStream,
-               //     $" Пользователь |{user.TelegramFirstName}|\n" +
-               //     $" @{message.From.Username}    |{user.UId}|\n" +
-               //     $" Моб.тел. |{user.Phone}|\n" +
-               //     $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
-               //     $" Хочет авторизоваться в системе",
-               //     replyMarkup: Keyboard.ApproveDeclineKeyboard));
-               //     fileStream.Close();
+               var filePath = @"Files/BOT_MAIN_PICTURE1.png";
+               await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+               await _messageService.MarkMessageToDelete(
+               await botClient.SendPhotoAsync(
+                   AdminChatID, fileStream,
+                   $" Пользователь |{user.TelegramFirstName}|\n" +
+                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" Моб.тел. |{user.Phone}|\n" +
+                   $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                   $" Хочет авторизоваться в системе",
+                   replyMarkup: Keyboard.ApproveDeclineKeyboard));
+                   fileStream.Close();
            }
         }
         

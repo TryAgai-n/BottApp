@@ -91,31 +91,27 @@ public class DocumentRepository: DbTestCase
         
         Assert.Equal(InNomination.First, votesPathCollection[1].DocumentNomination);
         
-        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.First, 0).Result;
-        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.Second, 0).Result;
+        var CountInBiggest = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.First, 0, 10).Result;
+        var CountInFast = DatabaseContainer.Document.ListDocumentsByNomination(InNomination.Second, 0, 10).Result;
         
         Assert.Equal(3, CountInBiggest.Count);
         Assert.Equal(6, CountInFast.Count);
 
-        var listInBase = DatabaseContainer.Document.ListDocumentsByPath(DocumentInPath.Base).Result;
-        Assert.Equal(1000, listInBase.Count);
+        var listInVotes= DatabaseContainer.Document.ListDocumentsByPath(DocumentInPath.Votes).Result;
+        Assert.Equal(9, listInVotes.Count);
 
         
         var firstDocumentInVotes = DatabaseContainer.Document.GetFirstDocumentByPath(DocumentInPath.Votes).Result;
         
         Assert.Equal("Votes Type 1", firstDocumentInVotes.DocumentType);
         
-        var documentCollection = DatabaseContainer.Document.ListDocumentsByPath(DocumentInPath.Votes).Result;
-        
-        
-        Assert.Equal(2, documentCollection.Count);
     }
 
 
 
 
     [Fact]
-    public void IndexDocumentIDTest()
+    public async Task IndexDocumentIDTest()
     {
         var telegramProfile = new TelegramProfile(3435, "FirstName", "LastName", null);
         var user = DatabaseContainer.User.CreateUser(telegramProfile).Result;
@@ -123,21 +119,21 @@ public class DocumentRepository: DbTestCase
         
         var votesPathCollection = new List<DocumentModel>();
 
-        for (var i = 0; i <= 3; i++)
-        {
-            votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
-                user.Id,
-                "Votes Type",
-                ".jpeg",
-                DateTime.Now,
-                "Vote Path",
-                $"ID {i} in { InNomination.First}",
-                DocumentInPath.Votes,
-                InNomination.First).Result);
-        }
+        // for (var i = 0; i <= 3; i++)
+        // {
+        //     votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
+        //         user.Id,
+        //         "Votes Type",
+        //         ".jpeg",
+        //         DateTime.Now,
+        //         "Vote Path",
+        //         $"ID {i} in { InNomination.First}",
+        //         DocumentInPath.Votes,
+        //         InNomination.First).Result);
+        // }
 
 
-        for (var i = 0; i <= 6; i++)
+        for (var i = 0; i <= 9; i++)
         {
             votesPathCollection.Add(DatabaseContainer.Document.CreateModel(
                 user.Id,
@@ -150,15 +146,19 @@ public class DocumentRepository: DbTestCase
                 InNomination.Second).Result);
         }
 
-        var currentDocument = votesPathCollection[7];
-        
-         var docID = DatabaseContainer.Document.GetListByNomination(currentDocument).Result;
-         var listIndex = docID.IndexOf(docID.FirstOrDefault(x => x.Id == currentDocument.Id));
-         // var id = docID.ElementAt(currentDocument.Id);
-                 
-                 
-         Console.WriteLine();
+        await DatabaseContainer.Document.SetModerate(votesPathCollection[1].Id, true);
+        await DatabaseContainer.Document.SetModerate(votesPathCollection[2].Id, true);
+        await DatabaseContainer.Document.SetModerate(votesPathCollection[3].Id, true);
+        await DatabaseContainer.Document.SetModerate(votesPathCollection[7].Id, true);
+        await DatabaseContainer.Document.SetModerate(votesPathCollection[8].Id, true);
 
+        var docCount = DatabaseContainer.Document.GetCountByNomination(InNomination.Second).Result;
+        var docId = DatabaseContainer.Document.GetListByNomination(InNomination.Second,   true).Result;
+        
+        Assert.Null(docId);
+     //    var listIndex = docID.IndexOf(docID.FirstOrDefault(x => x.Id == currentDocument.Id));
+
+        
 
     }
 

@@ -44,4 +44,6 @@ public enum AdminButton
 {
     Approve,
     Decline,
+    DocumentApprove,
+    DocumentDecline,
 }

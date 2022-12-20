@@ -154,17 +154,16 @@ public class VotesHandler : IVotesHandler
     {
         if (first)
         {
-            await _messageService.DeleteMessages(botClient, user);
+            await _messageService.DeleteMessages(botClient, user.UId);
             
-        
-            var docCount = await _documentRepository.GetCountByNomination(nomination);
-            var documents = await _documentRepository.ListDocumentsByNomination(nomination, skip, 1, true);
+            
+            var documents = await _documentRepository.GetListByNomination(nomination,  true);
             var document = documents.FirstOrDefault();
            
             
             if (document == null)
             {
-                await _messageService.DeleteMessages(botClient, user);
+                await _messageService.DeleteMessages(botClient, user.UId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -183,7 +182,7 @@ public class VotesHandler : IVotesHandler
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                docCount, 2, nomination);
+                documents.Count, 2, nomination);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
@@ -205,19 +204,21 @@ public class VotesHandler : IVotesHandler
             );
 
             var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
-            var docList = await _documentRepository.GetListByNomination(documentModel);
+            
+            var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
+            
             var docId = docList.IndexOf(docList.FirstOrDefault(x => x!.Id == documentModel.Id));
-            var documentCount = await _documentRepository.GetCountByNomination(documentModel.DocumentNomination);
+            
             
             
             docId += skip;
             if (docId <= -1)
-                docId = documentCount-1;
+                docId = docList.Count-1;
 
-            if (docId > documentCount-1)
+            if (docId > docList.Count-1)
                 docId = 0;
 
-            var documents = await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, docId);
+            var documents = await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, docId, 1);
 
             var document = documents.First();
             user.ViewDocumentID = document.Id;
@@ -226,10 +227,10 @@ public class VotesHandler : IVotesHandler
 
             var leftButtonOffset = (docId);
             if (leftButtonOffset <= 0)
-                leftButtonOffset = documentCount;
+                leftButtonOffset = docList.Count;
 
             var rightButtonOffset = (docId+1);
-            if (rightButtonOffset > documentCount+1)
+            if (rightButtonOffset > docList.Count+1)
                 rightButtonOffset = 1;
 
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
@@ -263,7 +264,7 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await _messageService.DeleteMessages(botClient, user);
+        await _messageService.DeleteMessages(botClient, user.UId);
 
         await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
         (
@@ -283,7 +284,7 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await _messageService.DeleteMessages(botClient, user);
+        await _messageService.DeleteMessages(botClient, user.UId);
 
         await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
         (
@@ -400,7 +401,7 @@ public class VotesHandler : IVotesHandler
 
             await Task.Delay(1000);
             
-            await _messageService.DeleteMessages(botClient, user);
+            await _messageService.DeleteMessages(botClient, user.UId);
             
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (

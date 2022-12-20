@@ -5,6 +5,7 @@ using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BottApp.Host.Services.Handlers.AdminChat
 {
@@ -101,9 +102,33 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 case nameof(AdminButton.Decline):
                     await Decline(botClient, callbackQuery, cancellationToken);
                     break;
+                case nameof(AdminButton.DocumentApprove):
+                    await ApproveDocument(botClient, callbackQuery, cancellationToken);
+                    break;
                 default: await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken);
                     break;
             }
+        }
+
+
+        public async Task ApproveDocument(
+            ITelegramBotClient botClient,
+            CallbackQuery callbackQuery,
+            CancellationToken cancellationToken
+        )
+        {
+            var subs = callbackQuery.Message.Caption.Split(' ');
+            var documentApproveId = Convert.ToInt32(subs[1]);
+            
+            await botClient.EditMessageCaptionAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                messageId: callbackQuery.Message.MessageId,
+                caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА пользователем @{callbackQuery.Message.Chat.Username}",
+                replyMarkup:  Keyboard.Ok,
+                cancellationToken: cancellationToken
+            );
+           await _documentRepository.SetModerate(documentApproveId, true);
         }
 
         public async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -125,7 +150,8 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 cancellationToken: cancellationToken
             );
             
-            await _messageService.DeleteMessages(botClient, user);
+            await _messageService.DeleteMessages(botClient, -1001897483007);
+            
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
                 chatId: approveId,
@@ -151,7 +177,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                   cancellationToken: cancellationToken
               );
               
-              await _messageService.DeleteMessages(botClient, user);
+              await _messageService.DeleteMessages(botClient, -1001897483007);
               
               return await botClient.SendTextMessageAsync
             (
