@@ -11,6 +11,7 @@ namespace BottApp.Host.Services.Handlers.UploadHandler;
 public class CandidateUploadHandler : ICandidateUploadHandler
 {
     private readonly IUserRepository _userRepository;
+    private readonly IDocumentRepository _documentRepository;
     private readonly IDocumentService _documentService;
     private readonly IMessageService _messageService;
 
@@ -19,12 +20,14 @@ public class CandidateUploadHandler : ICandidateUploadHandler
   
 
 
-    public CandidateUploadHandler(IUserRepository userRepository, IDocumentService documentService, StateService stateService, IMessageService messageService)
+    public CandidateUploadHandler(IUserRepository userRepository, IDocumentRepository documentRepository, IDocumentService documentService, StateService stateService, IMessageService messageService)
     {
         _userRepository = userRepository;
+        _documentRepository = documentRepository;
         _documentService = documentService;
         _stateService = stateService;
         _messageService = messageService;
+       
     }
     
     
@@ -43,10 +46,26 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         switch (callbackQuery.Data)
         {
             case nameof(NominationButton.Biggest):
-                
-                UserService.Add_User_To_List(user.Id);
+                //ToDo: Inject UserService like other
+                await UserService.Add_User_To_List(user.Id);
                 localUser = await UserService.Get_One_User(user.Id);
                 localUser.Nomination = InNomination.First;
+
+                if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.First))
+                {
+                    await _messageService.MarkMessageToDelete(
+                        await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message.Chat.Id, text: "Вы уже добавляли кандидата в текущую номинацию!",
+                            cancellationToken: cancellationToken
+                        )
+                    );
+                    await Task.Delay(2000, cancellationToken);
+                    await _messageService.DeleteMessages(botClient, user);
+                    await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
+                    
+                    return;
+                }
+
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -59,9 +78,25 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             
             case nameof(NominationButton.Smaller):
 
-                UserService.Add_User_To_List(user.Id);
+                await UserService.Add_User_To_List(user.Id);
                 localUser = await UserService.Get_One_User(user.Id);
                 localUser.Nomination = InNomination.Third;
+                
+                if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Third))
+                {
+                    await _messageService.MarkMessageToDelete(
+                        await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message.Chat.Id, text: "Вы уже добавляли кандидата в текущую номинацию!",
+                            cancellationToken: cancellationToken
+                        )
+                    );
+                    await Task.Delay(2000, cancellationToken);
+                    await _messageService.DeleteMessages(botClient, user);
+                    await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
+                    
+                    return;
+                }
+                
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -69,14 +104,31 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                         chatId: callbackQuery.Message.Chat.Id, text: "Внесите краткое описание кандидата.", cancellationToken: cancellationToken
                     )
                 );
-
+                
                 return;
             
             case nameof(NominationButton.Fastest):
 
-                UserService.Add_User_To_List(user.Id);
+                await UserService.Add_User_To_List(user.Id);
                 localUser = await UserService.Get_One_User(user.Id);
                 localUser.Nomination = InNomination.Second;
+                
+                if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Second))
+                {
+                    await _messageService.MarkMessageToDelete(
+                        await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message.Chat.Id, text: "Вы уже добавляли кандидата в текущую номинацию!",
+                            cancellationToken: cancellationToken
+                        )
+                    );
+                    
+                    await Task.Delay(2000, cancellationToken);
+                    await _messageService.DeleteMessages(botClient, user);
+                    await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
+                    
+                    return;
+                }
+                
                 localUser.IsSendNomination = true;
                 
                 await _messageService.MarkMessageToDelete(
@@ -87,9 +139,11 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
                 return;
             
+            
+            
             case nameof(VotesButton.ToVotes):
            
-                UserService.Remove_User_InTo_List(user.Id);
+                await UserService.Remove_User_InTo_List(user.Id);
                 
                 await _messageService.DeleteMessages(botClient, user);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
@@ -149,7 +203,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await Task.Delay(1000, cancellationToken);
                     await _messageService.DeleteMessages(botClient, user);
 
-                    UserService.Remove_User_InTo_List(user.Id);
+                    await UserService.Remove_User_InTo_List(user.Id);
 
                     await _stateService.Startup(user, OnState.Votes, botClient, message);
                 }

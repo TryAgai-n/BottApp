@@ -1,6 +1,5 @@
 using BottApp.Database;
 using BottApp.Database.User;
-using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;

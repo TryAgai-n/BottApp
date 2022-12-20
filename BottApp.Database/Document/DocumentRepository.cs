@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -105,7 +106,6 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
 
-
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
         InNomination? documentNomination,
         int skip,
@@ -141,6 +141,14 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return PrepareDocumentPath(documentInPath).OrderBy(x => x.Id).ToListAsync();
     }
 
+
+    public async Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination)
+    {
+        var result = PrepareDocumentNomination(documentNomination)
+            .FirstOrDefault(x => x.UserModel.Id == user.Id);
+
+        return result != null;
+    }
 
     public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {

@@ -42,6 +42,7 @@ public static class Factory
             
             new CandidateUploadHandler(
                 databaseContainer.User,
+                databaseContainer.Document,
                 serviceContainer.Document,
                 new StateService(databaseContainer.User, serviceContainer.Message),
                 serviceContainer.Message
