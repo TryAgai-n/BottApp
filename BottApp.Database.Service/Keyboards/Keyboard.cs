@@ -42,7 +42,7 @@ public class Keyboard
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Голосование 🗳 ",nameof(MenuButton.ToVotes)),
-                InlineKeyboardButton.WithCallbackData("Сказать✋администратору  ", nameof(MenuButton.Hi)),
+               // InlineKeyboardButton.WithCallbackData("Сказать✋администратору  ", nameof(MenuButton.Hi)),
                 
             },
             // second row
@@ -123,7 +123,7 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Ok","Ok"),
+                InlineKeyboardButton.WithCallbackData("Ok",nameof(AdminButton.SendOk)),
             },
         });
     

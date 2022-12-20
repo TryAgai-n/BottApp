@@ -94,7 +94,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
             
-            switch (callbackQuery.Data)
+                                switch (callbackQuery.Data)
             {
                 case nameof(AdminButton.Approve):
                     await Approve(botClient, callbackQuery, cancellationToken);
@@ -105,6 +105,9 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 case nameof(AdminButton.DocumentApprove):
                     await ApproveDocument(botClient, callbackQuery, cancellationToken);
                     break;
+                
+                case nameof(AdminButton.SendOk):
+break;
                 default: await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken);
                     break;
             }
@@ -119,12 +122,12 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         {
             var subs = callbackQuery.Message.Caption.Split(' ');
             var documentApproveId = Convert.ToInt32(subs[1]);
-            
+            //TodO: Принята кем
             await botClient.EditMessageCaptionAsync
             (
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
-                caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА пользователем @{callbackQuery.Message.Chat.Username}",
+                caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА @{callbackQuery.From.Username}",
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );

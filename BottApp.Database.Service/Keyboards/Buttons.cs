@@ -46,4 +46,5 @@ public enum AdminButton
     Decline,
     DocumentApprove,
     DocumentDecline,
+    SendOk,
 }

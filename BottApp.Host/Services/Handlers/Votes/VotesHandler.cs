@@ -132,7 +132,7 @@ public class VotesHandler : IVotesHandler
         await _messageService.MarkMessageToDelete(
             await botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id,
-                text: "Ваш голос учтен!\nЗа кандидата можно голосовать только один раз, не пытайся проверить это"
+                text: "Ваш голос учтен!"
             )
         );
         
@@ -188,8 +188,8 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
                     photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
-                    caption: $"Кандидат: 1 В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nDocID{document.Id}"
-                    , replyMarkup: dynamicKeyboardMarkup,
+                    caption: $"{document.Caption}",
+                    replyMarkup: dynamicKeyboardMarkup,
                     cancellationToken: cancellationToken
                 )
             );
@@ -246,7 +246,7 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"Кандидат: {docId+1} В номинации {document.DocumentNomination}  \nОписание: {document.Caption}\nDocID{document.Id}",
+                caption: $"{document.Caption}",
                 replyMarkup: dynamicKeyboardMarkup,
                 cancellationToken: cancellationToken
             );

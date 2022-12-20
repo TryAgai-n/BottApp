@@ -147,7 +147,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination)
     {
-        var result = PrepareDocumentNomination(documentNomination).FirstOrDefault(x => x.UserModel.Id == user.Id);
+        var result =  PrepareDocumentNomination(documentNomination).FirstOrDefault(x => x.UserModel.Id == user.Id);
 
         // return result != null; 
         // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию

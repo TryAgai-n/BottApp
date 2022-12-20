@@ -110,7 +110,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправь фамилию"
+                            chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте фамилию"
                         )
                     );
 
@@ -151,10 +151,10 @@ namespace BottApp.Host.Services.Handlers.Auth
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
-                            text: "Отлично!\nПередал заявку на модерацию.\nОжидай уведомление :)"
+                            text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
                         )
                     );
-                    await Task.Delay(10000);
+                    await Task.Delay(2000, cancellationToken);
                     await _messageService.DeleteMessages(botClient, user.UId);
                     return;
                 }
@@ -210,7 +210,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text:
-                    "Для начала поделись телефоном, чтобы я мог идентифицировать тебя.",
+                    "Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
                     cancellationToken: cancellationToken
                 )
             );
@@ -221,7 +221,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text:
-                    "Не переживай! Твои данные не передаются третьим лицам и хранятся на безопасном сервере.",
+                    "Не переживайте! Ваши данные не передаются третьим лицам и хранятся на безопасном сервере.",
                     cancellationToken: cancellationToken
                 )
             );
@@ -230,7 +230,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Чтобы отправить телефон нажми на кнопку\n 'Поделиться контактом'",
+                    chatId: message.Chat.Id, text: "Чтобы отправить телефон нажмите на кнопку\n 'Поделиться контактом'",
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
                 )
             );
@@ -255,7 +255,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                await botClient.SendPhotoAsync(
                    AdminChatID, photo[0].FileId,
                    $" Пользователь |{user.TelegramFirstName}|\n" + 
-                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" @{message.Chat.Username??"Нет публичного имени"}    |{user.UId}|\n" +
                    $" Моб.тел. |{user.Phone}|\n" +
                    $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
                    $" Хочет авторизоваться в системе",
@@ -270,7 +270,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                await botClient.SendPhotoAsync(
                    AdminChatID, fileStream,
                    $" Пользователь |{user.TelegramFirstName}|\n" +
-                   $" @{message.From.Username}    |{user.UId}|\n" +
+                   $" @{message.Chat.Username??"Нет публичного имени"}    |{user.UId}|\n" +
                    $" Моб.тел. |{user.Phone}|\n" +
                    $" Фамилия {user.LastName}, имя {user.FirstName}\n" +
                    $" Хочет авторизоваться в системе",
