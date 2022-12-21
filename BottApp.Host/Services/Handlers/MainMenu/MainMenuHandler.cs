@@ -102,12 +102,12 @@ public class MainMenuHandler : IMainMenuHandler
                 break;
             
             case nameof(MenuButton.ToVotes):
-                await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
+                // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 break;
             
             case nameof(MenuButton.ToHelp):
-                await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
+                // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Help, botClient, callbackQuery.Message);
                 break;
             

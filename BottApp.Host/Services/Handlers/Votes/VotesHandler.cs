@@ -390,6 +390,8 @@ public class VotesHandler : IVotesHandler
 
         async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
+            await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
+            
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id, text: "Используй вирутальные кнопки", cancellationToken: cancellationToken

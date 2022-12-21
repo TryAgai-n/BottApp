@@ -111,46 +111,37 @@ public class MessageService : IMessageService
 
     public async Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId)
     {
-        // try
-        // {
-        //     for (var i = 0; i < 15; i++)
-        //     {
-        //         await botClient.DeleteMessageAsync(
-        //             chatId: UId,
-        //             messageId: messageId -i);
-        //     }
-        // }
-        // catch (Exception e)
-        // {
-        //     Console.WriteLine(e);
-        // }
-        //
+    
+
+    
+         
         
-        var tempMessageList = new List<Message>();
-        
-        foreach (var message in _messageList)
+
+        var temp = _messageList.Where(x => x.Chat.Id == UId).ToList();
+        if (temp.Count > 0)
         {
-            if (message.Chat.Id == UId)
-            {
-                tempMessageList.Add(message);
-            }
-        }
-        
-        if (tempMessageList.Count != 0)
-        {
-            foreach (var message in tempMessageList)
-            {
-                _messageList.Remove(message);
-            }
-            
-            for (var i = tempMessageList.Count - 1; i >= 0; i--)
+            foreach (var message in temp)
             {
                 await botClient.DeleteMessageAsync(
-                    chatId: tempMessageList[i].Chat.Id,
-                    messageId: tempMessageList[i].MessageId);
-                
-                tempMessageList.RemoveAt(i);
+                    chatId: message.Chat.Id,
+                    messageId: message.MessageId);
+                _messageList.Remove(message);
             }
+            temp.Clear();
+        }
+        else
+        {
+            try
+            {
+                await botClient.DeleteMessageAsync(
+                        chatId: UId,
+                        messageId: messageId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("~~~~~~~~!!!!!!!!!!!!~~~~~~~~~~!!!!!!!~~~~~~~~~EXCEPTION!!!!!!!!!!!~~~~~~~~~!!!!!!!!!!!!!!!!!!!!!" + e);
+            }
+          
         }
     }
 }
