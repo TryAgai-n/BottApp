@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using BottApp.Database.Document;
+﻿using BottApp.Database.Document;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using Telegram.Bot;
@@ -90,7 +86,7 @@ public class DocumentService : IDocumentService
 
 
         await _botClient.SendPhotoAsync(
-            -1001897483007,
+            AdminSettings.AdminChatId,
             message.Photo[^1].FileId,
             $"ID: {model.Id} \n" +
             $"Описание: {caption}\n" +

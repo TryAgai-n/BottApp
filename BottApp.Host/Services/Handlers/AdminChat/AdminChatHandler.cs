@@ -1,4 +1,5 @@
 using System.Text;
+using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
@@ -53,13 +54,14 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             {
 
                 var listTop = await _documentRepository.ListMostViewedDocuments();
+                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination();
                 var sb = new StringBuilder("Most View Candidate: \n");
 
                 var i = 1;
-                foreach (var item in listTop)
+                foreach (var item in listTopByNomination)
                 {
                     sb.Append(
-                        $"{i++}.  ID {item.Id}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n"
+                        $"{i++}.  ID {item.Id} in Nomination {item.DocumentNomination}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n"
                     );
                 }
 
@@ -122,7 +124,8 @@ break;
         {
             var subs = callbackQuery.Message.Caption.Split(' ');
             var documentApproveId = Convert.ToInt32(subs[1]);
-            //TodO: Принята кем
+            
+            await _documentRepository.SetModerate(documentApproveId, true);
             await botClient.EditMessageCaptionAsync
             (
                 chatId: callbackQuery.Message.Chat.Id,
@@ -131,7 +134,7 @@ break;
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
-           await _documentRepository.SetModerate(documentApproveId, true);
+          
         }
 
         public async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -153,7 +156,7 @@ break;
                 cancellationToken: cancellationToken
             );
             
-            await _messageService.DeleteMessages(botClient, -1001897483007);
+            await _messageService.DeleteMessages(botClient, AdminSettings.AdminChatId, callbackQuery.Message.MessageId);
             
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (
@@ -180,7 +183,7 @@ break;
                   cancellationToken: cancellationToken
               );
               
-              await _messageService.DeleteMessages(botClient, -1001897483007);
+              await _messageService.DeleteMessages(botClient, AdminSettings.AdminChatId, callbackQuery.Message.MessageId);
               
               return await botClient.SendTextMessageAsync
             (

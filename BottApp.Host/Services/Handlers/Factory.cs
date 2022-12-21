@@ -2,6 +2,7 @@ using BottApp.Database;
 using BottApp.Database.Service;
 using BottApp.Host.Services.Handlers.AdminChat;
 using BottApp.Host.Services.Handlers.Auth;
+using BottApp.Host.Services.Handlers.Help;
 using BottApp.Host.Services.Handlers.MainMenu;
 using BottApp.Host.Services.Handlers.UploadHandler;
 using BottApp.Host.Services.Handlers.Votes;
@@ -28,8 +29,7 @@ public static class Factory
                 databaseContainer.User, 
                 serviceContainer.Document,
                 serviceContainer.Message,
-                new StateService(databaseContainer.User, serviceContainer.Message)
-            ),
+                new StateService(databaseContainer.User, serviceContainer.Message)),
             
             new VotesHandler(
                 databaseContainer.User,
@@ -37,16 +37,22 @@ public static class Factory
                 databaseContainer.LikeDocument,
                 serviceContainer.Document,
                 serviceContainer.Message, 
-                new StateService(databaseContainer.User, serviceContainer.Message)
-            ),
+                new StateService(databaseContainer.User, serviceContainer.Message)),
             
             new CandidateUploadHandler(
                 databaseContainer.User,
                 databaseContainer.Document,
                 serviceContainer.Document,
                 new StateService(databaseContainer.User, serviceContainer.Message),
-                serviceContainer.Message
-            )
+                serviceContainer.Message),
+            
+            new HelpHandler(
+                databaseContainer.User, 
+                serviceContainer.Document,
+                serviceContainer.Message,
+                new StateService(databaseContainer.User, serviceContainer.Message))
+            
+            
         );
     }
 }

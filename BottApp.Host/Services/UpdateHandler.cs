@@ -14,8 +14,6 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
     private readonly IDatabaseContainer _databaseContainer;
 
 
-   // private const long AdminChatId = -1001824488986;
-    private const long AdminChatId = -1001897483007;
 
 
     public UpdateHandler(
@@ -39,7 +37,7 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
         if(updateMessage is null)
             return;
 
-        if (updateMessage.Chat.Id == AdminChatId)
+        if (updateMessage.Chat.Id == AdminSettings.AdminChatId)
         {
             handler = update switch
             {
@@ -63,8 +61,8 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
             {
                 OnState.Auth => update switch
                 {
-                    {Message: { } message} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminChatId),
-                    {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminChatId), 
+                    {Message: { } message} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminSettings.AdminChatId),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminSettings.AdminChatId), 
                     _ => throw new Exception()
                 },
                 OnState.Menu => update switch
@@ -87,6 +85,13 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                     {EditedMessage: { } message} => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
                     {CallbackQuery: { } callbackQuery} => _handlerContainer.CandidateUploadHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
                     _ => _handlerContainer.CandidateUploadHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                },
+                OnState.Help => update switch
+                {
+                    {Message: { } message} => _handlerContainer.HelpHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {EditedMessage: { } message} => _handlerContainer.HelpHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.HelpHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
+                    _ => _handlerContainer.HelpHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
                 },
             };
         }

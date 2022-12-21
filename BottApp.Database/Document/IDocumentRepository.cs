@@ -38,6 +38,7 @@ public interface IDocumentRepository
     Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination);
     Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
+    Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip = 0, int take = 10);
 
     Task IncrementViewByDocument(DocumentModel model);
     Task IncrementLikeByDocument(DocumentModel model);

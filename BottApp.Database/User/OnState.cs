@@ -4,6 +4,7 @@ public enum OnState
 {
     Auth,
     Menu,
+    Help,
     Votes,
     UploadCandidate,
 }

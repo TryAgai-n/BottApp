@@ -95,13 +95,37 @@ public class MessageService : IMessageService
     public async Task MarkMessageToDelete(Message message)
     {
          _messageList.Add(message);
-         
     }
 
-  
-    
-    public async Task DeleteMessages(ITelegramBotClient botClient, long UId)
+    public async Task<bool> TryDeleteAfterReboot(ITelegramBotClient botClient, long UId, int messageId)
     {
+        var lastIndex = messageId - 1;
+
+        await botClient.DeleteMessageAsync(
+            chatId: UId,
+            messageId: lastIndex);
+
+        return true;
+    }
+
+
+    public async Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId)
+    {
+        // try
+        // {
+        //     for (var i = 0; i < 15; i++)
+        //     {
+        //         await botClient.DeleteMessageAsync(
+        //             chatId: UId,
+        //             messageId: messageId -i);
+        //     }
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine(e);
+        // }
+        //
+        
         var tempMessageList = new List<Message>();
         
         foreach (var message in _messageList)

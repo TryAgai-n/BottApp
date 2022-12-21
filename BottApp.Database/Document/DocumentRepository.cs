@@ -157,9 +157,12 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<bool> SetModerate(int documentId, bool isModerate)
     {
-        var model = DbModel.FirstOrDefault(x => x.Id == documentId);
-        model.DocumentStatisticModel.IsModerated = isModerate;
+        var model = DbModel.Where(x => x.Id == documentId)
+            .Include(x => x.DocumentStatisticModel)
+            .FirstOrDefault();
         
+        model.DocumentStatisticModel.IsModerated = isModerate;
+
         if (model == null) return false;
 
         await UpdateModelAsync(model);
@@ -175,6 +178,17 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .Take(take)
             .ToListAsync();
     }
+    
+    public Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip = 0, int take = 10)
+    {
+        return DbModel.Include(x => x.DocumentStatisticModel)
+            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
+            .ThenBy(x=> x.DocumentNomination)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+    }
+
     
     
     public async Task IncrementViewByDocument(DocumentModel model)

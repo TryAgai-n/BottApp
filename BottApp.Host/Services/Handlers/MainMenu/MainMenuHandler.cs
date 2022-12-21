@@ -102,9 +102,15 @@ public class MainMenuHandler : IMainMenuHandler
                 break;
             
             case nameof(MenuButton.ToVotes):
-                await _messageService.DeleteMessages(botClient, user.UId);
+                await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 break;
+            
+            case nameof(MenuButton.ToHelp):
+                await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
+                await _stateService.Startup(user, OnState.Help, botClient, callbackQuery.Message);
+                break;
+            
             
             default:
                 await TryEditMessage(botClient, callbackQuery, cancellationToken);
@@ -135,7 +141,7 @@ public class MainMenuHandler : IMainMenuHandler
             UserModel user
         )
         {
-            await _messageService.DeleteMessages(botClient, user.UId);
+            await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
             await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
                 chatId: user.UId, text: "Главное Меню", replyMarkup: Keyboard.MainKeyboard,
                 cancellationToken: cancellationToken

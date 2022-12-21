@@ -1,5 +1,6 @@
 using BottApp.Host.Services.Handlers.AdminChat;
 using BottApp.Host.Services.Handlers.Auth;
+using BottApp.Host.Services.Handlers.Help;
 using BottApp.Host.Services.Handlers.MainMenu;
 using BottApp.Host.Services.Handlers.UploadHandler;
 using BottApp.Host.Services.Handlers.Votes;
@@ -13,6 +14,8 @@ public class HandlerContainer : IHandlerContainer
     public IMainMenuHandler MainMenuHandler { get; }
     public IVotesHandler VotesHandler { get; }
     public ICandidateUploadHandler CandidateUploadHandler { get; }
+    
+    public IHelpHandler HelpHandler { get; }
 
 
     public HandlerContainer(
@@ -20,13 +23,14 @@ public class HandlerContainer : IHandlerContainer
         IAuthHandler authHandler,
         IMainMenuHandler mainMenuHandler,
         IVotesHandler votesHandler,
-        ICandidateUploadHandler candidateUploadHandler
-    )
+        ICandidateUploadHandler candidateUploadHandler,
+        IHelpHandler helpHandler)
     {
         AdminChatHandler = adminChatHandler;
         AuthHandler = authHandler;
         MainMenuHandler = mainMenuHandler;
         VotesHandler = votesHandler;
         CandidateUploadHandler = candidateUploadHandler;
+        HelpHandler = helpHandler;
     }
 }

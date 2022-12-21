@@ -154,16 +154,15 @@ public class VotesHandler : IVotesHandler
     {
         if (first)
         {
-            await _messageService.DeleteMessages(botClient, user.UId);
+            await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
             
             
             var documents = await _documentRepository.GetListByNomination(nomination,  true);
             var document = documents.FirstOrDefault();
-           
             
             if (document == null)
             {
-                await _messageService.DeleteMessages(botClient, user.UId);
+                await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -182,7 +181,7 @@ public class VotesHandler : IVotesHandler
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                documents.Count, 2, nomination);
+                documents.Count, documents.Count == 1 ? 1 : documents.Count, nomination);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
@@ -208,8 +207,6 @@ public class VotesHandler : IVotesHandler
             var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
             
             var docId = docList.IndexOf(docList.FirstOrDefault(x => x!.Id == documentModel.Id));
-            
-            
             
             docId += skip;
             if (docId <= -1)
@@ -264,7 +261,7 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await _messageService.DeleteMessages(botClient, user.UId);
+        await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
 
         await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
         (
@@ -284,7 +281,7 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await _messageService.DeleteMessages(botClient, user.UId);
+        await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
 
         await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
         (
@@ -401,7 +398,7 @@ public class VotesHandler : IVotesHandler
 
             await Task.Delay(1000);
             
-            await _messageService.DeleteMessages(botClient, user.UId);
+            await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
             
             await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
             (

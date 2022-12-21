@@ -16,6 +16,6 @@ public interface IMessageService
     );
     
     Task MarkMessageToDelete(Message message);
-    Task DeleteMessages(ITelegramBotClient botClient, long UId);
+    Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId);
     
 }

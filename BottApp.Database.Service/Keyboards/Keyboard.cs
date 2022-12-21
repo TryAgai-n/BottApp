@@ -127,6 +127,21 @@ public class Keyboard
             },
         });
     
+    public static InlineKeyboardMarkup ToMainMenu = new(
+        new[]
+        {
+            // new []
+            // {
+            //     InlineKeyboardButton.WithCallbackData("Задать вопрос",nameof(HelpButton.TakeAnswer)),
+            // },
+            
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Назад",nameof(HelpButton.ToMainMenu)),
+            },
+           
+        });
+    
     public static ReplyKeyboardMarkup RequestLocationAndContactKeyboard = new(
         new[]
         {

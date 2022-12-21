@@ -1,3 +1,4 @@
+using BottApp.Database;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
@@ -74,7 +75,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
             if (message.Text != null && localUser.IsAllDataGrip)
             {
-                await _messageService.DeleteMessages(botClient, user.UId);
+                await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -82,12 +83,12 @@ namespace BottApp.Host.Services.Handlers.Auth
                     )
                 );
                 await Task.Delay(10000);
-               await _messageService.DeleteMessages(botClient, user.UId);
+               await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
             }
 
             if ((message.Contact != null && !localUser.IsSendPhone))
             {
-                await _messageService.DeleteMessages(botClient, user.UId);
+                await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -106,7 +107,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    await _messageService.DeleteMessages(botClient, user.UId);
+                    await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                     await _messageService.MarkMessageToDelete(
                         await botClient.SendTextMessageAsync(
@@ -123,7 +124,7 @@ namespace BottApp.Host.Services.Handlers.Auth
 
                 await Task.Delay(1000);
 
-                await _messageService.DeleteMessages(botClient, user.UId);
+                await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Отправьте имя в виде текста")
@@ -135,7 +136,7 @@ namespace BottApp.Host.Services.Handlers.Auth
             {
                 if (message.Text != null)
                 {
-                    await _messageService.DeleteMessages(botClient, user.UId);
+                    await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                     localUser.LasttName = message.Text;
                     
@@ -155,13 +156,13 @@ namespace BottApp.Host.Services.Handlers.Auth
                         )
                     );
                     await Task.Delay(2000, cancellationToken);
-                    await _messageService.DeleteMessages(botClient, user.UId);
+                    await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
                     return;
                 }
 
                 await Task.Delay(1000);
 
-                 await _messageService.DeleteMessages(botClient, user.UId);
+                 await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
@@ -170,7 +171,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                 );
             }
             
-            await _messageService.DeleteMessages(botClient, user.UId);
+            await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendTextMessageAsync(
@@ -253,7 +254,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                var photo = getPhotoAsync.Result.Photos[0];
                await _messageService.MarkMessageToDelete(
                await botClient.SendPhotoAsync(
-                   AdminChatID, photo[0].FileId,
+                   AdminSettings.AdminChatId, photo[0].FileId,
                    $" Пользователь |{user.TelegramFirstName}|\n" + 
                    $" @{message.Chat.Username??"Нет публичного имени"}    |{user.UId}|\n" +
                    $" Моб.тел. |{user.Phone}|\n" +
@@ -268,7 +269,7 @@ namespace BottApp.Host.Services.Handlers.Auth
                await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                await _messageService.MarkMessageToDelete(
                await botClient.SendPhotoAsync(
-                   AdminChatID, fileStream,
+                   AdminSettings.AdminChatId, fileStream,
                    $" Пользователь |{user.TelegramFirstName}|\n" +
                    $" @{message.Chat.Username??"Нет публичного имени"}    |{user.UId}|\n" +
                    $" Моб.тел. |{user.Phone}|\n" +

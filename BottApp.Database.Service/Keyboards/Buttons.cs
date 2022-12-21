@@ -33,11 +33,10 @@ public enum NominationButton
   Fastest,
 }
 
-public enum UploadCandidateButton
+public enum HelpButton
 {
-    Right,
-    Left,
-    Back,
+    ToMainMenu,
+    TakeAnswer,
 }
 
 public enum AdminButton

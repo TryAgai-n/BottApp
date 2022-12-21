@@ -22,22 +22,30 @@ public class StateService
 
     public async Task Startup(UserModel user, OnState state, ITelegramBotClient bot, Message message)
     {
-         await _messageService.DeleteMessages(bot, user.UId);
+         await _messageService.DeleteMessages(bot, user.UId, message.MessageId);
         await _userRepository.ChangeOnState(user, state);
 
-        var start = state switch
+        switch (state)
         {
-            OnState.Menu => MenuStart(bot, message),
-            OnState.Votes => VotesStart(bot, message),
-            OnState.UploadCandidate => UploadCandidateStart(bot, message),
-            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-        };
+            case OnState.Menu:
+                MenuStart(bot, message);
+                break;
+            case OnState.Votes:
+                VotesStart(bot, message);
+                break;
+            case OnState.UploadCandidate:
+                UploadCandidateStart(bot, message);
+                break;
+            case OnState.Help:
+                HelpStart(bot, message);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(state), state, null);
+        }
     }
     
     private async Task VotesStart(ITelegramBotClient botClient, Message message)
     {
-        // await botClient.DeleteMessageAsync(chatId: message.Chat.Id, messageId: message.MessageId);
-
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
 
            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
@@ -45,10 +53,19 @@ public class StateService
         ));
     }
 
+    private async Task HelpStart(ITelegramBotClient botClient, Message message)
+    {
+        await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
+        
+        await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id, text: "Меню: Помощь", replyMarkup: Keyboard.ToMainMenu));
+        
+        await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id, text: "Подробно опишите, что у вас произошло. Вопрос будет передан в службу поддержки."));
+    }
 
     private async Task MenuStart(ITelegramBotClient botClient, Message message)
     {
-        // await botClient.DeleteMessageAsync(chatId: message.Chat.Id, messageId: message.MessageId);
 
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
 
@@ -58,8 +75,6 @@ public class StateService
     }
     private async Task UploadCandidateStart(ITelegramBotClient botClient, Message message)
     {
-        // await botClient.DeleteMessageAsync(chatId: message.Chat.Id, messageId: message.MessageId);
-
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
         
          await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
