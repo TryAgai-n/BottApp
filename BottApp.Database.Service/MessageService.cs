@@ -133,11 +133,11 @@ public class MessageService : IMessageService
         {
             try
             {
-                for (var i = 5; i > -5; i--)
+                for (var i = 3; i > -3; i--)
                 {
                     try
                     {
-                        await botClient.DeleteMessageAsync(
+                         botClient.DeleteMessageAsync(
                             chatId: UId,
                             messageId: messageId+i);
                     }

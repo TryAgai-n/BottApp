@@ -144,6 +144,10 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     await ApproveDocument(botClient, callbackQuery, cancellationToken);
                     break;
                 
+                case nameof(AdminButton.DocumentDecline):
+                    await DeclineDocument(botClient, callbackQuery, cancellationToken);
+                    break;
+                
                 case nameof(AdminButton.SendOk): 
                     break;
                 
@@ -168,6 +172,24 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
                 caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА @{callbackQuery.From.Username}",
+                replyMarkup:  Keyboard.Ok,
+                cancellationToken: cancellationToken
+            );
+          
+        }
+        
+        
+        public async Task DeclineDocument(
+            ITelegramBotClient botClient,
+            CallbackQuery callbackQuery,
+            CancellationToken cancellationToken
+        )
+        {
+            await botClient.EditMessageCaptionAsync
+            (
+                chatId: callbackQuery.Message.Chat.Id,
+                messageId: callbackQuery.Message.MessageId,
+                caption: $"{callbackQuery.Message.Caption}\n\nОТКЛОНЕНА @{callbackQuery.From.Username}",
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );

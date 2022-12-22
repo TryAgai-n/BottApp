@@ -111,15 +111,18 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
-        
+        Message? message;
+
         if (await _likedDocumentRepository.CheckLikeByUser(user.Id, user.ViewDocumentID))
         {
-
-            await _messageService.MarkMessageToDelete(
-                await botClient.SendTextMessageAsync(
-                    chatId: callbackQuery.Message.Chat.Id, text: "Вы уже голосовали за этого кандидата!"
-                )
+            message = await botClient.SendTextMessageAsync(
+                chatId: callbackQuery.Message.Chat.Id, text: "Вы уже голосовали за этого кандидата!"
             );
+
+            await Task.Delay(1000, cancellationToken);
+
+            await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id,
+                message.MessageId);
             return;
         }
         
@@ -129,15 +132,15 @@ public class VotesHandler : IVotesHandler
         await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentID, true);
         
         
-        await _messageService.MarkMessageToDelete(
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: "Ваш голос учтен!"
-            )
+        message = await botClient.SendTextMessageAsync(
+            chatId: callbackQuery.Message.Chat.Id,
+            text: "Ваш голос учтен!"
         );
         
+        await Task.Delay(1000, cancellationToken);
         
-
+        await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id,
+            message.MessageId);
     }
 
 
@@ -181,7 +184,7 @@ public class VotesHandler : IVotesHandler
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                documents.Count, documents.Count == 1 ? 1 : documents.Count, nomination);
+                documents.Count, documents.Count == 1 ? documents.Count : 1, nomination);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
