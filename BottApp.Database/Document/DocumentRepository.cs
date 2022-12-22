@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using BottApp.Database.User;
@@ -170,23 +171,22 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     }
     
 
-    public Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
+    public async Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
         return DbModel.Include(x => x.DocumentStatisticModel)
             .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
             .Skip(skip)
             .Take(take)
-            .ToListAsync();
+            .ToList();
     }
     
-    public Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip = 0, int take = 10)
+    public Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip, int take)
     {
-        return DbModel.Include(x => x.DocumentStatisticModel)
-            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
-            .ThenBy(x=> x.DocumentNomination)
-            .Skip(skip)
-            .Take(take)
-            .ToListAsync();
+        return (from p in DbModel
+                .Include(s => s.DocumentStatisticModel) 
+                orderby p.DocumentNomination, p.DocumentStatisticModel.ViewCount descending select p)
+               .Skip(skip).Take(take).ToListAsync();
+
     }
 
     

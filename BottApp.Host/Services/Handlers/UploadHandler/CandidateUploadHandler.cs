@@ -166,14 +166,14 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(message.Chat.Id,
-                        "Отправьте фото кандидата"));
+                        "Отправьте фото кандидата", cancellationToken: cancellationToken));
                 return;
             
             
             case { IsSendNomination: true, IsSendCaption: false }:
                 await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
                 await _messageService.MarkMessageToDelete(
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Внесите описание в виде текста"));
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Внесите описание в виде текста", cancellationToken: cancellationToken));
                 return;
 
             case { IsSendCaption: true, IsSendDocument: false } when message.Photo == null:
@@ -181,7 +181,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
                 
                 await _messageService.MarkMessageToDelete(
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Отправьте фото как обычно. Не в виде документа"));
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Отправьте фото как обычно. Не в виде документа", cancellationToken: cancellationToken));
 
                 break;
             }
@@ -192,9 +192,9 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     localUser.DocumentCaption);
 
                 await _messageService.MarkMessageToDelete(
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Все сохранил, спасибо!"));
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Сохранил, спасибо!\nПосле модерации ваш кандидат появится в соответсвующей номинации, ожидайте! :)", cancellationToken: cancellationToken));
 
-                await Task.Delay(1000, cancellationToken);
+                await Task.Delay(2000, cancellationToken);
 
                 await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
@@ -204,8 +204,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
                 break;
             }
-            
-           
         }
 
 

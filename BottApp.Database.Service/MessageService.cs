@@ -133,13 +133,23 @@ public class MessageService : IMessageService
         {
             try
             {
-                await botClient.DeleteMessageAsync(
-                        chatId: UId,
-                        messageId: messageId);
+                for (var i = 5; i > -5; i--)
+                {
+                    try
+                    {
+                        await botClient.DeleteMessageAsync(
+                            chatId: UId,
+                            messageId: messageId+i);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("delete message not found" + e);
+                    }
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("~~~~~~~~!!!!!!!!!!!!~~~~~~~~~~!!!!!!!~~~~~~~~~EXCEPTION!!!!!!!!!!!~~~~~~~~~!!!!!!!!!!!!!!!!!!!!!" + e);
+                Console.WriteLine("Global delete message Exception" + e);
             }
           
         }

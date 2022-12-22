@@ -4,9 +4,11 @@ using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
+using BottApp.Host.Migrations;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using static System.Int32;
 
 namespace BottApp.Host.Services.Handlers.AdminChat
 {
@@ -45,24 +47,56 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 await botClient.SendTextMessageAsync
                 (
                     chatId: message.Chat.Id,
-                    text: "Поздравялю вы - админ",
+                    text: $"Поздравялю, {message.From.FirstName}, вы - админ\n"+
+                    "Для вывода всех активных команд нажимайте /help",
                     cancellationToken: cancellationToken
                 );
             }
             
-            if (prepString.Contains("/view_top_10"))
+            if (prepString.Contains("/view_top_all"))
             {
+              //  TryParse(string.Join("", prepString.Where(c => char.IsDigit(c))), out var take);
+                
+                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination(0, 100);
 
-                var listTop = await _documentRepository.ListMostViewedDocuments();
-                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination();
+                var GroupBy = listTopByNomination.ToLookup(s => s.DocumentNomination);
+                
+                var sb = new StringBuilder("Most View Candidate: \n\n");
+                var i = 1;
+                
+                foreach (var nomination in GroupBy)
+                {
+                    sb.Append($"{nomination.Key}.\n");
+                    foreach (var item in listTopByNomination.Where(x=> x.DocumentNomination == nomination.Key))
+                    {
+                        sb.Append($"{i++}." +
+                                  $"  ID  {item.Id}" +
+                                  $"  View {item.DocumentStatisticModel.ViewCount}" +
+                                  $"  Like {item.DocumentStatisticModel.LikeCount}\n");
+                    }
+                    sb.Append("\n");
+                    i = 1;
+                }
+                
+                await botClient.SendTextMessageAsync
+                (
+                    chatId: message.Chat.Id,
+                    text: sb.ToString(),
+                    cancellationToken: cancellationToken
+                );
+            }
+            
+            if (prepString.Contains("/like_top_"))
+            {
+                TryParse(string.Join("", prepString.Where(c => char.IsDigit(c))), out var take);
+                
+                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination(0, take);
                 var sb = new StringBuilder("Most View Candidate: \n");
 
                 var i = 1;
                 foreach (var item in listTopByNomination)
                 {
-                    sb.Append(
-                        $"{i++}.  ID {item.Id} in Nomination {item.DocumentNomination}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n"
-                    );
+                    sb.Append($"{i++}.  ID {item.Id} in Nomination {item.DocumentNomination}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n");
                 }
 
                 await botClient.SendTextMessageAsync
@@ -79,8 +113,8 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 (
                     chatId: message.Chat.Id,
                     text: "/start\n" +
-                          "/view_Top_10\n",
-                    cancellationToken: cancellationToken
+                          "/view_Top_all\n",
+                          cancellationToken: cancellationToken
                 );
             }
             
@@ -96,20 +130,23 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         {
             // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
             
-                                switch (callbackQuery.Data)
+            switch (callbackQuery.Data)
             {
                 case nameof(AdminButton.Approve):
                     await Approve(botClient, callbackQuery, cancellationToken);
                     break;
+                
                 case nameof(AdminButton.Decline):
                     await Decline(botClient, callbackQuery, cancellationToken);
                     break;
+                
                 case nameof(AdminButton.DocumentApprove):
                     await ApproveDocument(botClient, callbackQuery, cancellationToken);
                     break;
                 
-                case nameof(AdminButton.SendOk):
-break;
+                case nameof(AdminButton.SendOk): 
+                    break;
+                
                 default: await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken);
                     break;
             }

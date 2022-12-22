@@ -28,16 +28,16 @@ public class StateService
         switch (state)
         {
             case OnState.Menu:
-                MenuStart(bot, message);
+                await MenuStart(bot, message);
                 break;
             case OnState.Votes:
-                VotesStart(bot, message);
+                await VotesStart(bot, message);
                 break;
             case OnState.UploadCandidate:
-                UploadCandidateStart(bot, message);
+                await UploadCandidateStart(bot, message);
                 break;
             case OnState.Help:
-                HelpStart(bot, message);
+                await HelpStart(bot, message);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -78,7 +78,7 @@ public class StateService
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
         
          await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Выберете номинацию", replyMarkup: Keyboard.NominationKeyboard
+            chatId: message.Chat.Id, text: "Выберите номинацию", replyMarkup: Keyboard.NominationKeyboard
         ));
     }
 }
