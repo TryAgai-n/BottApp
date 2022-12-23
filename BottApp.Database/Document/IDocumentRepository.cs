@@ -29,16 +29,16 @@ public interface IDocumentRepository
         InNomination? documentNomination,
         int skip,
         int take,
-        bool withOrderByView = false,
-        bool withModerate = false
+        bool isOrderByView = false,
+        bool isModerate = false
     );
-    Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool withModerate = false);
+    Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = false);
 
     Task<bool> SetModerate(int documentId, bool isModerate);
     Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination);
     Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
-    Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip, int take);
+    Task<List<DocumentModel>> ListMostDocumentInVote(int take, bool isByView = false);
 
     Task IncrementViewByDocument(DocumentModel model);
     Task IncrementLikeByDocument(DocumentModel model);

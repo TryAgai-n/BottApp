@@ -73,7 +73,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath)
     {
-        var model = await PrepareDocumentPath(documentInPath).Include(x => x.DocumentStatisticModel).FirstAsync();
+        var model = await PrepareDocumentPath(documentInPath)
+            .Include(x => x.DocumentStatisticModel)
+            .FirstAsync();
 
         if (model == null)
         {
@@ -112,12 +114,12 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         InNomination? documentNomination,
         int skip,
         int take,
-        bool withOrderByView = false,
-        bool withModerate = false
+        bool isOrderByView = false,
+        bool isModerate = false
     )
     {
         return await PrepareDocumentNomination(documentNomination)
-            .OrderBy(x => withOrderByView ? x.DocumentStatisticModel.ViewCount : x.DocumentStatisticModel.Id)
+            .OrderBy(x => isOrderByView ? x.DocumentStatisticModel.ViewCount : x.DocumentStatisticModel.Id)
             .ThenBy(x => x.DocumentStatisticModel.LikeCount)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
@@ -125,10 +127,10 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
     
-    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool withModerate = false)
+    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = false)
     {
         return await PrepareDocumentNomination(documentNomination)
-            .Where(x=>  x.DocumentStatisticModel.IsModerated==true)
+            .Where(x=>  isModerate ? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
             .OrderBy(x => x.Id)
             .ToListAsync();
     }
@@ -142,13 +144,16 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<List<DocumentModel>> GetCountDocumentByPath(DocumentInPath documentInPath)
     {
-        return await PrepareDocumentPath(documentInPath).OrderBy(x => x.Id).ToListAsync();
+        return await PrepareDocumentPath(documentInPath)
+            .OrderBy(x => x.Id)
+            .ToListAsync();
     }
 
 
     public async Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination)
     {
-        var result =  PrepareDocumentNomination(documentNomination).FirstOrDefault(x => x.UserModel.Id == user.Id);
+        var result =  PrepareDocumentNomination(documentNomination)
+            .FirstOrDefault(x => x.UserModel.Id == user.Id);
 
         // return result != null; 
         // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию
@@ -180,13 +185,16 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToList();
     }
     
-    public Task<List<DocumentModel>> ListMostViewedDocumentsByNomination(int skip, int take)
+    public async Task<List<DocumentModel>> ListMostDocumentInVote(int take, bool isByView = false)
     {
-        return (from p in DbModel
-                .Include(s => s.DocumentStatisticModel) 
-                orderby p.DocumentNomination, p.DocumentStatisticModel.ViewCount descending select p)
-               .Skip(skip).Take(take).ToListAsync();
-
+        return DbModel
+            .OrderByDescending(x => isByView ? x.DocumentStatisticModel.ViewCount: x.DocumentStatisticModel.LikeCount)
+            .Include(x => x.DocumentStatisticModel)
+            .ToList()
+            .OrderBy(x => x.DocumentNomination)
+            .GroupBy(x => x.DocumentNomination)
+            .SelectMany(x => x.Take(take))
+            .ToList();
     }
 
     

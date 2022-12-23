@@ -53,58 +53,14 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 );
             }
             
-            if (prepString.Contains("/view_top_all"))
+            if (prepString.Contains("/view_top_"))
             {
-              //  TryParse(string.Join("", prepString.Where(c => char.IsDigit(c))), out var take);
-                
-                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination(0, 100);
-
-                var GroupBy = listTopByNomination.ToLookup(s => s.DocumentNomination);
-                
-                var sb = new StringBuilder("Most View Candidate: \n\n");
-                var i = 1;
-                
-                foreach (var nomination in GroupBy)
-                {
-                    sb.Append($"{nomination.Key}.\n");
-                    foreach (var item in listTopByNomination.Where(x=> x.DocumentNomination == nomination.Key))
-                    {
-                        sb.Append($"{i++}." +
-                                  $"  ID  {item.Id}" +
-                                  $"  View {item.DocumentStatisticModel.ViewCount}" +
-                                  $"  Like {item.DocumentStatisticModel.LikeCount}\n");
-                    }
-                    sb.Append("\n");
-                    i = 1;
-                }
-                
-                await botClient.SendTextMessageAsync
-                (
-                    chatId: message.Chat.Id,
-                    text: sb.ToString(),
-                    cancellationToken: cancellationToken
-                );
+                await GetVoteStatistic(botClient, message, cancellationToken, prepString);
             }
             
             if (prepString.Contains("/like_top_"))
             {
-                TryParse(string.Join("", prepString.Where(c => char.IsDigit(c))), out var take);
-                
-                var listTopByNomination = await _documentRepository.ListMostViewedDocumentsByNomination(0, take);
-                var sb = new StringBuilder("Most View Candidate: \n");
-
-                var i = 1;
-                foreach (var item in listTopByNomination)
-                {
-                    sb.Append($"{i++}.  ID {item.Id} in Nomination {item.DocumentNomination}  View {item.DocumentStatisticModel.ViewCount}  Like {item.DocumentStatisticModel.LikeCount}\n");
-                }
-
-                await botClient.SendTextMessageAsync
-                (
-                    chatId: message.Chat.Id,
-                    text: sb.ToString(),
-                    cancellationToken: cancellationToken
-                );
+                await GetVoteStatistic(botClient, message, cancellationToken, prepString, false);
             }
             
             if (prepString.Contains("/help"))
@@ -113,12 +69,50 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 (
                     chatId: message.Chat.Id,
                     text: "/start\n" +
-                          "/view_Top_all\n",
+                          "/view_top_[value]\n"+
+                          "/like_top_[value]\n",
                           cancellationToken: cancellationToken
                 );
             }
             
             
+        }
+
+        public async Task GetVoteStatistic(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, bool isByView = true)
+        {
+            TryParse(string.Join("", prepString.Where(char.IsDigit)), out var take);
+                
+            if (take > 20)
+                take = 20;
+                 
+            var listTopByNomination = await _documentRepository.ListMostDocumentInVote(take, isByView);
+
+            var groupByNomination = listTopByNomination.ToLookup(s => s.DocumentNomination);
+                
+            var sb = new StringBuilder($"For {take} Candidates: \n\n");
+                
+            var i = 1;
+                
+            foreach (var nomination in groupByNomination)
+            {
+                sb.Append($"{nomination.Key}.\n");
+                foreach (var item in listTopByNomination.Where(x=> x.DocumentNomination == nomination.Key))
+                {
+                    sb.Append($"{i++}." +
+                              $"  ID  {item.Id}" +
+                              $"  View {item.DocumentStatisticModel.ViewCount}" +
+                              $"  Like {item.DocumentStatisticModel.LikeCount}\n");
+                }
+                sb.Append('\n');
+                i = 1;
+            }
+                
+            await botClient.SendTextMessageAsync
+            (
+                chatId: message.Chat.Id,
+                text: sb.ToString(),
+                cancellationToken: cancellationToken
+            );
         }
 
         public async Task BotOnCallbackQueryReceived
