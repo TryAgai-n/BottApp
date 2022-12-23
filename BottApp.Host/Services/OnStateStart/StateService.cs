@@ -78,7 +78,7 @@ public class StateService
         await botClient.SendChatActionAsync(chatId: message.Chat.Id, chatAction: ChatAction.Typing);
         
          await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Выберите номинацию", replyMarkup: Keyboard.NominationKeyboard
+            chatId: message.Chat.Id, text: "Меню: Выбор номинации для кандидата", replyMarkup: Keyboard.NominationKeyboard
         ));
     }
 }

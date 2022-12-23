@@ -120,7 +120,6 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         return await PrepareDocumentNomination(documentNomination)
             .OrderBy(x => isOrderByView ? x.DocumentStatisticModel.ViewCount : x.DocumentStatisticModel.Id)
-            .ThenBy(x => x.DocumentStatisticModel.LikeCount)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
             .Take(take)
@@ -130,7 +129,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = false)
     {
         return await PrepareDocumentNomination(documentNomination)
-            .Where(x=>  isModerate ? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
+            .Where(x =>  x.DocumentStatisticModel.IsModerated)
             .OrderBy(x => x.Id)
             .ToListAsync();
     }

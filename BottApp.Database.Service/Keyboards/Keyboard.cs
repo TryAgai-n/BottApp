@@ -153,16 +153,16 @@ public class Keyboard
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый большой", nameof(NominationButton.Biggest)),
+                InlineKeyboardButton.WithCallbackData("Самый маленький", nameof(NominationButton.Biggest)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый маленький", nameof(NominationButton.Smaller)),
+                InlineKeyboardButton.WithCallbackData("Самый пушстый", nameof(NominationButton.Smaller)),
             },
-            new []
-            {
-                InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(NominationButton.Fastest)),
-            },
+            // new []
+            // {
+            //     InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(NominationButton.Fastest)),
+            // },
             new []
             {
                 InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),

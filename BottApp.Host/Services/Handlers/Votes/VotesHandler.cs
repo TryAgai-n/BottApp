@@ -184,7 +184,7 @@ public class VotesHandler : IVotesHandler
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                documents.Count, documents.Count == 1 ? documents.Count : 1, nomination);
+                documents.Count, documents.Count == 1 ? documents.Count : 2, nomination);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
@@ -209,10 +209,10 @@ public class VotesHandler : IVotesHandler
             
             var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
             
-            var docId = docList.IndexOf(docList.FirstOrDefault(x => x!.Id == documentModel.Id));
+            var docId =  docList.IndexOf(docList.FirstOrDefault(x => x.Id == documentModel.Id));
             
             docId += skip;
-            if (docId <= -1)
+            if (docId < 0)
                 docId = docList.Count-1;
 
             if (docId > docList.Count-1)
@@ -226,12 +226,12 @@ public class VotesHandler : IVotesHandler
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             var leftButtonOffset = (docId);
-            if (leftButtonOffset <= 0)
-                leftButtonOffset = docList.Count;
+            // if (leftButtonOffset <= 0)
+            //     leftButtonOffset = docList.Count;
 
-            var rightButtonOffset = (docId+1);
-            if (rightButtonOffset > docList.Count+1)
-                rightButtonOffset = 1;
+            var rightButtonOffset = (docId);
+            // if (rightButtonOffset > docList.Count)
+            //     rightButtonOffset = 1;
 
             var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
                 leftButtonOffset, rightButtonOffset, documentModel.DocumentNomination);
@@ -269,7 +269,7 @@ public class VotesHandler : IVotesHandler
         await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
         (
             chatId: callbackQuery.Message.Chat.Id,
-            text: "Меню: Выбор номинации",
+            text: "Меню: Выбор номинации для голосования",
             replyMarkup: Keyboard.NominationKeyboard,
             cancellationToken: cancellationToken
         ));
