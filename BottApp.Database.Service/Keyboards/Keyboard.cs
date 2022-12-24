@@ -27,7 +27,7 @@ public class Keyboard
                 // third row
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                    InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(VotesButton.ToVotes)),
                 },
             });
          
@@ -69,7 +69,7 @@ public class Keyboard
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(MainVoteButton.Back)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(MainVoteButton.Back)),
             },
         });
     
@@ -85,12 +85,12 @@ public class Keyboard
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Like)),
+                InlineKeyboardButton.WithCallbackData("Like ❤️",nameof(VotesButton.Like)),
             },
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(VotesButton.ToVotes)),
             },
         });
     
@@ -137,7 +137,7 @@ public class Keyboard
             
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад",nameof(HelpButton.ToMainMenu)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад",nameof(HelpButton.ToMainMenu)),
             },
            
         });
@@ -157,15 +157,15 @@ public class Keyboard
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый пушстый", nameof(NominationButton.Smaller)),
+                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(NominationButton.Smaller)),
             },
-            // new []
-            // {
-            //     InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(NominationButton.Fastest)),
-            // },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(NominationButton.Fastest)),
+            },
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(VotesButton.ToVotes)),
             },
         });
 

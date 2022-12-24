@@ -126,10 +126,10 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
     
-    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = false)
+    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = true)
     {
         return await PrepareDocumentNomination(documentNomination)
-            .Where(x =>  x.DocumentStatisticModel.IsModerated)
+            .Where(x => isModerate? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
             .OrderBy(x => x.Id)
             .ToListAsync();
     }
@@ -154,9 +154,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         var result =  PrepareDocumentNomination(documentNomination)
             .FirstOrDefault(x => x.UserModel.Id == user.Id);
 
-        // return result != null; 
+        return result != null; 
         // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию
-        return false;
+        // return false;
     }
 
 

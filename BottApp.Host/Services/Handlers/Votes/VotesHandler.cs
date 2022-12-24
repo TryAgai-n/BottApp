@@ -158,8 +158,6 @@ public class VotesHandler : IVotesHandler
         if (first)
         {
             await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
-            
-            
             var documents = await _documentRepository.GetListByNomination(nomination,  true);
             var document = documents.FirstOrDefault();
             
@@ -183,15 +181,15 @@ public class VotesHandler : IVotesHandler
             user.ViewDocumentID = document.Id;
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
-            var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                documents.Count, documents.Count == 1 ? documents.Count : 2, nomination);
+            // var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
+            //     documents.Count, documents.Count == 1 ? documents.Count : 2, nomination);
 
             await _messageService.MarkMessageToDelete(
                 await botClient.SendPhotoAsync(
                     chatId: callbackQuery.Message.Chat.Id,
                     photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
-                    caption: $"{document.Caption}",
-                    replyMarkup: dynamicKeyboardMarkup,
+                    caption: $"1 из {documents.Count}\n{document.Caption}",
+                    replyMarkup: Keyboard.VotesKeyboard,
                     cancellationToken: cancellationToken
                 )
             );
@@ -206,48 +204,46 @@ public class VotesHandler : IVotesHandler
             );
 
             var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
-            
             var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
-            
-            var docId =  docList.IndexOf(docList.FirstOrDefault(x => x.Id == documentModel.Id));
+          
+            var docId =  docList.IndexOf(documentModel);
             
             docId += skip;
+            
             if (docId < 0)
                 docId = docList.Count-1;
 
-            if (docId > docList.Count-1)
+            if (docId >= docList.Count)
                 docId = 0;
-
-            var documents = await _documentRepository.ListDocumentsByNomination(documentModel.DocumentNomination, docId, 1);
-
-            var document = documents.First();
+           
+            var document = docList[docId];
             user.ViewDocumentID = document.Id;
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            var leftButtonOffset = (docId);
+            // var leftButtonOffset = (docId);
             // if (leftButtonOffset <= 0)
             //     leftButtonOffset = docList.Count;
-
-            var rightButtonOffset = (docId);
+            //
+            // var rightButtonOffset = (docId+1);
             // if (rightButtonOffset > docList.Count)
             //     rightButtonOffset = 1;
 
-            var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-                leftButtonOffset, rightButtonOffset, documentModel.DocumentNomination);
+            // var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
+            //     leftButtonOffset, rightButtonOffset, documentModel.DocumentNomination);
 
             await botClient.EditMessageMediaAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
                 media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension)),
-                replyMarkup: dynamicKeyboardMarkup, cancellationToken: cancellationToken
+                replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
             );
 
             fileStream.Close();
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"{document.Caption}",
-                replyMarkup: dynamicKeyboardMarkup,
+                caption: $"{docId+1} из {docList.Count}\n{document.Caption}",
+                replyMarkup: Keyboard.VotesKeyboard,
                 cancellationToken: cancellationToken
             );
             
