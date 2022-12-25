@@ -138,9 +138,9 @@ namespace BottApp.Host.Services.Handlers.Auth
                 {
                     await _messageService.DeleteMessages(botClient, user.UId, message.MessageId);
 
-                    localUser.LasttName = message.Text;
+                    localUser.LastName = message.Text;
                     
-                    var profile = new Profile(localUser.FirstName, localUser.LasttName);
+                    var profile = new Profile(localUser.FirstName, localUser.LastName);
 
                     await _userRepository.UpdateUserFullName(user, profile);
 

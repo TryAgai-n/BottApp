@@ -7,7 +7,7 @@ public class LocalUser
     public int Id { get; set; }
     
     public string FirstName { get; set; }
-    public string LasttName { get; set; }
+    public string LastName { get; set; }
     public InNomination Nomination { get; set; }
         
     public  bool IsSendCaption { get; set; }

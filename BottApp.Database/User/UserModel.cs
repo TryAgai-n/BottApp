@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.Document;
+using BottApp.Database.User.UserFlag;
 using BottApp.Database.UserMessage;
-using Microsoft.EntityFrameworkCore;
 
 namespace BottApp.Database.User;
 
@@ -37,6 +36,7 @@ public class UserModel : AbstractModel
 
     public List<MessageModel> Messages { get; set; }
     public List<DocumentModel> Documents { get; set; }
+    public UserFlagModel UserFlag { get; set; }
     
     public int ViewDocumentID { get; set; }
     
@@ -50,7 +50,8 @@ public class UserModel : AbstractModel
             Phone = telegramProfile.Phone,
             OnState = OnState.Auth,
             Messages = new List<MessageModel>(),
-            Documents = new List<DocumentModel>()
+            Documents = new List<DocumentModel>(),
+            UserFlag =  UserFlagModel.CreateModel()
         };
     }
     
