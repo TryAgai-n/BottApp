@@ -12,6 +12,11 @@ public class UserFlagModel : AbstractModel
     [ForeignKey("UserId")]
     public UserModel UserModel { get; set; }
     
+    public bool IsSendLastName { get; set; }
+
+    public bool IsSendFirstName { get; set; }
+  
+    
     public bool IsSendCaption { get; set; }
 
     public bool IsSendDocument { get; set; }
@@ -20,16 +25,12 @@ public class UserFlagModel : AbstractModel
 
     public bool IsSendPhone { get; set; }
 
-    public bool IsSendLastName { get; set; }
-
-    public bool IsSendFirstName { get; set; }
-
-    public bool IsAllDataGrip { get; set; }
+  
+    
     
     public static UserFlagModel CreateModel()
     {
         return new UserFlagModel
-        {
-        };
+        { };
     }
 }

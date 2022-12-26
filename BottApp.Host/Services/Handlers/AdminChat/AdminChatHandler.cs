@@ -7,6 +7,7 @@ using BottApp.Database.User;
 using BottApp.Host.Migrations;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Int32;
 
@@ -53,14 +54,24 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 );
             }
             
-            if (prepString.Contains("/view_top_"))
+            if (prepString.Contains("/view_statistic_"))
             {
                 await GetVoteStatistic(botClient, message, cancellationToken, prepString);
             }
             
-            if (prepString.Contains("/like_top_"))
+            if (prepString.Contains("/like_statistic_"))
             {
                 await GetVoteStatistic(botClient, message, cancellationToken, prepString, false);
+            }
+            
+            if (prepString.Contains("/send_document_"))
+            {
+                await SendDocument(botClient, message, cancellationToken, prepString);
+            }
+            
+            if (prepString.Contains("/send_top_by_nomination"))
+            {
+                await SendTopDocument(botClient, message, cancellationToken, prepString);
             }
             
             if (prepString.Contains("/help"))
@@ -69,13 +80,74 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                 (
                     chatId: message.Chat.Id,
                     text: "/start\n" +
-                          "/view_top_[value]\n"+
-                          "/like_top_[value]\n",
-                          cancellationToken: cancellationToken
+                          "/view_statistic_[value]\n" +
+                          "/like_statistic_[value]\n" +
+                          "/send_document_[value]\n"+
+                          "/send_top_by_nomination",
+                cancellationToken: cancellationToken
                 );
             }
             
             
+        }
+
+        public async Task SendTopDocument(ITelegramBotClient botClient, Message message,
+            CancellationToken cancellationToken, string prepString)
+        {
+            var documents = await _documentRepository.ListMostDocumentInVote(1, true);
+
+            var groupByNomination = documents.ToLookup(s => s.DocumentNomination);
+            
+                
+            foreach (var nomination in groupByNomination)
+            {
+                foreach (var item in documents.Where(x=> x.DocumentNomination == nomination.Key))
+                {
+                    await using FileStream fileStream = new(item.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    await botClient.SendPhotoAsync(
+                        chatId: message.Chat.Id,
+                        photo: new InputOnlineFile(fileStream, "Document" + item.DocumentExtension),
+                        caption: $"Nomination: {item.DocumentNomination}\nViewCount: {item.DocumentStatisticModel.ViewCount}\nLikeCount: {item.DocumentStatisticModel.LikeCount}\nCaption: {item.Caption}",
+                        cancellationToken: cancellationToken); 
+                }
+               
+            }
+            
+        }
+        
+        public async Task SendDocument(ITelegramBotClient botClient, Message message,
+            CancellationToken cancellationToken, string prepString)
+        {
+            try
+            {
+                TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                var document = await _documentRepository.GetOneByDocumentId(id);
+            }
+            catch (Exception e)
+            {
+                await botClient.SendTextMessageAsync
+                (
+                    chatId: message.Chat.Id,
+                    text: "No items by current ID\n",
+                    cancellationToken: cancellationToken
+                );
+            }
+            finally
+            {
+                TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                var document = await _documentRepository.GetOneByDocumentId(id);
+                
+                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            
+                await botClient.SendPhotoAsync(
+                    chatId: message.Chat.Id,
+                    photo: new InputOnlineFile(fileStream, "Document" + document.DocumentExtension),
+                    caption: $"{document.Caption}",
+                    cancellationToken: cancellationToken); 
+            }
+            
+
+          
         }
 
         public async Task GetVoteStatistic(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, bool isByView = true)
