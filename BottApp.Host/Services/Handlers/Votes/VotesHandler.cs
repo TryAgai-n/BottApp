@@ -9,6 +9,8 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using static System.Enum;
+using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 
 namespace BottApp.Host.Services.Handlers.Votes;
@@ -53,57 +55,28 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
-
-        switch (callbackQuery.Data)
+       
+        TryParse<MenuButton>(callbackQuery.Data, out var result);
+        var startup = result switch
         {
-            case nameof(MainVoteButton.AddCandidate):
-                await _stateService.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message);
-                return;
+            MenuButton.AddCandidate      => _stateService.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message),
+            MenuButton.Back              => _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message),
+            MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
+            MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
+            MenuButton.Right             => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true),
+            MenuButton.Left              => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, -1, false, true),
+            MenuButton.Like              => AddLike(botClient, callbackQuery, cancellationToken, user),
+            MenuButton.BiggestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.First, user, 0, true, false),
+            MenuButton.SmallerNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false),
+            MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
+            _                            => _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message),
+        };
+        await startup;
+        
             
-            case nameof(MainVoteButton.Back):
-                await _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message);
-                return;
-            
-            case nameof(MainVoteButton.ToChooseNomination):
-                await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
-                return;
-            
-            case nameof(NominationButton.Biggest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.First, user, 0, true, false);
-                return;
-            
-            case nameof(NominationButton.Smaller):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken,  InNomination.Third, user, 0, true, false);
-                return;
-            
-            case nameof(NominationButton.Fastest):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false);
-                return;
-            
-            case nameof(VotesButton.Right):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true);
-                return;
-            
-            case nameof(VotesButton.Left):
-                await ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, -1, false, true);
-                return;
-            
-            case nameof(VotesButton.ToVotes):
-                await BackToVotes(botClient, callbackQuery, cancellationToken, user);
-                return;
-            
-            case nameof(VotesButton.Like):
-                await AddLike(botClient, callbackQuery, cancellationToken, user);
-                return;
-            
-            default:
-                await TryEditMessage(botClient, callbackQuery, cancellationToken);
-                return;
-        }
     }
     
     #region TestSomeMethods
-
     private async Task AddLike(
         ITelegramBotClient botClient,
         CallbackQuery callbackQuery,
@@ -206,32 +179,21 @@ public class VotesHandler : IVotesHandler
             var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
             var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
           
-            var docId =  docList.IndexOf(documentModel);
+            var docIndex =  docList.IndexOf(documentModel);
             
-            docId += skip;
+            docIndex += skip;
             
-            if (docId < 0)
-                docId = docList.Count-1;
+            if (docIndex < 0)
+                docIndex = docList.Count-1;
 
-            if (docId >= docList.Count)
-                docId = 0;
-           
-            var document = docList[docId];
+            if (docIndex > docList.Count-1)
+                docIndex = 0;
+            
+            var document = docList[docIndex];
             user.ViewDocumentID = document.Id;
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            // var leftButtonOffset = (docId);
-            // if (leftButtonOffset <= 0)
-            //     leftButtonOffset = docList.Count;
-            //
-            // var rightButtonOffset = (docId+1);
-            // if (rightButtonOffset > docList.Count)
-            //     rightButtonOffset = 1;
-
-            // var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
-            //     leftButtonOffset, rightButtonOffset, documentModel.DocumentNomination);
-
+            
             await botClient.EditMessageMediaAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
                 media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension)),
@@ -242,7 +204,7 @@ public class VotesHandler : IVotesHandler
             
             await botClient.EditMessageCaptionAsync(
                 chatId: callbackQuery.Message.Chat.Id, messageId: callbackQuery.Message.MessageId,
-                caption: $"{docId+1} из {docList.Count}\n{document.Caption}",
+                caption: $"{docIndex+1} из {docList.Count}\n{document.Caption}",
                 replyMarkup: Keyboard.VotesKeyboard,
                 cancellationToken: cancellationToken
             );

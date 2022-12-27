@@ -42,7 +42,7 @@ public class HelpHandler : IHelpHandler
         
         switch (callbackQuery.Data)
         {
-            case nameof(HelpButton.ToMainMenu):
+            case nameof(MenuButton.MainMenu):
                 await _messageService.DeleteMessages(botClient, user.UId,callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message);
                 break;

@@ -101,12 +101,12 @@ public class MainMenuHandler : IMainMenuHandler
                     cancellationToken: cancellationToken);
                 break;
             
-            case nameof(MenuButton.ToVotes):
+            case nameof(MenuButton.Votes):
                 // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
                 break;
             
-            case nameof(MenuButton.ToHelp):
+            case nameof(MenuButton.Help):
                 // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _stateService.Startup(user, OnState.Help, botClient, callbackQuery.Message);
                 break;

@@ -5,6 +5,7 @@ using BottApp.Database.User;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Services.Handlers.UploadHandler;
 
@@ -45,7 +46,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
         LocalUser? localUser;
         switch (callbackQuery.Data)
         {
-            case nameof(NominationButton.Biggest):
+            case nameof(MenuButton.BiggestNomination):
                 
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.First))
                 {
@@ -76,7 +77,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 
                 return;
             
-            case nameof(NominationButton.Smaller):
+            case nameof(MenuButton.SmallerNomination):
                 
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Third))
                 {
@@ -106,7 +107,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 
                 return;
             
-            case nameof(NominationButton.Fastest):
+            case nameof(MenuButton.FastestNomination):
                 
                 if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, InNomination.Second))
                 {
@@ -139,7 +140,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             
             
             
-            case nameof(VotesButton.ToVotes):
+            case nameof(MenuButton.Votes):
            
                 await UserService.Remove_User_InTo_List(user.Id);
                 
