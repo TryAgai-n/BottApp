@@ -1,11 +1,12 @@
 using BottApp.Database;
 using BottApp.Database.User;
+using BottApp.Host.Services.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Services.Handlers;
+namespace BottApp.Host.Services;
 
 public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
 {
@@ -58,8 +59,8 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
             {
                 OnState.Auth => update switch
                 {
-                    {Message:       { } message}       => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user, AdminSettings.AdminChatId),
-                    {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user, AdminSettings.AdminChatId), 
+                    {Message:       { } message}       => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user),
+                    {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnMessageReceived(_, callbackQuery.Message, cancellationToken, user), 
                     _ => throw new Exception()
                 },
                 OnState.Menu => update switch

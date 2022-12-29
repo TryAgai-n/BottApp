@@ -6,23 +6,15 @@ namespace BottApp.Host.Services.Handlers.Auth;
 
 public interface IAuthHandler
 {
-    Task BotOnMessageReceivedVotes(
-        ITelegramBotClient botClient,
-        Message message,
-        CancellationToken cancellationToken
-    );
-
-
     Task BotOnMessageReceived(
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken,
-        UserModel user,
-        long AdminChatID
+        UserModel user
     );
 
 
-    Task RequestContactAndLocation(ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken);
+    Task BotWelcomeMessage(ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken);
     
     
 }

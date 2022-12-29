@@ -18,12 +18,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         private readonly IUserRepository _userRepository;
         private readonly IMessageService _messageService;
         private readonly IDocumentService _documentService;
-
         private readonly IDocumentRepository _documentRepository;
-
-        private string _exampleTop10 = "Top 10:\n" + "1. ID 23 View 31 Like 14\n" + "2. ID 4  View 40 Like 9 \n" +
-                                      "3. ID 9  View 22 Like 7 \n" + "4. ID 2  View 34 Like 4 \n" +
-                                      "5. ID 16 View 18 Like 3 \n" + "6. ID 11 View 10 Like 1 \n";
 
         public AdminChatHandler(IUserRepository userRepository, IMessageService messageService, IDocumentService documentService, IDocumentRepository documentRepository)
         {
