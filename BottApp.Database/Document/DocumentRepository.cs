@@ -54,6 +54,19 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return result;
     }
 
+    public async Task<DocumentModel> CreateEmpty(int userId, InNomination nomination, DocumentInPath path, DateTime createAt)
+    {
+        var model = DocumentModel.CreateEmpty(userId, nomination, path, createAt);
+
+        var result = await CreateModelAsync(model);
+        if (result == null)
+        {
+            throw new Exception("Empty document model is not created");
+        }
+
+        return result;
+    }
+
 
     public async Task<DocumentModel> GetOneByDocumentId(int documentId)
     {
@@ -154,9 +167,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         var result =  PrepareDocumentNomination(documentNomination)
             .FirstOrDefault(x => x.UserModel.Id == user.Id);
 
-        return result != null; 
+        // return result != null; 
         // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию
-        // return false;
+        return false;
     }
 
 

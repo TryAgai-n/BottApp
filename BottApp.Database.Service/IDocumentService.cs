@@ -8,6 +8,8 @@ namespace BottApp.Database.Service;
 public interface IDocumentService
 {
     Task UploadFile(Message message, ITelegramBotClient _botClient);
+    
+    Task CreateEmptyDocumentForVotes(int userId, InNomination nomination);
 
     Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, InNomination inNomination, string? caption);
 }

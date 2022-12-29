@@ -13,6 +13,9 @@ public interface IAuthHandler
         UserModel user
     );
 
+    Task BotOnCallbackQueryReceived(ITelegramBotClient? botClient, CallbackQuery callbackQuery,
+        CancellationToken cancellationToken, UserModel user);
+
 
     Task BotWelcomeMessage(ITelegramBotClient botClient, Message? message, CancellationToken cancellationToken);
     

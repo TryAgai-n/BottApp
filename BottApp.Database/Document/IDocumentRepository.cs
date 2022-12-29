@@ -18,6 +18,8 @@ public interface IDocumentRepository
         DocumentInPath documentInPath,
         InNomination? documentNomination
     );
+    
+    Task<DocumentModel> CreateEmpty(int userId, InNomination nomination, DocumentInPath path, DateTime createAt);
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);

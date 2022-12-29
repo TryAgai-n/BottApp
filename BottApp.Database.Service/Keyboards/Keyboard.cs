@@ -146,6 +146,21 @@ public class Keyboard
         new[]
         {
             KeyboardButton.WithRequestContact("Поделиться контактом")
+        })
+    {
+        ResizeKeyboard = true,
+        OneTimeKeyboard = true
+    };
+    
+    
+    public static InlineKeyboardMarkup RequestPhone = new(
+        new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Отправить телефон", "SendPhoneRequest"),
+            },
+           
         });
         
     public static InlineKeyboardMarkup NominationKeyboard = new(

@@ -53,7 +53,10 @@ public class DocumentService : IDocumentService
         await _botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо! Ваш документ загружен в базу данных.");
     }
 
-    
+    public async Task CreateEmptyDocumentForVotes(int userId, InNomination nomination)
+    {
+        await _documentRepository.CreateEmpty(userId, nomination, DocumentInPath.Votes, DateTime.Now);
+    }
 
 
     public async Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, InNomination inNomination, string? caption)

@@ -63,11 +63,14 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     return;
                 }
                 
-                //ToDo: Inject UserService like other
                 await UserService.Add_User_To_List(user.Id);
                 localUser = await UserService.Get_One_User(user.Id);
                 localUser.Nomination = InNomination.First;
                 localUser.IsSendNomination = true;
+                
+                ////////////
+                await _documentService.CreateEmptyDocumentForVotes(user.Id, InNomination.First);
+
                 await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
                 await _messageService.MarkMessageToDelete(
                     await botClient.SendTextMessageAsync(
