@@ -82,6 +82,14 @@ namespace BottApp.Database.User
         }
 
 
+        public async Task<bool> ChangeViewMessageId(UserModel model, int messageId)
+        {
+            model.ViewMessageId = messageId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
+        }
+
+
         // public async Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination)
         // {
         //     var user = await GetOneByUid(model.UId);

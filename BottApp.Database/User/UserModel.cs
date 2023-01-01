@@ -21,13 +21,9 @@ public class UserModel : AbstractModel
     public string? TelegramLastName { get; set; }
     
     public string? Phone { get; set; }
+    
+    public TelegramProfile? TelegramProfile => new TelegramProfile(UId, TelegramFirstName, TelegramLastName, Phone);
 
-    
-    public TelegramProfile? TelegramProfile
-    {
-        get => new TelegramProfile(UId, TelegramFirstName, TelegramLastName, Phone);
-    } 
-    
     [Required]
     public OnState OnState { get; set; }
     
@@ -37,8 +33,9 @@ public class UserModel : AbstractModel
     public List<MessageModel> Messages { get; set; }
     public List<DocumentModel> Documents { get; set; }
     public UserFlagModel UserFlag { get; set; }
-    
-    public int ViewDocumentID { get; set; }
+
+    public int ViewDocumentId { get; set; }
+    public int ViewMessageId { get; set; }
     
     public static UserModel Create(TelegramProfile telegramProfile)
     {

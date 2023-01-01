@@ -18,11 +18,13 @@ namespace BottApp.Database.User
         Task<bool> UpdateUserFullName(UserModel model, Profile profile);
         Task<bool> ChangeOnState(UserModel model, OnState onState);
 
+        Task<bool> ChangeViewMessageId(UserModel model, int messageId);
+
         #region TestList
 
         // Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination);
 
         #endregion
-        
+
     }
 }

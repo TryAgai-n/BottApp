@@ -22,7 +22,7 @@ public class UserRepositoryTest : DbTestCase
         var userByUid = DatabaseContainer.User.GetOneByUid(user.UId).Result;
         Assert.NotNull(userByUid);
         Assert.Equal(3435, userByUid.UId);
-        userByUid.ViewDocumentID = 1;
+        userByUid.ViewDocumentId = 1;
 
 
 
@@ -36,7 +36,7 @@ public class UserRepositoryTest : DbTestCase
 
      
         
-        Assert.Equal(1, findUser.ViewDocumentID);
+        Assert.Equal(1, findUser.ViewDocumentId);
 
 
 

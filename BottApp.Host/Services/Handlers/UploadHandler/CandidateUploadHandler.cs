@@ -36,7 +36,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
     public async Task OnStart(ITelegramBotClient botClient, Message message)
     {
          await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Отправь мне фотографию своего кандидата"
+            chatId: message.Chat.Id, text: "Отправьте мне фотографию своего кандидата"
         );
     }
 

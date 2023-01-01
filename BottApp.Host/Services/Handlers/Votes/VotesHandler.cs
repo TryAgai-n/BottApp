@@ -86,7 +86,7 @@ public class VotesHandler : IVotesHandler
     {
         Message? message;
 
-        if (await _likedDocumentRepository.CheckLikeByUser(user.Id, user.ViewDocumentID))
+        if (await _likedDocumentRepository.CheckLikeByUser(user.Id, user.ViewDocumentId))
         {
             message = await botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id, text: "Вы уже голосовали за этого кандидата!"
@@ -99,10 +99,10 @@ public class VotesHandler : IVotesHandler
             return;
         }
         
-        var model = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+        var model = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
 
         await _documentRepository.IncrementLikeByDocument(model);
-        await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentID, true);
+        await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentId, true);
         
         
         message = await botClient.SendTextMessageAsync(
@@ -151,7 +151,7 @@ public class VotesHandler : IVotesHandler
                 return;
             }
             
-            user.ViewDocumentID = document.Id;
+            user.ViewDocumentId = document.Id;
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             // var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
@@ -176,7 +176,7 @@ public class VotesHandler : IVotesHandler
                 callbackQuery.Message.Chat.Id, ChatAction.UploadPhoto, cancellationToken: cancellationToken
             );
 
-            var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentID);
+            var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
             var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
           
             var docIndex =  docList.IndexOf(documentModel);
@@ -190,7 +190,7 @@ public class VotesHandler : IVotesHandler
                 docIndex = 0;
             
             var document = docList[docIndex];
-            user.ViewDocumentID = document.Id;
+            user.ViewDocumentId = document.Id;
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
