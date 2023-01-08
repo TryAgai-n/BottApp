@@ -29,7 +29,7 @@ public class UserRepositoryTest : DbTestCase
         // var updatedUserPhone = DatabaseContainer.User.UpdateUserPhone(user, "12345").Result;
         user.Phone = "54321";
 
-        var findUser = DatabaseContainer.User.FindOneByUid(3435).Result;
+        var findUser = DatabaseContainer.User.GetOneByUid(3435).Result;
         Assert.NotNull(findUser.Phone);
         Assert.Equal("54321", findUser.Phone);
 

@@ -4,12 +4,9 @@ using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Migrations;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
-using Telegram.Bot.Types.ReplyMarkups;
-using static System.Int32;
 
 namespace BottApp.Host.Services.Handlers.AdminChat
 {
@@ -36,64 +33,159 @@ namespace BottApp.Host.Services.Handlers.AdminChat
 
         public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
-            var prepString = message.Text.ToLower();
+
+            string prepString;
             
-            if (prepString.Contains("/start"))
+            switch (prepString = message.Text.ToLower())
             {
-                await botClient.SendTextMessageAsync
-                (
-                    chatId: message.Chat.Id,
-                    text: $"Поздравялю, {message.From.FirstName}, вы - админ\n"+
-                    "Для вывода всех активных команд нажимайте /help",
-                    cancellationToken: cancellationToken
-                );
-            }
-            
-            if (prepString.Contains("/view_statistic_"))
-            {
-                await GetVoteStatistic(botClient, message, cancellationToken, prepString);
-            }
-            
-            if (prepString.Contains("/like_statistic_"))
-            {
-                await GetVoteStatistic(botClient, message, cancellationToken, prepString, false);
-            }
-            
-            if (prepString.Contains("/send_document_"))
-            {
-                await SendDocument(botClient, message, cancellationToken, prepString);
-            }
-            
-            if (prepString.Contains("/send_top_by_nomination"))
-            {
-                await SendTopDocument(botClient, message, cancellationToken, prepString);
-            }
-            
-            if (prepString.Contains("/help"))
-            {
-                await botClient.SendTextMessageAsync
-                (
-                    chatId: message.Chat.Id,
-                    text: "/start\n" +
-                          "/view_statistic_[value]\n" +
-                          "/like_statistic_[value]\n" +
-                          "/send_document_[value]\n"+
-                          "/send_top_by_nomination",
-                cancellationToken: cancellationToken
-                );
+                case not null when prepString.Contains("/start"):
+                    await botClient.SendTextMessageAsync
+                    (
+                        chatId: message.Chat.Id,
+                        text: $"Поздравялю, {message.From.FirstName}, вы - админ\n"+
+                              "Для вывода всех активных команд нажимайте /help",
+                        cancellationToken: cancellationToken
+                    );
+                    break;
+                
+                case not null when prepString.Contains("/view_statistic_"):
+                    await GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
+                    break;
+                
+                case not null when prepString.Contains("/like_statistic_" ):
+                    await GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes);
+                    break; 
+                
+                case not null when prepString.Contains( "/find_user_by_firstname"):
+                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.FirstName);
+                    break;
+                
+                case not null when prepString.Contains( "/find_user_by_lastname"):
+                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.LastName);
+                    break;
+                
+                case not null when prepString.Contains( "/find_user_by_id"):
+                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.Id);
+                    break;
+                
+                case not null when prepString.Contains( "/find_user_by_uid"):
+                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.UId);
+                    break;
+                
+                case not null when prepString.Contains("/send_document_"):
+                    await SendDocument(botClient, message, cancellationToken, prepString);
+                    break; 
+                
+                case not null when prepString.Contains("/send_top_by_like" ):
+                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes);
+                    break; 
+                
+                case not null when prepString.Contains("/send_top_by_view") :
+                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
+                    break; 
+                
+                case not null when prepString.Contains( "/help"):
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "/start\n" +
+                              "/view_statistic_3\n" +
+                              "/like_statistic_3\n" +
+                              "/send_document_1\n" +
+                              "/send_top_by_like\n" +
+                              "/send_top_by_view\n" +
+                              "/find_user_by_firstname_[value]\n"+
+                              "/find_user_by_lastname_[value]\n"+
+                              "/find_user_by_id_[value]]\n"+
+                              "/find_user_by_Uid_[value]]\n",
+                        cancellationToken: cancellationToken
+                    );
+                    break;
             }
             
             
         }
 
-        public async Task SendTopDocument(ITelegramBotClient botClient, Message message,
-            CancellationToken cancellationToken, string prepString)
+
+        private async Task FindUserByParam(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, FindUserBy findUserBy)
         {
-            var documents = await _documentRepository.ListMostDocumentInVote(1, true);
+            switch (findUserBy)
+            {
+                case FindUserBy.FirstName:
+                    break;
+                
+                case FindUserBy.LastName:
+                    break;
+                
+                case FindUserBy.Phone:
+                    break;
+                
+                
+                case FindUserBy.Id:
+                    try
+                    {
+                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                        await _userRepository.FindOneById(id);
+                    }
+                    catch (Exception e)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "No user by current ID\n", cancellationToken: cancellationToken
+                        );
+                    }
+                    finally
+                    {
+                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                        var user = await _userRepository.FindOneById(id);
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            text: $"{user.FirstName} {user.LastName}\n" +
+                                  $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
+                            cancellationToken: cancellationToken
+                        );
+                    }
+                    break;
+                
+                case FindUserBy.UId:
+                    try
+                    {
+                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var uid);
+                        await _userRepository.FindOneByUid(uid);
+                    }
+                    catch (Exception e)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "No user by current UID\n", cancellationToken: cancellationToken
+                        );
+                    }
+                    finally
+                    {
+                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var uid);
+                        var user = await _userRepository.FindOneByUid(uid);
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, 
+                            text: $"{user.FirstName} {user.LastName}\n" +
+                                  $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
+                            cancellationToken: cancellationToken
+                        );
+                    }
+                    break;
+            }
+        }
+        
+        
+        private async Task SendTopDocument(ITelegramBotClient botClient, Message message,
+            CancellationToken cancellationToken, string prepString, FindDocumentBy findDocumentBy)
+        {
+
+            const int take = 1;
+            var documents = findDocumentBy switch
+            {
+                FindDocumentBy.Views => await _documentRepository.List_Most_Document_In_Vote_By_Views(take),
+                FindDocumentBy.Likes => await _documentRepository.List_Most_Document_In_Vote_By_Likes(take),
+            };
 
             var groupByNomination = documents.ToLookup(s => s.DocumentNomination);
             
-                
             foreach (var nomination in groupByNomination)
             {
                 foreach (var item in documents.Where(x=> x.DocumentNomination == nomination.Key))
@@ -102,7 +194,11 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     await botClient.SendPhotoAsync(
                         chatId: message.Chat.Id,
                         photo: new InputOnlineFile(fileStream, "Document" + item.DocumentExtension),
-                        caption: $"Nomination: {item.DocumentNomination}\nViewCount: {item.DocumentStatisticModel.ViewCount}\nLikeCount: {item.DocumentStatisticModel.LikeCount}\nCaption: {item.Caption}",
+                        caption: $"FindBy {findDocumentBy}\n" +
+                                 $"Nomination: {item.DocumentNomination}\n" +
+                                 $"ViewCount: {item.DocumentStatisticModel.ViewCount}\n" +
+                                 $"LikeCount: {item.DocumentStatisticModel.LikeCount}\n" +
+                                 $"Caption: {item.Caption}",
                         cancellationToken: cancellationToken); 
                 }
                
@@ -110,12 +206,12 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             
         }
         
-        public async Task SendDocument(ITelegramBotClient botClient, Message message,
+        private async Task SendDocument(ITelegramBotClient botClient, Message message,
             CancellationToken cancellationToken, string prepString)
         {
             try
             {
-                TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
                 var document = await _documentRepository.GetOneByDocumentId(id);
             }
             catch (Exception e)
@@ -129,7 +225,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             }
             finally
             {
-                TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
+                int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
                 var document = await _documentRepository.GetOneByDocumentId(id);
                 
                 await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -140,35 +236,36 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     caption: $"{document.Caption}",
                     cancellationToken: cancellationToken); 
             }
-            
-
-          
         }
 
-        public async Task GetVoteStatistic(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, bool isByView = true)
+        private async Task GetVoteStatistic(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, FindDocumentBy findDocumentBy)
         {
-            TryParse(string.Join("", prepString.Where(char.IsDigit)), out var take);
-                
+            int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var take);
             if (take > 20)
                 take = 20;
-                 
-            var listTopByNomination = await _documentRepository.ListMostDocumentInVote(take, isByView);
+
+            var listTopByNomination = findDocumentBy switch
+            {
+                FindDocumentBy.Views => await _documentRepository.List_Most_Document_In_Vote_By_Views(take),
+                FindDocumentBy.Likes => await _documentRepository.List_Most_Document_In_Vote_By_Likes(take),
+            };
 
             var groupByNomination = listTopByNomination.ToLookup(s => s.DocumentNomination);
-                
-            var sb = new StringBuilder($"For {take} Candidates: \n\n");
-                
+
+            var sb = new StringBuilder($"Try to find {take} candidates by {findDocumentBy}: \n\n");
+
             var i = 1;
-                
+
             foreach (var nomination in groupByNomination)
             {
-                sb.Append($"{nomination.Key}.\n");
-                foreach (var item in listTopByNomination.Where(x=> x.DocumentNomination == nomination.Key))
+                sb.Append($"Nomination {nomination.Key}. Find {nomination.Count()}.\n");
+                foreach (var item in listTopByNomination.Where(x => x.DocumentNomination == nomination.Key))
                 {
                     sb.Append($"{i++}." +
                               $"  ID  {item.Id}" +
                               $"  View {item.DocumentStatisticModel.ViewCount}" +
-                              $"  Like {item.DocumentStatisticModel.LikeCount}\n");
+                              $"  Like {item.DocumentStatisticModel.LikeCount} " +
+                              $"/send_document_{item.Id}\n");
                 }
                 sb.Append('\n');
                 i = 1;
@@ -189,8 +286,6 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             CancellationToken cancellationToken
         )
         {
-            // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-            
             switch (callbackQuery.Data)
             {
                 case nameof(AdminButton.Approve):
@@ -218,7 +313,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         }
 
 
-        public async Task ApproveDocument(
+        private async Task ApproveDocument(
             ITelegramBotClient botClient,
             CallbackQuery callbackQuery,
             CancellationToken cancellationToken
@@ -240,7 +335,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         }
         
         
-        public async Task DeclineDocument(
+        private async Task DeclineDocument(
             ITelegramBotClient botClient,
             CallbackQuery callbackQuery,
             CancellationToken cancellationToken
@@ -257,7 +352,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
           
         }
 
-        public async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        private async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
                
             var subs = callbackQuery.Message.Caption.Split('|');
@@ -265,7 +360,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             var approvePhone = subs[5]; 
 
          
-            var user = await _userRepository.FindOneByUid(approveId);
+            var user = await _userRepository.GetOneByUid(approveId);
             await _userRepository.UpdateUserPhone(user, approvePhone);
             await _userRepository.ChangeOnState(user, OnState.Menu);
             
@@ -288,13 +383,13 @@ namespace BottApp.Host.Services.Handlers.AdminChat
            
 
         }
-        public async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        private async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             
               var subs = callbackQuery.Message.Caption.Split('|');
               var declineId = Convert.ToInt64(subs[3]);
               
-              var user = await _userRepository.FindOneByUid(declineId);
+              var user = await _userRepository.GetOneByUid(declineId);
               
               await botClient.SendTextMessageAsync
               (

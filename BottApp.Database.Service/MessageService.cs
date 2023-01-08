@@ -22,15 +22,15 @@ public class MessageService : IMessageService
 
     public async Task SaveMessage(Message message)
     {
-        var user = await _userRepository.FindOneByUid((int)message.Chat.Id);
-        string type = message.Type.ToString();
+        var user = await _userRepository.GetOneByUid((int)message.Chat.Id);
+        var type = message.Type.ToString();
         await _messageRepository.CreateModel(user.Id, message.Text, type, DateTime.Now);
     }
 
     public async Task SaveInlineMessage(CallbackQuery callbackQuery)
     {
-        var user = await _userRepository.FindOneByUid((int)callbackQuery.Message.Chat.Id);
-        string type = callbackQuery.GetType().ToString();
+        var user = await _userRepository.GetOneByUid((int)callbackQuery.Message.Chat.Id);
+        var type = callbackQuery.GetType().ToString();
         await _messageRepository.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
     }
 
@@ -107,16 +107,22 @@ public class MessageService : IMessageService
 
         return true;
     }
-
+    
+    public async void TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient)
+    {
+        try
+        {
+            await botClient.DeleteMessageAsync(userUid, messageId);
+        }
+        catch
+        {
+            // ignored
+        }
+    }
 
     public async Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId)
     {
-    
-
-    
-         
         
-
         var temp = _messageList.Where(x => x.Chat.Id == UId).ToList();
         if (temp.Count > 0)
         {

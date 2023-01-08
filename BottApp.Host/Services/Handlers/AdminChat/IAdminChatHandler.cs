@@ -14,18 +14,4 @@ public interface IAdminChatHandler
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
     );
-
-
-    Task Approve(
-        ITelegramBotClient botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    );
-
-
-    Task<Message> Decline(
-        ITelegramBotClient botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken
-    );
 }

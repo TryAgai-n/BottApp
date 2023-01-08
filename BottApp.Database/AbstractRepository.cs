@@ -90,8 +90,6 @@ namespace BottApp.Database
             {
                 throw new Exception("Db error. Not deleted");
             }
-
-            
         }
     }
 }

@@ -150,8 +150,9 @@ public class VotesHandler : IVotesHandler
                 await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
                 return;
             }
-            
-            user.ViewDocumentId = document.Id;
+
+            await _userRepository.ChangeViewDocumentId(user, document.Id);
+           
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
             // var dynamicKeyboardMarkup = await new Keyboard().GetDynamicVotesKeyboard(
@@ -190,7 +191,8 @@ public class VotesHandler : IVotesHandler
                 docIndex = 0;
             
             var document = docList[docIndex];
-            user.ViewDocumentId = document.Id;
+            
+            await _userRepository.ChangeViewDocumentId(user, document.Id);
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             

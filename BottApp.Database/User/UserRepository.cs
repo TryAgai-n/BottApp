@@ -44,11 +44,15 @@ namespace BottApp.Database.User
             }
             return model;
         }
-
-
-        public async Task<UserModel?> FindOneByUid(long userId)
+        
+        public async Task<UserModel?> FindOneByUid(long uid)
         {
-            return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
+            return await DbModel.FirstAsync(x => x.UId == uid);
+        }
+        
+        public async Task<UserModel?> FindOneById(int id)
+        {
+            return await DbModel.FirstAsync(x => x.Id == id);
         }
         
 
@@ -90,12 +94,12 @@ namespace BottApp.Database.User
         }
 
 
-        // public async Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination)
-        // {
-        //     var user = await GetOneByUid(model.UId);
-        //
-        //     return true;
-        // }
+        public async Task<bool> ChangeViewDocumentId(UserModel model, int documentId)
+        {
+            model.ViewDocumentId = documentId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
+        }
 
 
         public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
@@ -110,5 +114,13 @@ namespace BottApp.Database.User
 
             return result > 0;
         }
+
+
+        public async Task<List<UserModel>> FindUserByFirstName(string firstName)
+        {
+            return await DbModel.Where(x => x.FirstName == firstName).ToListAsync();
+        }
+       
+        
     }
 }

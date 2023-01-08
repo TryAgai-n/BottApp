@@ -143,6 +143,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         return await PrepareDocumentNomination(documentNomination)
             .Where(x => isModerate? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
+            .Include(x => x.DocumentStatisticModel)
             .OrderBy(x => x.Id)
             .ToListAsync();
     }
@@ -190,17 +191,20 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
-        return DbModel.Include(x => x.DocumentStatisticModel)
+        return DbModel
             .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
+            .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
             .Take(take)
             .ToList();
     }
-    
-    public async Task<List<DocumentModel>> ListMostDocumentInVote(int take, bool isByView = false)
+
+
+    public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Views(int take)
     {
         return DbModel
-            .OrderByDescending(x => isByView ? x.DocumentStatisticModel.ViewCount: x.DocumentStatisticModel.LikeCount)
+            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
+            .AsNoTracking()
             .Include(x => x.DocumentStatisticModel)
             .ToList()
             .OrderBy(x => x.DocumentNomination)
@@ -209,8 +213,21 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToList();
     }
 
-    
-    
+
+    public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Likes(int take)
+    {
+        return DbModel
+            .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
+            .AsNoTracking()
+            .Include(x => x.DocumentStatisticModel)
+            .ToList()
+            .OrderBy(x => x.DocumentNomination)
+            .GroupBy(x => x.DocumentNomination)
+            .SelectMany(x => x.Take(take))
+            .ToList();
+    }
+
+
     public async Task IncrementViewByDocument(DocumentModel model)
     {
         model.DocumentStatisticModel.ViewCount++;

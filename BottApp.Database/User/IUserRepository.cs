@@ -10,8 +10,10 @@ namespace BottApp.Database.User
         Task<UserModel> CreateUser(TelegramProfile telegramProfile);
 
         Task<UserModel> GetOneByUid(long uid);
+        Task<UserModel?> FindOneByUid(long uid);
+        Task<UserModel?> FindOneById(int id);
 
-        Task<UserModel?> FindOneByUid(long userId);
+     //   Task<UserModel?> FindOneByUid(long userId);
 
         Task<bool> UpdateUserPhone(UserModel model, string phone);
 
@@ -19,12 +21,8 @@ namespace BottApp.Database.User
         Task<bool> ChangeOnState(UserModel model, OnState onState);
 
         Task<bool> ChangeViewMessageId(UserModel model, int messageId);
-
-        #region TestList
-
-        // Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination);
-
-        #endregion
-
+        
+        Task<bool> ChangeViewDocumentId(UserModel model, int documentId);
+        
     }
 }
