@@ -187,7 +187,6 @@ namespace BottApp.Host.Services.Handlers.Auth
             await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Если все сломалось - тыкай /start");
         }
 
-
         protected virtual async Task<FileStream?> GetDefaultUserAvatar()
         {
             const string filePath = @"Files/BOT_NO_IMAGE.jpg";
@@ -213,6 +212,17 @@ namespace BottApp.Host.Services.Handlers.Auth
                 $" Фамилия {user.LastName}, имя {user.FirstName}\n" + $" Хочет авторизоваться в системе",
                 replyMarkup: Keyboard.ApproveDeclineKeyboard
             );
+        }
+        
+        public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

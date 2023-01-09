@@ -25,15 +25,9 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             _documentRepository = documentRepository;
         }
 
-        public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
+       
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
         {
-            // _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
-            return Task.CompletedTask;
-        }
-
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-        {
-
             string prepString;
             
             switch (prepString = message.Text.ToLower())
@@ -104,8 +98,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             
             
         }
-
-
+        
         private async Task FindUserByParam(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, FindUserBy findUserBy)
         {
             switch (findUserBy)
@@ -171,7 +164,6 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     break;
             }
         }
-        
         
         private async Task SendTopDocument(ITelegramBotClient botClient, Message message,
             CancellationToken cancellationToken, string prepString, FindDocumentBy findDocumentBy)
@@ -283,7 +275,8 @@ namespace BottApp.Host.Services.Handlers.AdminChat
         (
             ITelegramBotClient? botClient,
             CallbackQuery callbackQuery,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken,
+            UserModel user
         )
         {
             switch (callbackQuery.Data)
@@ -311,8 +304,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
                     break;
             }
         }
-
-
+        
         private async Task ApproveDocument(
             ITelegramBotClient botClient,
             CallbackQuery callbackQuery,
@@ -333,7 +325,6 @@ namespace BottApp.Host.Services.Handlers.AdminChat
             );
           
         }
-        
         
         private async Task DeclineDocument(
             ITelegramBotClient botClient,
@@ -383,7 +374,7 @@ namespace BottApp.Host.Services.Handlers.AdminChat
            
 
         }
-        private async Task<Message> Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
+        private async Task Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             
               var subs = callbackQuery.Message.Caption.Split('|');
@@ -399,13 +390,22 @@ namespace BottApp.Host.Services.Handlers.AdminChat
               );
               
               await _messageService.DeleteMessages(botClient, AdminSettings.AdminChatId, callbackQuery.Message.MessageId);
-              
-              return await botClient.SendTextMessageAsync
-            (
-                chatId: declineId,
-                text: "Вы не авторизованы в системе, попробуйте позже!",
-                cancellationToken: cancellationToken
-            );
+
+              await botClient.SendTextMessageAsync(
+                  chatId: declineId, 
+                  text: "Вы не авторизованы в системе, попробуйте позже!",
+                  cancellationToken: cancellationToken
+              );
+        }
+        
+        public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

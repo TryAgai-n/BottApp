@@ -3,15 +3,12 @@ using BottApp.Database.Document.Like;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using static System.Enum;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
-
 
 namespace BottApp.Host.Services.Handlers.Votes;
 
@@ -56,11 +53,11 @@ public class VotesHandler : IVotesHandler
     )
     {
        
-        TryParse<MenuButton>(callbackQuery.Data, out var result);
+        Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
         var startup = result switch
         {
-            MenuButton.AddCandidate      => _stateService.Startup(user, OnState.UploadCandidate, botClient, callbackQuery.Message),
-            MenuButton.Back              => _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message),
+            MenuButton.AddCandidate      => _stateService.StartState(user, OnState.UploadCandidate, botClient, callbackQuery.Message),
+            MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient, callbackQuery.Message),
             MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Right             => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true),
@@ -69,7 +66,7 @@ public class VotesHandler : IVotesHandler
             MenuButton.BiggestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.First, user, 0, true, false),
             MenuButton.SmallerNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false),
             MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
-            _                            => _stateService.Startup(user, OnState.Menu, botClient, callbackQuery.Message),
+            _                            => _stateService.StartState(user, OnState.Menu, botClient, callbackQuery.Message),
         };
         await startup;
         

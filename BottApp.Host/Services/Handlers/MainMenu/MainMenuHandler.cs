@@ -1,13 +1,9 @@
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
-using Telegram.Bot.Types.ReplyMarkups;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Services.Handlers.MainMenu;
@@ -88,34 +84,13 @@ public class MainMenuHandler : IMainMenuHandler
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken, UserModel user)
     {
-        // _logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-        // await MessageManager.SaveInlineMessage(_dbContainer, callbackQuery)
-        
-        //Todo: Попробовать организовать единый code-style для Switch конструкций
-        switch (callbackQuery.Data)
+        Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
+        var startup = result switch
         {
-            case nameof(MenuButton.Hi):
-                await botClient.SendTextMessageAsync(
-                    chatId: -1001824488986,
-                    text: user.TelegramFirstName + " говорит привет!", 
-                    cancellationToken: cancellationToken);
-                break;
-            
-            case nameof(MenuButton.Votes):
-                // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
-                await _stateService.Startup(user, OnState.Votes, botClient, callbackQuery.Message);
-                break;
-            
-            case nameof(MenuButton.Help):
-                // await _messageService.DeleteMessages(botClient, user.UId, callbackQuery.Message.MessageId);
-                await _stateService.Startup(user, OnState.Help, botClient, callbackQuery.Message);
-                break;
-            
-            
-            default:
-                await TryEditMessage(botClient, callbackQuery, cancellationToken);
-                break;
-        }
+            MenuButton.Votes => _stateService.StartState(user, OnState.Votes, botClient, callbackQuery.Message),
+            MenuButton.Help =>  _stateService.StartState(user, OnState.Help, botClient, callbackQuery.Message),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
 
@@ -153,7 +128,6 @@ public class MainMenuHandler : IMainMenuHandler
 
     public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {
-        // _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
         return Task.CompletedTask;
     }
 
@@ -170,10 +144,7 @@ public class MainMenuHandler : IMainMenuHandler
                 $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-
-        // _logger.LogInformation("HandleError: {ErrorMessage}", ErrorMessage);
-
-        // Cooldown in case of network connection error
+        
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }

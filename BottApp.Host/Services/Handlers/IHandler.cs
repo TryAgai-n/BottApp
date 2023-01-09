@@ -1,38 +1,33 @@
-using BottApp.Database.User;
+﻿using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Services.Handlers.Votes;
+namespace BottApp.Host.Services.Handlers;
 
-public interface IVotesHandler : IHandler
+public interface IHandler
 {
-    string GetTimeEmooji();
-
-    Task OnStart(ITelegramBotClient botClient, Message message);
-    
-
     Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken,
-        UserModel user
+        UserModel? user
     );
-
-
+    
     Task BotOnMessageReceived(
         ITelegramBotClient botClient,
         Message message,
         CancellationToken cancellationToken,
-        UserModel user
+        UserModel? user
     );
-
-
-    Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
-
 
     Task HandlePollingErrorAsync(
         ITelegramBotClient botClient,
         Exception exception,
         CancellationToken cancellationToken
     );
+    
+    Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
+
+
+  
 }

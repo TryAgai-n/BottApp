@@ -5,28 +5,7 @@ using Telegram.Bot.Types;
 
 namespace BottApp.Host.Services.Handlers.UploadHandler;
 
-public interface ICandidateUploadHandler
+public interface ICandidateUploadHandler: IHandler
 {
     Task OnStart(ITelegramBotClient botClient, Message message);
-    Task BotOnCallbackQueryReceived(
-        ITelegramBotClient? botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken,
-        UserModel user
-    );
-
-    Task BotOnMessageReceived(
-        ITelegramBotClient botClient,
-        Message message,
-        CancellationToken cancellationToken,
-        UserModel user
-    );
-    
-    Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken);
-    
-    Task HandlePollingErrorAsync(
-        ITelegramBotClient botClient,
-        Exception exception,
-        CancellationToken cancellationToken
-    );
 }
