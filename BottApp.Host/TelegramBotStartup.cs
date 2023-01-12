@@ -1,7 +1,6 @@
 using BottApp.Host.Configs;
+using BottApp.Host.Handlers;
 using BottApp.Host.Services;
-using BottApp.Host.Services.Handlers;
-using BottApp.Host.SimpleStateMachine;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 

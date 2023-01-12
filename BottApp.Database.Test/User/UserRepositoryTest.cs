@@ -1,5 +1,4 @@
 ﻿using BottApp.Database.User;
-using BottApp.Host.SimpleStateMachine;
 using Xunit;
 
 namespace BottApp.Database.Test.User;

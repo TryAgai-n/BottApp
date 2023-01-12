@@ -1,16 +1,16 @@
 ﻿using BottApp.Database;
 using BottApp.Database.Service;
+using BottApp.Host.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using BottApp.Host.Services.Handlers;
-using HandlerFactory = BottApp.Host.Services.Handlers.Factory;
+using HandlerFactory = BottApp.Host.Handlers.Factory;
 using ServiceFactory = BottApp.Database.Service.Factory;
 
 namespace BottApp.Host
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         private IWebHostEnvironment CurrentEnvironment{ get; }
 
         
@@ -19,9 +19,6 @@ namespace BottApp.Host
             Configuration = configuration;
             CurrentEnvironment = hostEnvironment;
         }
-
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -60,7 +57,7 @@ namespace BottApp.Host
         {
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 
-            services.AddScoped<IHandlerContainer>(x => HandlerFactory.Create(
+            services.AddScoped<IHandlerContainer>(x =>  HandlerFactory.Create(
                 x.GetRequiredService<IDatabaseContainer>(),
                 x.GetRequiredService<IServiceContainer>()
             ));
@@ -82,7 +79,6 @@ namespace BottApp.Host
             
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
