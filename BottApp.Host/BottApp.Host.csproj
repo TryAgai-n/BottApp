@@ -30,13 +30,4 @@
         <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Services\Handlers\AdminChat" />
-      <Folder Include="Services\Handlers\Auth" />
-      <Folder Include="Services\Handlers\Help" />
-      <Folder Include="Services\Handlers\MainMenu" />
-      <Folder Include="Services\Handlers\UploadHandler" />
-      <Folder Include="Services\Handlers\Votes" />
-    </ItemGroup>
-
 </Project>

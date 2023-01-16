@@ -82,8 +82,6 @@ public class MessageService : IMessageService
             );
         }
     }
-
-
     private string GetTimeEmooji()
     {
         string[] emooji = { "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ", };
@@ -91,24 +89,8 @@ public class MessageService : IMessageService
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-    
-    public async Task MarkMessageToDelete(Message message)
-    {
-         _messageList.Add(message);
-    }
 
-    public async Task<bool> TryDeleteAfterReboot(ITelegramBotClient botClient, long UId, int messageId)
-    {
-        var lastIndex = messageId - 1;
-
-        await botClient.DeleteMessageAsync(
-            chatId: UId,
-            messageId: lastIndex);
-
-        return true;
-    }
-    
-    public async void TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient)
+    public async Task TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient)
     {
         try
         {
@@ -117,47 +99,6 @@ public class MessageService : IMessageService
         catch
         {
             // ignored
-        }
-    }
-
-    public async Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId)
-    {
-        
-        var temp = _messageList.Where(x => x.Chat.Id == UId).ToList();
-        if (temp.Count > 0)
-        {
-            foreach (var message in temp)
-            {
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id,
-                    messageId: message.MessageId);
-                _messageList.Remove(message);
-            }
-            temp.Clear();
-        }
-        else
-        {
-            try
-            {
-                for (var i = 3; i > -3; i--)
-                {
-                    try
-                    {
-                         botClient.DeleteMessageAsync(
-                            chatId: UId,
-                            messageId: messageId+i);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("delete message not found" + e);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Global delete message Exception" + e);
-            }
-          
         }
     }
 }

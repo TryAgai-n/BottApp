@@ -89,7 +89,7 @@ public class Program
             Environment.Exit(2);
         }
 
-        var serviceScopeFactory = (IServiceScopeFactory) webHost.Services.GetService(typeof(IServiceScopeFactory));
+        var serviceScopeFactory = (IServiceScopeFactory) webHost.Services.GetService(typeof(IServiceScopeFactory))!;
         using (var scope = serviceScopeFactory.CreateScope())
         {
             var services = scope.ServiceProvider;

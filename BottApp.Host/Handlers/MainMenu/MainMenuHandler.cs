@@ -2,6 +2,7 @@ using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using BottApp.Host.Services;
+using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -40,8 +41,8 @@ public class MainMenuHandler : IMainMenuHandler
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
         var button = result switch
         {
-            MenuButton.Votes => _stateService.StartState(user, OnState.Votes, botClient, callbackQuery.Message),
-            MenuButton.Help =>  _stateService.StartState(user, OnState.Help, botClient, callbackQuery.Message),
+            MenuButton.Votes => _stateService.StartState(user, OnState.Votes, botClient),
+            MenuButton.Help =>  _stateService.StartState(user, OnState.Help, botClient),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -66,6 +67,7 @@ public class MainMenuHandler : IMainMenuHandler
             );
 
             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+            return;
         }
         
         msg = await botClient.SendTextMessageAsync(

@@ -165,25 +165,24 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination)
     {
-        var result =  PrepareDocumentNomination(documentNomination)
-            .FirstOrDefault(x => x.UserModel.Id == user.Id);
-
-        // return result != null; 
-        // ToDo: Заглушка для неограниченного количества загрузок кандидатов в номинацию
+        var result = await PrepareDocumentNomination(documentNomination)
+            .FirstOrDefaultAsync(x => x.UserModel.Id == user.Id);
+        
+        // return result != null;
         return false;
     }
 
 
     public async Task<bool> SetModerate(int documentId, bool isModerate)
     {
-        var model = DbModel.Where(x => x.Id == documentId)
+        var model = await DbModel.Where(x => x.Id == documentId)
             .Include(x => x.DocumentStatisticModel)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
+        
+        if (model is null) return false;
         
         model.DocumentStatisticModel.IsModerated = isModerate;
-
-        if (model == null) return false;
-
+        
         await UpdateModelAsync(model);
         return true;
     }
@@ -204,7 +203,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         return DbModel
             .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
-            .AsNoTracking()
+            //.AsNoTracking()
             .Include(x => x.DocumentStatisticModel)
             .ToList()
             .OrderBy(x => x.DocumentNomination)
@@ -218,7 +217,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         return DbModel
             .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
-            .AsNoTracking()
+           // .AsNoTracking()
             .Include(x => x.DocumentStatisticModel)
             .ToList()
             .OrderBy(x => x.DocumentNomination)

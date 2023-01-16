@@ -11,7 +11,6 @@ namespace BottApp.Host.Handlers.Auth
 {
     public class AuthHandler : IAuthHandler
     {
-
         private readonly IUserRepository _userRepository;
         private readonly IMessageService _messageService;
 
@@ -40,8 +39,6 @@ namespace BottApp.Host.Handlers.Auth
         }
 
 
-
-
         public async Task BotOnMessageReceived(
             ITelegramBotClient botClient,
             Message message,
@@ -49,146 +46,144 @@ namespace BottApp.Host.Handlers.Auth
             UserModel user
         )
         {
-            if (message.Text == "/start" && user.ViewDocumentId<0)
-            {
-                _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
+            Message? msg;
 
-                var msg = await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик",
-                    cancellationToken: cancellationToken);
+            if (message.Text == "/start" && user.ViewMessageId == 0)
+            {
+                await _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
+
+                msg = await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик", cancellationToken: cancellationToken
+                );
+
+                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
 
                 await Task.Delay(1500);
 
-                msg = await botClient.EditMessageTextAsync(
+                await botClient.EditMessageTextAsync(
                     chatId: msg.Chat.Id, msg.MessageId, text: $"{msg.Text}\n\nДавайте знакомиться!",
-                    cancellationToken: cancellationToken);
+                    cancellationToken: cancellationToken
+                );
 
                 await Task.Delay(2000);
 
-                _messageService.TryDeleteMessage(msg.Chat.Id, msg.MessageId, botClient);
+                await _messageService.TryDeleteMessage(msg.Chat.Id, msg.MessageId, botClient);
 
                 msg = await botClient.SendTextMessageAsync(
                     chatId: msg.Chat.Id, text: $"Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
-                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken);
+                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
+                );
 
                 await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                 return;
             }
 
-            if (user.Phone.IsNullOrEmpty())
+            try
             {
-                Message msg;
-                _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
-                _messageService.TryDeleteMessage(message.Chat.Id, user.ViewMessageId, botClient);
-
-
-                if (message.Contact != null)
+                switch (user)
                 {
-                    msg = await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте свое имя",
-                        cancellationToken: cancellationToken
-                    );
+                    case {Phone : null} when message.Contact is not null:
+                        
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте свое имя",
+                            cancellationToken: cancellationToken
+                        );
 
-                    await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
+                        await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
+                        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        return;
 
-                    await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-                    return;
+                    case {Phone : null} when message.Contact is null:
+                        
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        
+                        msg = await botClient.SendTextMessageAsync(
+                            message.Chat.Id, "Отправьте телефон по кнопке 'Поделиться контактом'",
+                            replyMarkup: Keyboard.RequestLocationAndContactKeyboard
+                        );
+
+                        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        return;
+
+                    case {FirstName: null} when message.Text is not null:
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: $"Cпасибо!\nТеперь отправьте фамилию"
+                        );
+
+                        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        user.FirstName = message.Text;
+                        return;
+
+                    case {FirstName: null} when message.Text is null:
+                        
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Отправьте имя в виде текста"
+                        );
+
+                        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        return;
+
+                    case {LastName: null} when message.Text is not null:
+                        user.LastName = message.Text;
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        var profile = new Profile(user.FirstName, user.LastName);
+
+                        await _userRepository.UpdateUserFullName(user, profile);
+
+                        await SendUserFormToAdmin(botClient, message, user);
+
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
+                        );
+
+                        // await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+
+                        await Task.Delay(3000);
+                        await  _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
+                        return;
+
+                    case {LastName: null} when message.Text is null:
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста"
+                        );
+
+                        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        return;
+
+                    default:
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
+                        );
+
+                        await Task.Delay(3000);
+                        await _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
+                        return;
                 }
-
-                msg = await botClient.SendTextMessageAsync(
-                    message.Chat.Id, "Отправьте телефон по кнопке 'Поделиться контактом'",
-                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard
-                );
-
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-                return;
-
             }
-
-            if (user.FirstName.IsNullOrEmpty() && !user.Phone.IsNullOrEmpty())
+            catch (Exception e)
             {
-                Message msg;
-                _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
-                _messageService.TryDeleteMessage(message.Chat.Id, user.ViewMessageId, botClient);
-
-                if (message.Text != null)
-                {
-                    msg = await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id, text: $"Cпасибо!\nТеперь отправьте фамилию{message.MessageId}"
-                    );
-
-                    await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-                    user.FirstName = message.Text;
-                    return;
-                }
-
-                msg = await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Отправьте имя в виде текста"
-                );
-
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-                return;
+                Console.WriteLine(e);
+                throw;
             }
-
-            if (user.LastName.IsNullOrEmpty() && !user.FirstName.IsNullOrEmpty())
+            finally
             {
-                Message msg;
-                _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
-                _messageService.TryDeleteMessage(message.Chat.Id, user.ViewMessageId, botClient);
-
-                if (message.Text != null)
-                {
-                    user.LastName = message.Text;
-
-                    var profile = new Profile(user.FirstName, user.LastName);
-
-                    await _userRepository.UpdateUserFullName(user, profile);
-
-                    await SendUserFormToAdmin(botClient, message, user);
-
-                    msg = await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id, text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
-                    );
-
-                    await _userRepository.ChangeViewMessageId(user, message.MessageId);
-
-                    await Task.Delay(3000);
-                    _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
-                    return;
-                }
-
-                msg = await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста"
-                );
-
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-                return;
+                await botClient.DeleteMessageAsync(user.UId, message.MessageId);
             }
-
-
-
-            if (message.Text != null && !user.LastName.IsNullOrEmpty() && !user.FirstName.IsNullOrEmpty() &&
-                !user.Phone.IsNullOrEmpty())
-            {
-                _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
-                _messageService.TryDeleteMessage(message.Chat.Id, user.ViewMessageId, botClient);
-
-                var msg = await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
-                );
-
-                await Task.Delay(3000);
-                _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
-                return;
-            }
-
-            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Если все сломалось - тыкай /start");
         }
+
 
         protected virtual async Task<FileStream?> GetDefaultUserAvatar()
         {
             const string filePath = @"Files/BOT_NO_IMAGE.jpg";
             await using FileStream? fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            fileStream.Close();
             return fileStream;
         }
 
@@ -198,6 +193,7 @@ namespace BottApp.Host.Handlers.Auth
             InputOnlineFile photo;
 
             var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
+
             if (getPhotoAsync.Result.TotalCount > 0)
                 photo = getPhotoAsync.Result.Photos[0][0].FileId;
             else
@@ -205,14 +201,21 @@ namespace BottApp.Host.Handlers.Auth
 
             await botClient.SendPhotoAsync(
                 AdminSettings.AdminChatId, photo,
-                $" Пользователь {user.TelegramFirstName}\n" +
-                $" @{message.Chat.Username ?? "Нет публичного имени"} {user.UId}\n" + $" Моб.тел. {user.Phone}\n" +
-                $" Фамилия {user.LastName}, имя {user.FirstName}\n" + $" Хочет авторизоваться в системе",
+                $"Пользователь ID{user.Id}\n" +
+                $"@{message.Chat.Username ?? "Нет публичного имени"} UID {user.UId} \n" + 
+                $"Моб.тел. {user.Phone}\n" +
+                $"Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                $"Хочет авторизоваться в системе",
                 replyMarkup: Keyboard.ApproveDeclineKeyboard
             );
         }
-        
-        public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+
+
+        public Task HandlePollingErrorAsync(
+            ITelegramBotClient botClient,
+            Exception exception,
+            CancellationToken cancellationToken
+        )
         {
             throw new NotImplementedException();
         }

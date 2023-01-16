@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BottApp.Database.Document;
+using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -9,7 +10,7 @@ public interface IDocumentService
 {
     Task UploadFile(Message message, ITelegramBotClient _botClient);
     
-    Task CreateEmptyDocumentForVotes(int userId, InNomination nomination);
+    Task<DocumentModel> CreateEmptyDocumentForVotes(int userId, InNomination nomination);
 
-    Task<bool> UploadVoteFile(Message message, ITelegramBotClient _botClient, InNomination inNomination, string? caption);
+    Task<bool> UploadVoteFile(UserModel user, DocumentModel document, ITelegramBotClient _botClient, Message message);
 }

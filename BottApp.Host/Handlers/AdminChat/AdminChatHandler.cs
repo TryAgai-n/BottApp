@@ -346,56 +346,61 @@ namespace BottApp.Host.Handlers.AdminChat
         private async Task Approve(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
                
-            var subs = callbackQuery.Message.Caption.Split('|');
+            var subs = callbackQuery.Message.Caption.Split(' ');
             var approveId = Convert.ToInt64(subs[3]);
-            var approvePhone = subs[5]; 
-
-         
             var user = await _userRepository.GetOneByUid(approveId);
-            await _userRepository.UpdateUserPhone(user, approvePhone);
             await _userRepository.ChangeOnState(user, OnState.Menu);
             
             await botClient.SendTextMessageAsync
             (
                 chatId: callbackQuery.Message.Chat.Id,
-                text: $"Заявка на регистрацию Пользователя UID {user.UId} FirstName {user.FirstName} LastName {user.LastName} Phone {user.Phone}\nПРИНЯТА",
+                text:  $"Заявка на регистрацию Пользователя UID {user.UId}\n" +
+                       $"Имя {user.FirstName}\n" +
+                       $"Фамилия {user.LastName} Phone {user.Phone}\n\n" +
+                       $"ПРИНЯТА",
                 cancellationToken: cancellationToken
             );
             
-            await _messageService.DeleteMessages(botClient, AdminSettings.AdminChatId, callbackQuery.Message.MessageId);
+            await _messageService.TryDeleteMessage(AdminSettings.AdminChatId, callbackQuery.Message.MessageId, botClient);
             
-            await _messageService.MarkMessageToDelete(await botClient.SendTextMessageAsync
-            (
-                chatId: approveId,
-                text: "Вы авторизованы!",
-                replyMarkup: Keyboard.MainKeyboard,
-                cancellationToken: cancellationToken
-            ));
-           
+            var userMsg = await botClient.SendTextMessageAsync
+             (
+                 chatId: approveId,
+                 text: "Вы авторизованы!\nГлавное меню",
+                 replyMarkup: Keyboard.MainKeyboard,
+                 cancellationToken: cancellationToken
+             );
+
+          await _userRepository.ChangeViewMessageId(user, userMsg.MessageId);
+
 
         }
         private async Task Decline(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
             
-              var subs = callbackQuery.Message.Caption.Split('|');
-              var declineId = Convert.ToInt64(subs[3]);
-              
-              var user = await _userRepository.GetOneByUid(declineId);
+            var subs = callbackQuery.Message.Caption.Split(' ');
+            var declineId = Convert.ToInt64(subs[3]);
+            var user = await _userRepository.GetOneByUid(declineId);
               
               await botClient.SendTextMessageAsync
               (
                   chatId: callbackQuery.Message.Chat.Id,
-                  text: $"Заявка на регистрацию Пользователя UID {user.UId} FirstName {user.FirstName} LastName {user.LastName} Phone {user.Phone}\nОТКЛОНЕНА",
+                  text: $"Заявка на регистрацию Пользователя UID {user.UId}\n" +
+                        $"Имя {user.FirstName}\n" +
+                        $"Фамилия {user.LastName} Phone {user.Phone}\n\n" +
+                        $"ОТКЛОНЕНА",
                   cancellationToken: cancellationToken
               );
               
-              await _messageService.DeleteMessages(botClient, AdminSettings.AdminChatId, callbackQuery.Message.MessageId);
+              await _messageService.TryDeleteMessage(AdminSettings.AdminChatId, callbackQuery.Message.MessageId, botClient);
 
-              await botClient.SendTextMessageAsync(
+             var userMsg = await botClient.SendTextMessageAsync(
                   chatId: declineId, 
                   text: "Вы не авторизованы в системе, попробуйте позже!",
                   cancellationToken: cancellationToken
               );
+              
+              await _userRepository.ChangeViewMessageId(user, userMsg.MessageId);
         }
         
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

@@ -3,9 +3,11 @@ using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using BottApp.Host.Services;
+using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.Help;
@@ -33,21 +35,17 @@ public class HelpHandler : IHelpHandler
         );
     }
     
-
     public async Task BotOnCallbackQueryReceived(
         ITelegramBotClient? botClient,
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken, UserModel user)
     {
-        
-        switch (callbackQuery.Data)
+
+        Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
+        var button = result switch
         {
-            case nameof(MenuButton.MainMenu):
-                await _messageService.DeleteMessages(botClient, user.UId,callbackQuery.Message.MessageId);
-                await _stateService.StartState(user, OnState.Menu, botClient, callbackQuery.Message);
-                break;
-            
-        }
+            MenuButton.MainMenu =>  _stateService.StartState(user, OnState.Menu, botClient),
+        };
     }
 
 
@@ -58,27 +56,25 @@ public class HelpHandler : IHelpHandler
         UserModel user
     )
     {
-        await _messageService.DeleteMessages(botClient, user.UId,message.MessageId);
-        await _messageService.MarkMessageToDelete(message);
-        await _messageService.DeleteMessages(botClient, user.UId,message.MessageId);
-        
+        var msg = await botClient.EditMessageTextAsync(
+            chatId:  message.Chat.Id,
+            messageId:  user.ViewMessageId, 
+            text: "Ваш вопрос успешно передан в службу поддержки, вы будете возвращены в главное меню", 
+            replyMarkup: InlineKeyboardMarkup.Empty(), 
+            cancellationToken: cancellationToken);
+
         await botClient.SendTextMessageAsync(
             AdminSettings.AdminChatId,
             $"ВОПРОС от Пользователя {user.FirstName}\n@{message.Chat.Username ?? "Нет публичного имени"} UID {user.UId}\n" +
             $"Моб.тел. {user.Phone}\n\n" +
-            $"{message.Text}"
+            $"{message.Text}", cancellationToken: cancellationToken
         );
-      
-
         
-        await _messageService.MarkMessageToDelete( await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id, text: "Ваш вопрос успешно передан в службу поддержки, вы будете возвращены в главное меню"));
-        
-        await Task.Delay(5000, cancellationToken);
-        
-        await _messageService.DeleteMessages(botClient, user.UId,message.MessageId);
-        
-        await _stateService.StartState(user, OnState.Menu, botClient, message);
+       await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
+       
+       await Task.Delay(2000, cancellationToken);
+       
+       await _stateService.StartState(user, OnState.Menu, botClient);
     }
 
 
@@ -101,10 +97,7 @@ public class HelpHandler : IHelpHandler
                 $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-
-        // _logger.LogInformation("HandleError: {ErrorMessage}", ErrorMessage);
-
-        // Cooldown in case of network connection error
+        
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }

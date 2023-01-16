@@ -4,6 +4,8 @@ using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using BottApp.Host.Services;
+using BottApp.Host.Services.OnStateStart;
+using Microsoft.AspNetCore.Components.Forms;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -56,8 +58,8 @@ public class VotesHandler : IVotesHandler
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
         var button = result switch
         {
-            MenuButton.AddCandidate      => _stateService.StartState(user, OnState.UploadCandidate, botClient, callbackQuery.Message),
-            MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient, callbackQuery.Message),
+            MenuButton.AddCandidate      => _stateService.StartState(user, OnState.UploadCandidate, botClient),
+            MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient),
             MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Right             => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true),
@@ -66,7 +68,7 @@ public class VotesHandler : IVotesHandler
             MenuButton.BiggestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.First, user, 0, true, false),
             MenuButton.SmallerNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false),
             MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
-            _                            => _stateService.StartState(user, OnState.Menu, botClient, callbackQuery.Message),
+            _                            => _stateService.StartState(user, OnState.Menu, botClient),
         };
 
 
@@ -82,18 +84,18 @@ public class VotesHandler : IVotesHandler
         UserModel user
     )
     {
-        Message? message;
+        Message? msg;
 
         if (await _likedDocumentRepository.CheckLikeByUser(user.Id, user.ViewDocumentId))
         {
-            message = await botClient.SendTextMessageAsync(
+            msg = await botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 text: "Вы уже голосовали за этого кандидата!"
             );
 
             await Task.Delay(1000, cancellationToken);
 
-            await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, message.MessageId);
+            await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
             return;
         }
         
@@ -103,14 +105,14 @@ public class VotesHandler : IVotesHandler
         await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentId, true);
         
         
-        message = await botClient.SendTextMessageAsync(
+        msg = await botClient.SendTextMessageAsync(
             chatId: callbackQuery.Message.Chat.Id,
             text: "Ваш голос учтен!"
         );
         
         await Task.Delay(1000, cancellationToken);
         
-        await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, message.MessageId);
+        await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
     }
 
 
@@ -134,7 +136,9 @@ public class VotesHandler : IVotesHandler
             {
                 await botClient.SendTextMessageAsync(
                         chatId: user.UId,
-                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!");
+                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
+                        cancellationToken: cancellationToken
+                );
                 
                 await Task.Delay(3000, cancellationToken);
 
@@ -147,8 +151,9 @@ public class VotesHandler : IVotesHandler
            
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
+            
             await botClient.DeleteMessageAsync(chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
-
+            
             await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
             
               var msg = await botClient.SendPhotoAsync(
@@ -158,7 +163,8 @@ public class VotesHandler : IVotesHandler
                     replyMarkup: Keyboard.VotesKeyboard,
                     cancellationToken: cancellationToken
                 );
-
+              
+           
             await _documentRepository.IncrementViewByDocument(document);
             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
         }
@@ -185,23 +191,19 @@ public class VotesHandler : IVotesHandler
             await _userRepository.ChangeViewDocumentId(user, document.Id);
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension));
+            photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
             
             await botClient.EditMessageMediaAsync(
                 chatId: user.UId, 
                 messageId: user.ViewMessageId,
-                media: new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension)),
+                media: photo,
                 replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
             );
 
             fileStream.Close();
             
-            await botClient.EditMessageCaptionAsync(
-                chatId:  user.UId, 
-                messageId: user.ViewMessageId,
-                caption: $"{docIndex+1} из {docList.Count}\n{document.Caption}",
-                replyMarkup: Keyboard.VotesKeyboard,
-                cancellationToken: cancellationToken
-            );
             
             await _documentRepository.IncrementViewByDocument(document);
 
@@ -232,7 +234,7 @@ public class VotesHandler : IVotesHandler
         
         var msg = await botClient.SendTextMessageAsync(
             chatId: user.UId,
-            text: " Голосование",
+            text: "Меню: Голосование",
             replyMarkup: Keyboard.MainVotesKeyboard,
             cancellationToken: cancellationToken);
         

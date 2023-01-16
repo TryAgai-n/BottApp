@@ -2,7 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Services;
+namespace BottApp.Host.Services.OnStateStart;
 
 public interface IStateService
 {

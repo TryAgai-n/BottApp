@@ -14,9 +14,6 @@ public interface IMessageService
         CallbackQuery callbackQuery,
         CancellationToken cancellationToken
     );
-    public void TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient);
-    
-    Task MarkMessageToDelete(Message message);
-    Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId);
-    
+    public Task TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient);
+
 }
