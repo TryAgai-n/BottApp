@@ -17,7 +17,6 @@ internal static class TelegramBotStartup
         services.AddHttpClient("telegram_bot_client")
             .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
             {
-                // BotConfig? botConfig = sp.GetConfiguration<BotConfig>();
                 TelegramBotClientOptions options = new(botConfig.Token);
                 return new TelegramBotClient(options, httpClient);
             });

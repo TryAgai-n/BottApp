@@ -74,7 +74,7 @@ public class StateService
         await botClient.EditMessageTextAsync(
             messageId: user.ViewMessageId,
             chatId: user.UId,
-            text: "Меню: Выбор номинации для кандидата",
+            text: "Меню: Выбор номинации для загрузки кандидата",
             replyMarkup: Keyboard.NominationKeyboard
         );
     }

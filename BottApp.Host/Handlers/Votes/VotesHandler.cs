@@ -132,18 +132,18 @@ public class VotesHandler : IVotesHandler
             var documents = await _documentRepository.GetListByNomination(nomination,  true);
             var document = documents.FirstOrDefault();
             
-            if (document == null)
-            {
-                await botClient.SendTextMessageAsync(
-                        chatId: user.UId,
-                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
-                        cancellationToken: cancellationToken
+            if (document is null)
+            {   
+                  await botClient.EditMessageTextAsync(
+                    chatId: user.UId,
+                    messageId: user.ViewMessageId,
+                    text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
+                    cancellationToken: cancellationToken
                 );
-                
+        
                 await Task.Delay(3000, cancellationToken);
 
-                await ChooseNomination(botClient, callbackQuery, cancellationToken, user);
-             
+                await _stateService.StartState(user, OnState.UploadCandidate, botClient);
                 return;
             }
 
@@ -151,18 +151,17 @@ public class VotesHandler : IVotesHandler
            
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
-            
             await botClient.DeleteMessageAsync(chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
             
             await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
             
-              var msg = await botClient.SendPhotoAsync(
-                    chatId: user.UId,
-                    photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
-                    caption: $"1 из {documents.Count}\n{document.Caption}",
-                    replyMarkup: Keyboard.VotesKeyboard,
-                    cancellationToken: cancellationToken
-                );
+               var msg = await botClient.SendPhotoAsync(
+                   chatId: user.UId,
+                   photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
+                   caption: $"1 из {documents.Count}\n{document.Caption}",
+                   replyMarkup: Keyboard.VotesKeyboard,
+                   cancellationToken: cancellationToken
+               );
               
            
             await _documentRepository.IncrementViewByDocument(document);
@@ -192,9 +191,11 @@ public class VotesHandler : IVotesHandler
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension));
-            photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
-            
+            var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension))
+            {
+                Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
+            };
+
             await botClient.EditMessageMediaAsync(
                 chatId: user.UId, 
                 messageId: user.ViewMessageId,
@@ -216,11 +217,10 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        
         await botClient.EditMessageTextAsync(
             messageId: callbackQuery.Message.MessageId,
             chatId: user.UId,
-            text: "Меню: выбор номинации",
+            text: "Меню: Выбор номинации для голосования",
             replyMarkup: Keyboard.NominationKeyboard
         );
     }
@@ -230,16 +230,12 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
-        
-        var msg = await botClient.SendTextMessageAsync(
+         await botClient.EditMessageTextAsync(
             chatId: user.UId,
+            messageId: user.ViewMessageId,
             text: "Меню: Голосование",
             replyMarkup: Keyboard.MainVotesKeyboard,
             cancellationToken: cancellationToken);
-        
-        await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-       
     }
 
     #endregion
@@ -249,8 +245,7 @@ public class VotesHandler : IVotesHandler
     public async Task HandlePollingErrorAsync(
         ITelegramBotClient botClient,
         Exception exception,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         var ErrorMessage = exception switch
         {
