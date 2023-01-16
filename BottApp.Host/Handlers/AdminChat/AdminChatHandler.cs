@@ -320,7 +320,7 @@ namespace BottApp.Host.Handlers.AdminChat
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
                 caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА @{callbackQuery.From.Username}",
-                replyMarkup:  Keyboard.Ok,
+                replyMarkup: Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
           
@@ -347,17 +347,19 @@ namespace BottApp.Host.Handlers.AdminChat
         {
                
             var subs = callbackQuery.Message.Caption.Split(' ');
-            var approveId = Convert.ToInt64(subs[3]);
+            var approveId = Convert.ToInt32(subs[3]);
             var user = await _userRepository.GetOneByUid(approveId);
             await _userRepository.ChangeOnState(user, OnState.Menu);
             
             await botClient.SendTextMessageAsync
             (
                 chatId: callbackQuery.Message.Chat.Id,
-                text:  $"Заявка на регистрацию Пользователя UID {user.UId}\n" +
-                       $"Имя {user.FirstName}\n" +
-                       $"Фамилия {user.LastName} Phone {user.Phone}\n\n" +
-                       $"ПРИНЯТА",
+                text:  $"ID {user.Id} UID {user.UId} \n" +
+                       $"Имя: {user.FirstName} \n"+
+                       $"Фамилия: {user.LastName} \n" +
+                       $"Моб.тел. {user.Phone} \n\n" +
+                       $"Заявка на авторизацию ПРИНЯТА",
+                replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
             
@@ -385,10 +387,12 @@ namespace BottApp.Host.Handlers.AdminChat
               await botClient.SendTextMessageAsync
               (
                   chatId: callbackQuery.Message.Chat.Id,
-                  text: $"Заявка на регистрацию Пользователя UID {user.UId}\n" +
-                        $"Имя {user.FirstName}\n" +
-                        $"Фамилия {user.LastName} Phone {user.Phone}\n\n" +
-                        $"ОТКЛОНЕНА",
+                  text:  $"ID {user.Id} UID {user.UId} \n" +
+                         $"Имя: {user.FirstName} \n"+
+                         $"Фамилия: {user.LastName} \n" +
+                         $"Моб.тел. {user.Phone} \n\n" +
+                         $"Заявка на авторизацию ОТКЛОНЕНА",
+                  replyMarkup:  Keyboard.Ok,
                   cancellationToken: cancellationToken
               );
               

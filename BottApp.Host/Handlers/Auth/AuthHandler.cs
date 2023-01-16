@@ -142,8 +142,6 @@ namespace BottApp.Host.Handlers.Auth
                             text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
                         );
 
-                        // await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-
                         await Task.Delay(3000);
                         await  _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
                         return;
@@ -201,10 +199,11 @@ namespace BottApp.Host.Handlers.Auth
 
             await botClient.SendPhotoAsync(
                 AdminSettings.AdminChatId, photo,
-                $"Пользователь ID{user.Id}\n" +
-                $"@{message.Chat.Username ?? "Нет публичного имени"} UID {user.UId} \n" + 
-                $"Моб.тел. {user.Phone}\n" +
-                $"Фамилия {user.LastName}, имя {user.FirstName}\n" +
+                $"ID {user.Id} UID {user.UId} \n" + 
+                $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
+                $"Имя: {user.FirstName} \n"+
+                $"Фамилия: {user.LastName} \n" +
+                $"Моб.тел. {user.Phone} \n" +
                 $"Хочет авторизоваться в системе",
                 replyMarkup: Keyboard.ApproveDeclineKeyboard
             );

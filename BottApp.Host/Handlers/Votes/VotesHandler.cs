@@ -93,7 +93,7 @@ public class VotesHandler : IVotesHandler
                 text: "Вы уже голосовали за этого кандидата!"
             );
 
-            await Task.Delay(1000, cancellationToken);
+            await Task.Delay(1500, cancellationToken);
 
             await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
             return;
@@ -107,7 +107,7 @@ public class VotesHandler : IVotesHandler
         
         msg = await botClient.SendTextMessageAsync(
             chatId: callbackQuery.Message.Chat.Id,
-            text: "Ваш голос учтен!"
+            text: "Засчитано ❤️"
         );
         
         await Task.Delay(1000, cancellationToken);
@@ -230,12 +230,28 @@ public class VotesHandler : IVotesHandler
         CancellationToken cancellationToken,
         UserModel user)
     {
-         await botClient.EditMessageTextAsync(
-            chatId: user.UId,
-            messageId: user.ViewMessageId,
-            text: "Меню: Голосование",
-            replyMarkup: Keyboard.MainVotesKeyboard,
-            cancellationToken: cancellationToken);
+        try
+        {
+            await botClient.EditMessageTextAsync(
+                chatId: user.UId,
+                messageId: user.ViewMessageId,
+                text: "Меню: Голосование",
+                replyMarkup: Keyboard.MainVotesKeyboard,
+                cancellationToken: cancellationToken);
+        }
+        catch
+        { 
+            await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+            
+            var msg = await botClient.SendTextMessageAsync(
+                chatId: user.UId,
+                text: "Меню: Голосование",
+                replyMarkup: Keyboard.MainVotesKeyboard,
+                cancellationToken: cancellationToken);
+            
+            await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+        }
+        
     }
 
     #endregion
