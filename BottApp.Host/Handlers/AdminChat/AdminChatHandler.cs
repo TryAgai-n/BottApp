@@ -81,16 +81,34 @@ namespace BottApp.Host.Handlers.AdminChat
                 case not null when prepString.Contains( "/help"):
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
-                        text: "/start\n" +
+                        text: "/start\n\n" +
                               "/view_statistic_3\n" +
+                              "Отправляет статистику просмотров по кандидатам во всех существующих номинациях. Значение по-умолчанию \"3\"\n\n" +
+                              
                               "/like_statistic_3\n" +
-                              "/send_document_1\n" +
+                              "Отправляет статистику лайков по кандидатам во всех существующих номинациях. Значение по-умолчанию \"3\"\n\n" +
+                              
+                              "/send_document_[value]\n" +
+                              "Отправляет изображение и описание кандидата по ID\n\n" +
+                              
                               "/send_top_by_like\n" +
+                              "Отправляет изображение кандидата с максимальным кол-вом лайков по каждой номинации\n\n" +
+                              
                               "/send_top_by_view\n" +
+                              "Отправляет изображение кандидата с максимальным кол-вом просмотров по каждой номинации\n\n" +
+                              
                               "/find_user_by_firstname_[value]\n"+
+                              "Ищет пользователя по имени\n\n" +
+                              
                               "/find_user_by_lastname_[value]\n"+
-                              "/find_user_by_id_[value]]\n"+
-                              "/find_user_by_Uid_[value]]\n",
+                              "Ищет пользователя по фамилии\n\n" +
+                              
+                              "/find_user_by_id_[value]\n"+
+                              "Ищет пользователя по ID\n\n" +
+                              
+                              "/find_user_by_Uid_[value]\n"+
+                              "Ищет пользователя по UID\n\n",
+
                         cancellationToken: cancellationToken
                     );
                     break;
@@ -256,7 +274,7 @@ namespace BottApp.Host.Handlers.AdminChat
                     sb.Append($"{i++}." +
                               $"  ID  {item.Id}" +
                               $"  View {item.DocumentStatisticModel.ViewCount}" +
-                              $"  Like {item.DocumentStatisticModel.LikeCount} " +
+                              $"  Like {item.DocumentStatisticModel.LikeCount}\n" +
                               $"/send_document_{item.Id}\n");
                 }
                 sb.Append('\n');
@@ -368,7 +386,7 @@ namespace BottApp.Host.Handlers.AdminChat
             var userMsg = await botClient.SendTextMessageAsync
              (
                  chatId: approveId,
-                 text: "Вы авторизованы!\nГлавное меню",
+                 text: "Вы авторизованы!\n\nГлавное меню",
                  replyMarkup: Keyboard.MainKeyboard,
                  cancellationToken: cancellationToken
              );

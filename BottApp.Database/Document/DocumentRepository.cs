@@ -202,9 +202,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Views(int take)
     {
         return DbModel
-            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
-            //.AsNoTracking()
+            .Where(x=> x.Path != null)
             .Include(x => x.DocumentStatisticModel)
+            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
             .ToList()
             .OrderBy(x => x.DocumentNomination)
             .GroupBy(x => x.DocumentNomination)
@@ -216,9 +216,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Likes(int take)
     {
         return DbModel
-            .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
-           // .AsNoTracking()
+            .Where(x=> x.Path != null)
             .Include(x => x.DocumentStatisticModel)
+            .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
             .ToList()
             .OrderBy(x => x.DocumentNomination)
             .GroupBy(x => x.DocumentNomination)

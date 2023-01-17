@@ -110,7 +110,7 @@ public class VotesHandler : IVotesHandler
             text: "Засчитано ❤️"
         );
         
-        await Task.Delay(1000, cancellationToken);
+        await Task.Delay(1500, cancellationToken);
         
         await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
     }

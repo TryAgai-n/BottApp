@@ -65,9 +65,9 @@ public class HelpHandler : IHelpHandler
 
         await botClient.SendTextMessageAsync(
             AdminSettings.AdminChatId,
-            $"ВОПРОС от Пользователя {user.FirstName}\n@{message.Chat.Username ?? "Нет публичного имени"} UID {user.UId}\n" +
+            $"ВОПРОС от @{message.Chat.Username ?? "Нет публичного имени"}\nID {user.Id} UID {user.UId}\n" +
             $"Моб.тел. {user.Phone}\n\n" +
-            $"{message.Text}", cancellationToken: cancellationToken
+            $"\"{message.Text}\"", cancellationToken: cancellationToken
         );
         
        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
