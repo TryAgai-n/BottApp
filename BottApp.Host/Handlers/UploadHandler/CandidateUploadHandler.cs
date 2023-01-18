@@ -5,6 +5,7 @@ using BottApp.Host.Services;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.UploadHandler;
@@ -105,33 +106,37 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             switch (document)
             {
                 case {Caption: null} when message.Text is null:
+                    
+                    await Task.Delay(1000, cancellationToken);
+                    
                     await botClient.EditMessageTextAsync(
                         user.UId
                         , user.ViewMessageId,
                         "Внесите описание в виде текста",
                         cancellationToken: cancellationToken
                     );
-
-                    await Task.Delay(1000, cancellationToken);
+                    
                     await botClient.DeleteMessageAsync(user.UId, message.MessageId);
                     return;
 
                 case {Caption: null} when message.Text is not null:
-
-                    document.Caption = message.Text;
                     
-                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                    await Task.Delay(500, cancellationToken);
+                    
+                    document.Caption = message.Text;
+             
+                   
                     
                     await botClient.EditMessageTextAsync(
                         user.UId,
                         user.ViewMessageId,
                         "Отправьте фото кандидата",
                         cancellationToken: cancellationToken);
+                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                    
                     return;
 
                 case {Caption: not null} when message.Photo is null:
-                     
-                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
                     
                     await Task.Delay(1000, cancellationToken);
                     
@@ -139,24 +144,27 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                         user.UId, user.ViewMessageId, "Отправьте фото как обычно. Не в виде документа",
                         cancellationToken: cancellationToken
                     );
-
+                    
+                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
                     return;
 
                 case {Caption: not null} when message.Photo is not null:
 
                     await _documentService.UploadVoteFile(user, document, botClient, message);
-                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
                     await Task.Delay(1000, cancellationToken);
+                    
+                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                    
                     msg = await botClient.EditMessageTextAsync(
                         user.UId, user.ViewMessageId,
-                        "Сохранил, спасибо!\n" +
-                        "После модерации ваш кандидат появится в соответсвующей номинации, ожидайте! :)" +
-                        "\n\nПереход в меню \"Голосование\"...",
+                        "Сохранил, спасибо!\n\n" +
+                        "*После модерации* ваш кандидат появится в соответствующей номинаци.\nОжидайте! :)",
+                        parseMode: ParseMode.Markdown,
                         cancellationToken: cancellationToken
                     );
-
+                    
                     await Task.Delay(2000, cancellationToken);
-
+                
                     
                     await _userRepository.ChangeViewMessageId(user, msg.MessageId);
 

@@ -5,6 +5,7 @@ using BottApp.Database.User;
 using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
 namespace BottApp.Host.Handlers.Auth
@@ -46,51 +47,54 @@ namespace BottApp.Host.Handlers.Auth
             UserModel user
         )
         {
-            Message? msg;
+            
 
             if (message.Text == "/start" && user.ViewMessageId == 0)
             {
+                var msg1 = await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик☘️️", ParseMode.Markdown, cancellationToken: cancellationToken
+                    
+                );
+                
                 await _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
 
-                msg = await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик", cancellationToken: cancellationToken
-                );
-
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                await _userRepository.ChangeViewMessageId(user, msg1.MessageId);
 
                 await Task.Delay(1500);
-
-                await botClient.EditMessageTextAsync(
-                    chatId: msg.Chat.Id, msg.MessageId, text: $"{msg.Text}\n\nДавайте знакомиться!",
+                
+                msg1 = await botClient.EditMessageTextAsync(
+                    chatId: msg1.Chat.Id, msg1.MessageId, text: $"{msg1.Text}\n\nДавайте знакомиться!",
                     cancellationToken: cancellationToken
                 );
 
-                await Task.Delay(2000);
-
-                await _messageService.TryDeleteMessage(msg.Chat.Id, msg.MessageId, botClient);
-
-                msg = await botClient.SendTextMessageAsync(
-                    chatId: msg.Chat.Id, text: $"Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
+                await Task.Delay(1500);
+                
+                var msg2 = await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: $"Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
                     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
                 );
-
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                
+                await _messageService.TryDeleteMessage(msg1.Chat.Id, msg1.MessageId, botClient);
+                
+                await _userRepository.ChangeViewMessageId(user, msg2.MessageId);
                 return;
             }
 
             try
             {
+                Message? msg;
                 switch (user)
                 {
                     case {Phone : null} when message.Contact is not null:
-                        
                         await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
-                        
+                        await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте свое имя",
                             cancellationToken: cancellationToken
                         );
-
+                        
+                       
+                       
                         await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;
@@ -98,22 +102,28 @@ namespace BottApp.Host.Handlers.Auth
                     case {Phone : null} when message.Contact is null:
                         
                         await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
-                        
+                        await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
-                            message.Chat.Id, "Отправьте телефон по кнопке 'Поделиться контактом'",
+                            message.Chat.Id, "Отправьте телефон по кнопке *\"Поделиться контактом\"*",
+                            parseMode: ParseMode.Markdown,
                             replyMarkup: Keyboard.RequestLocationAndContactKeyboard
                         );
-
+                        
+                       
+                      
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;
 
                     case {FirstName: null} when message.Text is not null:
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
                         
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, text: $"Cпасибо!\nТеперь отправьте фамилию"
                         );
-
+                        
+                      
+                        
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         user.FirstName = message.Text;
                         return;
@@ -121,18 +131,22 @@ namespace BottApp.Host.Handlers.Auth
                     case {FirstName: null} when message.Text is null:
                         
                         await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "Отправьте имя в виде текста"
+                            chatId: message.Chat.Id, text: "Отправьте имя *в виде текста*",
+                            ParseMode.Markdown
                         );
-
+                       
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;
 
                     case {LastName: null} when message.Text is not null:
                         user.LastName = message.Text;
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
                         var profile = new Profile(user.FirstName, user.LastName);
-
+                        
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
+                      
                         await _userRepository.UpdateUserFullName(user, profile);
 
                         await SendUserFormToAdmin(botClient, message, user);
@@ -141,15 +155,21 @@ namespace BottApp.Host.Handlers.Auth
                             chatId: message.Chat.Id,
                             text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
                         );
-
+                        
+                        await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                        
                         await Task.Delay(3000);
+                        
                         await  _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
                         return;
 
                     case {LastName: null} when message.Text is null:
                         await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста"
+                            chatId: message.Chat.Id, text: "Отправьте фамилию *в виде текста*",
+                            ParseMode.Markdown
+                            
                         );
 
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
@@ -204,7 +224,8 @@ namespace BottApp.Host.Handlers.Auth
                 $"Имя: {user.FirstName} \n"+
                 $"Фамилия: {user.LastName} \n" +
                 $"Моб.тел. {user.Phone} \n" +
-                $"Хочет авторизоваться в системе",
+                $"Хочет* авторизоваться в системе*",
+                ParseMode.Markdown,
                 replyMarkup: Keyboard.ApproveDeclineKeyboard
             );
         }

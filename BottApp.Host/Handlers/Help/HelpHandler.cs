@@ -56,6 +56,8 @@ public class HelpHandler : IHelpHandler
         UserModel user
     )
     {
+        await Task.Delay(1500, cancellationToken);
+        
         var msg = await botClient.EditMessageTextAsync(
             chatId:  message.Chat.Id,
             messageId:  user.ViewMessageId, 

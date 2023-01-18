@@ -6,6 +6,7 @@ using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
 namespace BottApp.Host.Handlers.AdminChat
@@ -337,7 +338,8 @@ namespace BottApp.Host.Handlers.AdminChat
             (
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
-                caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА @{callbackQuery.From.Username}",
+                caption: $"{callbackQuery.Message.Caption}\n\n*ПРИНЯТА* @{callbackQuery.From.Username}",
+                ParseMode.Markdown,
                 replyMarkup: Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
@@ -354,7 +356,8 @@ namespace BottApp.Host.Handlers.AdminChat
             (
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
-                caption: $"{callbackQuery.Message.Caption}\n\nОТКЛОНЕНА @{callbackQuery.From.Username}",
+                caption: $"{callbackQuery.Message.Caption}\n\n*ОТКЛОНЕНА* @{callbackQuery.From.Username}",
+                ParseMode.Markdown,
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
@@ -376,7 +379,8 @@ namespace BottApp.Host.Handlers.AdminChat
                        $"Имя: {user.FirstName} \n"+
                        $"Фамилия: {user.LastName} \n" +
                        $"Моб.тел. {user.Phone} \n\n" +
-                       $"Заявка на авторизацию ПРИНЯТА",
+                       $"Заявка на авторизацию *ПРИНЯТА*",
+                ParseMode.Markdown,
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
@@ -409,7 +413,8 @@ namespace BottApp.Host.Handlers.AdminChat
                          $"Имя: {user.FirstName} \n"+
                          $"Фамилия: {user.LastName} \n" +
                          $"Моб.тел. {user.Phone} \n\n" +
-                         $"Заявка на авторизацию ОТКЛОНЕНА",
+                         $"Заявка на авторизацию *ОТКЛОНЕНА*",
+                  ParseMode.Markdown,
                   replyMarkup:  Keyboard.Ok,
                   cancellationToken: cancellationToken
               );
