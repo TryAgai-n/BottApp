@@ -269,14 +269,14 @@ namespace BottApp.Host.Handlers.AdminChat
 
             foreach (var nomination in groupByNomination)
             {
-                sb.Append($"Nomination {nomination.Key}. Find {nomination.Count()}.\n");
+                sb.Append($"Nomination {nomination.Key} Find {nomination.Count()}\n");
                 foreach (var item in listTopByNomination.Where(x => x.DocumentNomination == nomination.Key))
                 {
-                    sb.Append($"{i++}." +
+                    sb.Append($"{i++}" +
                               $"  ID  {item.Id}" +
                               $"  View {item.DocumentStatisticModel.ViewCount}" +
                               $"  Like {item.DocumentStatisticModel.LikeCount}\n" +
-                              $"/send_document_{item.Id}\n");
+                              $"||/send_document_{item.Id}||\n");
                 }
                 sb.Append('\n');
                 i = 1;
@@ -286,6 +286,7 @@ namespace BottApp.Host.Handlers.AdminChat
             (
                 chatId: message.Chat.Id,
                 text: sb.ToString(),
+                parseMode: ParseMode.MarkdownV2,
                 cancellationToken: cancellationToken
             );
         }
