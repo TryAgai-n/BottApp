@@ -70,13 +70,13 @@ namespace BottApp.Host
             
             var typeOfContent = typeof(Startup);
 
-            services.AddDbContext<PostgreSqlContext>(
+            services.AddDbContextFactory<PostgreSqlContext>(
                 opt => opt.UseNpgsql(
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
-                )
-            );
-            
+                ),
+                ServiceLifetime.Transient);
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -69,8 +69,6 @@ public class VotesHandler : IVotesHandler
             MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
             _                            => _stateService.StartState(user, OnState.Menu, botClient),
         };
-
-
     }
 
 
@@ -161,8 +159,8 @@ public class VotesHandler : IVotesHandler
                    replyMarkup: Keyboard.VotesKeyboard,
                    cancellationToken: cancellationToken
                );
-               await _documentRepository.IncrementViewByDocument(document);
-               
+            
+            await _documentRepository.IncrementViewByDocument(document);
             await _userRepository.ChangeViewDocumentId(user, document.Id);
             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
         }
@@ -203,7 +201,7 @@ public class VotesHandler : IVotesHandler
             );
 
             fileStream.Close();
-            
+        
             await _userRepository.ChangeViewDocumentId(user, document.Id);
             await _documentRepository.IncrementViewByDocument(document);
         }
@@ -296,7 +294,6 @@ public class VotesHandler : IVotesHandler
             
             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
         }
-        
     }
 
     #endregion

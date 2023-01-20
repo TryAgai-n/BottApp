@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BottApp.Database.Document;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace BottApp.Database.User
 {
@@ -93,13 +94,12 @@ namespace BottApp.Database.User
 
 
         public async Task<bool> ChangeViewMessageId(UserModel model, int messageId)
-        {
+        { 
             model.ViewMessageId = messageId;
             var result = await UpdateModelAsync(model);
             return result > 0;
         }
-
-
+        
         public async Task<bool> ChangeViewDocumentId(UserModel model, int documentId)
         {
             model.ViewDocumentId = documentId;

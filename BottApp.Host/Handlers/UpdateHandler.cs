@@ -56,7 +56,7 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 updateMessage.Chat.LastName,
                 null);
             
-            await _databaseContainer.User.CreateUser(telegramProfile);
+           user = await _databaseContainer.User.CreateUser(telegramProfile);
         }
 
 
@@ -98,7 +98,6 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 _                                  => _handlerContainer.HelpHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             },
         };
-        
     }
 
 

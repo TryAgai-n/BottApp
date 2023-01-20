@@ -64,10 +64,10 @@ namespace BottApp.Database
         }
 
 
-        public Task<int> UpdateModelAsync(T model)
+        public async Task<int> UpdateModelAsync(T model)
         {
             DbModel.Update(model);
-            return Context.SaveChangesAsync();
+            return await Context.SaveChangesAsync();
         }
 
 
