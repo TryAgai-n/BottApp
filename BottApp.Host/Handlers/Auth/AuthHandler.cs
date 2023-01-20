@@ -196,38 +196,35 @@ namespace BottApp.Host.Handlers.Auth
             }
         }
 
-
-        protected virtual async Task<FileStream?> GetDefaultUserAvatar()
-        {
-            const string filePath = @"Files/BOT_NO_IMAGE.jpg";
-            await using FileStream? fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            fileStream.Close();
-            return fileStream;
-        }
-
-
         private async Task SendUserFormToAdmin(ITelegramBotClient botClient, Message? message, UserModel user)
         {
-            InputOnlineFile photo;
+            InputOnlineFile? photo = null;
+            FileStream? fileStream = null;
 
             var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
-
+         
             if (getPhotoAsync.Result.TotalCount > 0)
+            {
                 photo = getPhotoAsync.Result.Photos[0][0].FileId;
+            }
             else
-                photo = await GetDefaultUserAvatar();
-
+            {
+                const string filePath = @"Files/BOT_NO_IMAGE.jpg"; 
+                fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+            
             await botClient.SendPhotoAsync(
-                AdminSettings.AdminChatId, photo,
-                $"ID {user.Id} UID {user.UId} \n" + 
+                AdminSettings.AdminChatId,photo??fileStream,
+                $"ID {user.Id} UID {user.UId} \n" +
                 $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
-                $"Имя: {user.FirstName} \n"+
+                $"Имя: {user.FirstName} \n" +
                 $"Фамилия: {user.LastName} \n" +
                 $"Моб.тел. {user.Phone} \n" +
-                $"Хочет* авторизоваться в системе*",
-                ParseMode.Markdown,
+                $"Хочет авторизоваться в системе",
                 replyMarkup: Keyboard.ApproveDeclineKeyboard
             );
+            
+            fileStream?.Close();
         }
 
 

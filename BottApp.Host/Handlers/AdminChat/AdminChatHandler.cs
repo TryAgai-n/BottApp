@@ -4,6 +4,7 @@ using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
+using BottApp.Host.Handlers.Votes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -79,6 +80,26 @@ namespace BottApp.Host.Handlers.AdminChat
                     await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
                     break; 
                 
+                case not null when prepString.Contains("/send_top_by_view") :
+                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
+                    break; 
+                
+                case not null when prepString.Contains("/add_to_vote_on") :
+                    VoteTurnSwitch.UploadCandidateIsOn = true;
+                    break; 
+                
+                case not null when prepString.Contains("/add_to_vote_off") :
+                     VoteTurnSwitch.UploadCandidateIsOn = false;
+                    break; 
+                
+                case not null when prepString.Contains("/vote_on") :
+                    VoteTurnSwitch.VoteIsOn = true;
+                    break; 
+                
+                case not null when prepString.Contains("/vote_off") :
+                    VoteTurnSwitch.VoteIsOn = false;
+                    break; 
+                
                 case not null when prepString.Contains( "/help"):
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
@@ -108,8 +129,20 @@ namespace BottApp.Host.Handlers.AdminChat
                               "Ищет пользователя по ID\n\n" +
                               
                               "/find_user_by_Uid_[value]\n"+
-                              "Ищет пользователя по UID\n\n",
-
+                              "Ищет пользователя по UID\n\n"+
+                              
+                              "/add_to_vote_on\n"+
+                              "Включает возможность загружать кандидатов\n\n"+
+                              
+                              "/add_to_vote_off\n"+
+                              "Выключает возможность загружать кандидатов\n\n"+
+                              
+                              "/vote_on\n"+
+                              "Включает возможность голосования\n\n"+
+                              
+                              "/vote_off\n"+
+                              "Выключает возможность голосования\n\n", 
+                        
                         cancellationToken: cancellationToken
                     );
                     break;
@@ -369,28 +402,27 @@ namespace BottApp.Host.Handlers.AdminChat
         {
                
             var subs = callbackQuery.Message.Caption.Split(' ');
-            var approveId = Convert.ToInt32(subs[3]);
-            var user = await _userRepository.GetOneByUid(approveId);
-            await _userRepository.ChangeOnState(user, OnState.Menu);
+            var approveUid = Convert.ToInt64(subs[3]);
+            var user = await _userRepository.GetOneByUid(approveUid);
             
             await botClient.SendTextMessageAsync
             (
                 chatId: callbackQuery.Message.Chat.Id,
-                text:  $"ID {user.Id} UID {user.UId} \n" +
-                       $"Имя: {user.FirstName} \n"+
-                       $"Фамилия: {user.LastName} \n" +
-                       $"Моб.тел. {user.Phone} \n\n" +
-                       $"Заявка на авторизацию *ПРИНЯТА*",
-                ParseMode.Markdown,
+                text: $"ID {user.Id} UID {user.UId} \n" +
+                      $"Имя: {user.FirstName} \n"+
+                      $"Фамилия: {user.LastName} \n" +
+                      $"Моб.тел. {user.Phone} \n\n" +
+                      $"Заявка на авторизацию ПРИНЯТА",
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
             
+            await _userRepository.ChangeOnState(user, OnState.Menu);
             await _messageService.TryDeleteMessage(AdminSettings.AdminChatId, callbackQuery.Message.MessageId, botClient);
             
             var userMsg = await botClient.SendTextMessageAsync
              (
-                 chatId: approveId,
+                 chatId: approveUid,
                  text: "Вы авторизованы!\n\nГлавное меню",
                  replyMarkup: Keyboard.MainKeyboard,
                  cancellationToken: cancellationToken
@@ -404,8 +436,8 @@ namespace BottApp.Host.Handlers.AdminChat
         {
             
             var subs = callbackQuery.Message.Caption.Split(' ');
-            var declineId = Convert.ToInt64(subs[3]);
-            var user = await _userRepository.GetOneByUid(declineId);
+            var declineUid = Convert.ToInt64(subs[3]);
+            var user = await _userRepository.GetOneByUid(declineUid);
               
               await botClient.SendTextMessageAsync
               (
@@ -414,8 +446,7 @@ namespace BottApp.Host.Handlers.AdminChat
                          $"Имя: {user.FirstName} \n"+
                          $"Фамилия: {user.LastName} \n" +
                          $"Моб.тел. {user.Phone} \n\n" +
-                         $"Заявка на авторизацию *ОТКЛОНЕНА*",
-                  ParseMode.Markdown,
+                         $"Заявка на авторизацию ОТКЛОНЕНА",
                   replyMarkup:  Keyboard.Ok,
                   cancellationToken: cancellationToken
               );
@@ -423,7 +454,7 @@ namespace BottApp.Host.Handlers.AdminChat
               await _messageService.TryDeleteMessage(AdminSettings.AdminChatId, callbackQuery.Message.MessageId, botClient);
 
              var userMsg = await botClient.SendTextMessageAsync(
-                  chatId: declineId, 
+                  chatId: declineUid, 
                   text: "Вы не авторизованы в системе, попробуйте позже!",
                   cancellationToken: cancellationToken
               );

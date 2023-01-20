@@ -45,13 +45,21 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
             };
             return;
         }
-       
-        var telegramProfile = new TelegramProfile(updateMessage.Chat.Id, updateMessage.Chat.FirstName, updateMessage.Chat.LastName, null);
-        var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) ??//Todo: В будущем продумать систему кеширования, каждый раз искать юзера - не лучший вариант
-                   await _databaseContainer.User.CreateUser(telegramProfile);
 
-        // var type = updateMessage.Type.ToString();
-        // await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+
+        var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id);
+        if (user is null)
+        {
+            var telegramProfile = new TelegramProfile(
+                updateMessage.Chat.Id,
+                updateMessage.Chat.FirstName,
+                updateMessage.Chat.LastName,
+                null);
+            
+            await _databaseContainer.User.CreateUser(telegramProfile);
+        }
+
+
 
         handler = user.OnState switch
         {

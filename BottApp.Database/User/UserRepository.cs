@@ -50,6 +50,12 @@ namespace BottApp.Database.User
             return await DbModel.FirstOrDefaultAsync(x => x.UId == uid);
         }
         
+        public async Task<UserModel?> FindOneByUidAsNoTracking(long uid)
+        {
+            return await DbModel.AsNoTracking().FirstOrDefaultAsync(x => x.UId == uid);
+        }
+
+        
         public async Task<UserModel?> FindOneById(int id)
         {
             return await DbModel.FirstOrDefaultAsync(x => x.Id == id);

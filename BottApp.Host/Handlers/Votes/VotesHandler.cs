@@ -1,3 +1,4 @@
+using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Document.Like;
 using BottApp.Database.Service;
@@ -29,15 +30,13 @@ public class VotesHandler : IVotesHandler
         IDocumentRepository documentRepository,
         ILikedDocumentRepository likedDocumentRepository,
         IDocumentService documentService,
-        StateService stateService
-    )
+        StateService stateService)
     {
         _userRepository = userRepository;
         _documentRepository = documentRepository;
         _likedDocumentRepository = likedDocumentRepository;
         _documentService = documentService;
         _stateService = stateService;
-        
     }
 
 
@@ -58,7 +57,7 @@ public class VotesHandler : IVotesHandler
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
         var button = result switch
         {
-            MenuButton.AddCandidate      => _stateService.StartState(user, OnState.UploadCandidate, botClient),
+            MenuButton.AddCandidate      => AddCandiate(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient),
             MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
@@ -147,7 +146,7 @@ public class VotesHandler : IVotesHandler
                 return;
             }
 
-            await _userRepository.ChangeViewDocumentId(user, document.Id);
+         
            
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             
@@ -162,9 +161,9 @@ public class VotesHandler : IVotesHandler
                    replyMarkup: Keyboard.VotesKeyboard,
                    cancellationToken: cancellationToken
                );
-              
-           
-            await _documentRepository.IncrementViewByDocument(document);
+               await _documentRepository.IncrementViewByDocument(document);
+               
+            await _userRepository.ChangeViewDocumentId(user, document.Id);
             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
         }
 
@@ -187,7 +186,7 @@ public class VotesHandler : IVotesHandler
             
             var document = docList[docIndex];
             
-            await _userRepository.ChangeViewDocumentId(user, document.Id);
+         
 
             await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
@@ -205,24 +204,71 @@ public class VotesHandler : IVotesHandler
 
             fileStream.Close();
             
-            
+            await Task.Delay(100);
+            await _userRepository.ChangeViewDocumentId(user, document.Id);
             await _documentRepository.IncrementViewByDocument(document);
-
         }
     }
 
-   async Task ChooseNomination(
+    private async Task AddCandiate(
+       ITelegramBotClient botClient,
+       CallbackQuery? callbackQuery,
+       CancellationToken cancellationToken,
+       UserModel user)
+   {
+       if (VoteTurnSwitch.UploadCandidateIsOn)
+       {
+           await _stateService.StartState(user, OnState.UploadCandidate, botClient);
+           return;
+       }
+       
+       await botClient.EditMessageTextAsync(
+           chatId: user.UId,
+           messageId: user.ViewMessageId,
+           text: "Добавить своего кандидата пока нельзя",
+           cancellationToken: cancellationToken);
+        
+       await Task.Delay(2000);
+        
+       await botClient.EditMessageTextAsync(
+           chatId: user.UId,
+           messageId: user.ViewMessageId,
+           text: "Меню: Голосование",
+           replyMarkup: Keyboard.MainVotesKeyboard,
+           cancellationToken: cancellationToken);
+     
+   }
+    private async Task ChooseNomination(
         ITelegramBotClient botClient,
         CallbackQuery? callbackQuery,
         CancellationToken cancellationToken,
         UserModel user)
     {
+        if (VoteTurnSwitch.VoteIsOn)
+        {
+            await botClient.EditMessageTextAsync(
+                messageId: callbackQuery.Message.MessageId,
+                chatId: user.UId,
+                text: "Меню: Выбор номинации для голосования",
+                replyMarkup: Keyboard.NominationKeyboard
+            );
+            return;
+        }
         await botClient.EditMessageTextAsync(
-            messageId: callbackQuery.Message.MessageId,
             chatId: user.UId,
-            text: "Меню: Выбор номинации для голосования",
-            replyMarkup: Keyboard.NominationKeyboard
-        );
+            messageId: user.ViewMessageId,
+            text: "Голосование закрыто, подсчитываем результаты :)",
+            cancellationToken: cancellationToken);
+        
+        await Task.Delay(2000);
+        
+        await botClient.EditMessageTextAsync(
+            chatId: user.UId,
+            messageId: user.ViewMessageId,
+            text: "Меню: Голосование",
+            replyMarkup: Keyboard.MainVotesKeyboard,
+            cancellationToken: cancellationToken);
+        
     }
     async Task BackToVotes(
         ITelegramBotClient botClient,

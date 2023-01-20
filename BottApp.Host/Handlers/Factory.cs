@@ -42,7 +42,6 @@ public static class Factory
                 databaseContainer.Document,
                 databaseContainer.LikeDocument,
                 serviceContainer.Document,
-               // serviceContainer.Message, 
                 new StateService(databaseContainer.User, serviceContainer.Message)
                 ),
             
