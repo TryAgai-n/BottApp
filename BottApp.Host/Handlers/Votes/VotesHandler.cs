@@ -204,7 +204,6 @@ public class VotesHandler : IVotesHandler
 
             fileStream.Close();
             
-            await Task.Delay(100);
             await _userRepository.ChangeViewDocumentId(user, document.Id);
             await _documentRepository.IncrementViewByDocument(document);
         }
