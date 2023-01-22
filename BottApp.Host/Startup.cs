@@ -45,7 +45,7 @@ namespace BottApp.Host
                 }
             );
             
-            ConfigureCoreServices(services, CurrentEnvironment);
+             ConfigureCoreServices(services, CurrentEnvironment);
 
             
             services.AddSwaggerGen(
@@ -57,10 +57,13 @@ namespace BottApp.Host
         {
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 
-            services.AddScoped<IHandlerContainer>(x =>  HandlerFactory.Create(
+            services.AddScoped<IHandlerContainer>(
+                x =>  HandlerFactory.Create
+                (
                 x.GetRequiredService<IDatabaseContainer>(),
                 x.GetRequiredService<IServiceContainer>()
-            ));
+                )
+                );
 
 
             services.AddScoped<IServiceContainer>(
@@ -70,12 +73,12 @@ namespace BottApp.Host
             
             var typeOfContent = typeof(Startup);
 
-            services.AddDbContextFactory<PostgreSqlContext>(
+            services.AddDbContext<PostgreSqlContext>(
                 opt => opt.UseNpgsql(
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
-                ),
-                ServiceLifetime.Transient);
+                )
+            );
 
         }
 

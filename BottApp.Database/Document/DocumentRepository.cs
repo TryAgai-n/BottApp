@@ -139,9 +139,9 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
     
-    public async Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = true)
+    public Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = true)
     {
-        return await PrepareDocumentNomination(documentNomination)
+        return PrepareDocumentNomination(documentNomination)
             .Where(x => isModerate? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
             .Include(x => x.DocumentStatisticModel)
             .OrderBy(x => x.Id)

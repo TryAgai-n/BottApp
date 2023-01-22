@@ -1,5 +1,7 @@
 using BottApp.Database;
+using BottApp.Database.Service;
 using BottApp.Database.User;
+using BottApp.Database.UserMessage;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -60,7 +62,10 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
         }
 
 
-
+        
+        // var type = updateMessage.Type.ToString();
+        // await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+  
         handler = user.OnState switch
         {
             OnState.Auth => update switch
@@ -69,6 +74,7 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
                 _                                  => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             },
+            
             OnState.Menu => update switch
             {
                 {Message:       { } message}       => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
@@ -97,7 +103,14 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
                 {CallbackQuery: { } callbackQuery} => _handlerContainer.HelpHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
                 _                                  => _handlerContainer.HelpHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             },
+            
+            _ => throw new ArgumentOutOfRangeException()
         };
+        
+        var thread = new Thread(async () => await handler);
+      
+
+
     }
 
 

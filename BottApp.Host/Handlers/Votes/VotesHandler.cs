@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Document.Like;
@@ -55,6 +56,9 @@ public class VotesHandler : IVotesHandler
     )
     {
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
+
+
+    
         var button = result switch
         {
             MenuButton.AddCandidate      => AddCandiate(botClient, callbackQuery, cancellationToken, user),
@@ -69,6 +73,8 @@ public class VotesHandler : IVotesHandler
             MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
             _                            => _stateService.StartState(user, OnState.Menu, botClient),
         };
+        
+        await button;
     }
 
 
@@ -124,87 +130,105 @@ public class VotesHandler : IVotesHandler
         bool next
     )
     {
-        if (first)
+        try  
         {
-            var documents = await _documentRepository.GetListByNomination(nomination,  true);
-            var document = documents.FirstOrDefault();
-            
-            if (document is null)
-            {   
-                  await botClient.EditMessageTextAsync(
-                    chatId: user.UId,
-                    messageId: user.ViewMessageId,
-                    text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
-                    cancellationToken: cancellationToken
+            if (first)
+            {
+
+
+                var documents = await _documentRepository.GetListByNomination(nomination, true);
+                var document = documents.FirstOrDefault();
+
+                if (document is null)
+                {
+                    await botClient.EditMessageTextAsync(
+                        chatId: user.UId, messageId: user.ViewMessageId,
+                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
+                        cancellationToken: cancellationToken
+                    );
+
+                    await Task.Delay(3000, cancellationToken);
+
+                    await _stateService.StartState(user, OnState.UploadCandidate, botClient);
+                    return;
+                }
+
+                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                await botClient.DeleteMessageAsync(
+                    chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken
                 );
-        
+
+                await botClient.SendChatActionAsync(
+                    user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken
+                );
+
                 await Task.Delay(3000, cancellationToken);
 
-                await _stateService.StartState(user, OnState.UploadCandidate, botClient);
-                return;
+                var msg = await botClient.SendPhotoAsync(
+                    chatId: user.UId, photo: new InputOnlineFile(fileStream, "Document" + document.DocumentExtension),
+                    caption: $"1 из {documents.Count}\n{document.Caption}",
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
+                );
+
+                await _documentRepository.IncrementViewByDocument(document);
+                await _userRepository.ChangeViewDocumentId(user, document.Id);
+                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
             }
-
-         
-           
-            await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            
-            await botClient.DeleteMessageAsync(chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
-            
-            await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
-            
-               var msg = await botClient.SendPhotoAsync(
-                   chatId: user.UId,
-                   photo: new InputOnlineFile(fileStream, "Document"+document.DocumentExtension),
-                   caption: $"1 из {documents.Count}\n{document.Caption}",
-                   replyMarkup: Keyboard.VotesKeyboard,
-                   cancellationToken: cancellationToken
-               );
-            
-            await _documentRepository.IncrementViewByDocument(document);
-            await _userRepository.ChangeViewDocumentId(user, document.Id);
-            await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-        }
-
-        if (next)
-        {
-            await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
-
-            var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
-            var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
-          
-            var docIndex =  docList.IndexOf(documentModel);
-            
-            docIndex += skip;
-            
-            if (docIndex < 0)
-                docIndex = docList.Count-1;
-
-            if (docIndex > docList.Count-1)
-                docIndex = 0;
-            
-            var document = docList[docIndex];
-            
-         
-
-            await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension))
+            if (next)
             {
-                Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
-            };
-
-            await botClient.EditMessageMediaAsync(
-                chatId: user.UId, 
-                messageId: user.ViewMessageId,
-                media: photo,
-                replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
-            );
-
-            fileStream.Close();
+           
+           
+                await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
         
-            await _userRepository.ChangeViewDocumentId(user, document.Id);
-            await _documentRepository.IncrementViewByDocument(document);
+                var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
+                var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
+          
+                var docIndex =  docList.IndexOf(documentModel);
+            
+                docIndex += skip;
+            
+                if (docIndex < 0)
+                    docIndex = docList.Count-1;
+
+                if (docIndex > docList.Count-1)
+                    docIndex = 0;
+            
+                var document = docList[docIndex];
+                
+                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension))
+                {
+                    Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
+                };
+                
+                await Task.Delay(300, cancellationToken); 
+                
+                await botClient.EditMessageMediaAsync(
+                    chatId: user.UId, 
+                    messageId: user.ViewMessageId,
+                    media: photo,
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
+
+                fileStream.Close();
+                
+                await _userRepository.ChangeViewDocumentId(user, document.Id);
+                
+                await _documentRepository.IncrementViewByDocument(document);
+            
+            }
         }
+        catch (Exception e)                                                      
+        {                                                                        
+            Console.BackgroundColor = ConsoleColor.Red;                          
+            Console.ForegroundColor = ConsoleColor.Black;                        
+            Console.WriteLine("\n\nException\n\n" + e);    
+            Console.ResetColor();                                                
+            throw;                                                               
+        }                                                                        
+
+       
     }
 
     private async Task AddCandiate(
