@@ -89,50 +89,11 @@ public class Program
             Environment.Exit(2);
         }
 
-        var serviceScopeFactory = (IServiceScopeFactory) webHost.Services.GetService(typeof(IServiceScopeFactory))!;
-        using (var scope = serviceScopeFactory.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            using (var context = services.GetRequiredService<PostgreSqlContext>())
-            {
-                if (verifyMigrate.HasValue())
-                {
-                    Console.WriteLine("Validating status of Entity Framework migrations");
-                    _verifyMigrate(context);
-                    Environment.Exit(3);
-                }
-
-                if (doMigrate.HasValue())
-                {
-                    Console.WriteLine("Applyting Entity Framework migrations");
-                    context.Database.Migrate();
-                    Console.WriteLine("All done, closing app");
-                    Environment.Exit(0);
-                }
-            }
-        }
-
+       
         InitWebServices(webHost).GetAwaiter().GetResult();
         return webHost;
     }
-
-
-    private static void _verifyMigrate(PostgreSqlContext context)
-    {
-        var pendingMigrations = context.Database.GetPendingMigrations();
-        var migrations = pendingMigrations as IList<string> ?? pendingMigrations.ToList();
-        if (!migrations.Any())
-        {
-            Console.WriteLine("No pending migratons");
-            Environment.Exit(0);
-        }
-
-        Console.WriteLine("Pending migratons {0}", migrations.Count());
-        foreach (var migration in migrations)
-        {
-            Console.WriteLine($"\t{migration}");
-        }
-    }
+    
 
 
     private static async Task<int> InitWebServices(IWebHost webHost)

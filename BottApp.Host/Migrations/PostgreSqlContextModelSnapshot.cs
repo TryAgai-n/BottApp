@@ -58,7 +58,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Document", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
@@ -82,7 +82,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("LikedDocument");
+                    b.ToTable("LikedDocument", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -110,7 +110,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("DocumentId")
                         .IsUnique();
 
-                    b.ToTable("DocumentStatistic");
+                    b.ToTable("DocumentStatistic", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserFlag.UserFlagModel", b =>
@@ -147,7 +147,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserFlag");
+                    b.ToTable("UserFlag", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
@@ -190,7 +190,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("UId")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.UserMessage.MessageModel", b =>
@@ -217,7 +217,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
