@@ -4,19 +4,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BottApp.Database.Document;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace BottApp.Database.User
 {
-    public class UserRepository : AbstractRepository<UserModel>, IUserRepository
+    public class UserRepository : AbstractRepository<UserModel>, IUserRepository, IHostedService
     {
-        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+        private readonly IServiceScopeFactory scopeFactory;
+        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(context, loggerFactory)
         {
-
+            this.scopeFactory = scopeFactory;
         }
+        
         public async Task<UserModel> CreateUser(TelegramProfile telegramProfile)
         {
 
@@ -48,7 +53,14 @@ namespace BottApp.Database.User
         
         public async Task<UserModel?> FindOneByUid(long uid)
         {
-            return await DbModel.FirstOrDefaultAsync(x => x.UId == uid);
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
+                var model = await dbContext.User.FirstOrDefaultAsync(x => x.UId == uid);
+                await dbContext.DisposeAsync();
+                return model;
+            }
+           
         }
         
         public async Task<UserModel?> FindOneByUidAsNoTracking(long uid)
@@ -95,16 +107,27 @@ namespace BottApp.Database.User
 
         public async Task<bool> ChangeViewMessageId(UserModel model, int messageId)
         { 
-            model.ViewMessageId = messageId;
-            var result = await UpdateModelAsync(model);
-            return result > 0;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
+                var obj = await dbContext.User.FirstOrDefaultAsync(x => x.Id == model.Id);
+                obj.ViewMessageId = messageId;
+                await dbContext.DisposeAsync();
+                var result = await UpdateModelAsync(obj);
+                return result > 0;
+            }
         }
         
         public async Task<bool> ChangeViewDocumentId(UserModel model, int documentId)
         {
-            model.ViewDocumentId = documentId;
-            var result = await UpdateModelAsync(model);
-            return result > 0;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
+                var user = await dbContext.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
+                user.ViewDocumentId = documentId;
+                var result = await UpdateModelAsync(user);
+                return result > 0;
+            }
         }
 
 
@@ -126,7 +149,16 @@ namespace BottApp.Database.User
         {
             return await DbModel.Where(x => x.FirstName == firstName).ToListAsync();
         }
-       
-        
+
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -4,6 +4,7 @@ using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
 using BottApp.Database.User.UserFlag;
 using BottApp.Database.UserMessage;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database
@@ -23,9 +24,9 @@ namespace BottApp.Database
     
 
 
-        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
+        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory)
         {
-            User = new UserRepository(db, loggerFactory);
+            User = new UserRepository(db, loggerFactory, scopeFactory);
             UserFlag = new UserFlagRepository(db, loggerFactory);
             Message = new MessageRepository(db, loggerFactory);
             Document = new DocumentRepository(db, loggerFactory);

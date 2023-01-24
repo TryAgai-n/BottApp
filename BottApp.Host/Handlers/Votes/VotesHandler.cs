@@ -56,13 +56,10 @@ public class VotesHandler : IVotesHandler
     )
     {
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
-
-
-    
         var button = result switch
         {
-            MenuButton.AddCandidate      => AddCandiate(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient),
+            MenuButton.AddCandidate      => AddCandiate(botClient, callbackQuery, cancellationToken, user),
             MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Right             => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true),
@@ -107,7 +104,6 @@ public class VotesHandler : IVotesHandler
         await _documentRepository.IncrementLikeByDocument(model);
         await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentId, true);
         
-        
         msg = await botClient.SendTextMessageAsync(
             chatId: callbackQuery.Message.Chat.Id,
             text: "Засчитано ❤️"
@@ -134,8 +130,6 @@ public class VotesHandler : IVotesHandler
         {
             if (first)
             {
-
-
                 var documents = await _documentRepository.GetListByNomination(nomination, true);
                 var document = documents.FirstOrDefault();
 
@@ -156,12 +150,10 @@ public class VotesHandler : IVotesHandler
                 await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
                 await botClient.DeleteMessageAsync(
-                    chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken
-                );
+                    chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
 
                 await botClient.SendChatActionAsync(
-                    user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken
-                );
+                    user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
 
                 await Task.Delay(3000, cancellationToken);
 
@@ -177,15 +169,12 @@ public class VotesHandler : IVotesHandler
             }
             if (next)
             {
-           
-           
                 await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
         
                 var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
                 var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
-          
+                
                 var docIndex =  docList.IndexOf(documentModel);
-            
                 docIndex += skip;
             
                 if (docIndex < 0)
@@ -203,14 +192,13 @@ public class VotesHandler : IVotesHandler
                     Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
                 };
                 
-                await Task.Delay(300, cancellationToken); 
-                
+                await Task.Delay(300, cancellationToken);
                 await botClient.EditMessageMediaAsync(
                     chatId: user.UId, 
                     messageId: user.ViewMessageId,
                     media: photo,
                     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
-
+                
                 fileStream.Close();
                 
                 await _userRepository.ChangeViewDocumentId(user, document.Id);

@@ -8,7 +8,7 @@ using ServiceFactory = BottApp.Database.Service.Factory;
 
 namespace BottApp.Host
 {
-    public class Startup
+    public class Startup 
     {
         private IConfiguration Configuration { get; }
         private IWebHostEnvironment CurrentEnvironment{ get; }
@@ -73,7 +73,7 @@ namespace BottApp.Host
             
             var typeOfContent = typeof(Startup);
 
-            services.AddDbContext<PostgreSqlContext>(
+            services.AddDbContextFactory<PostgreSqlContext>(
                 opt => opt.UseNpgsql(
                     Configuration.GetConnectionString("PostgreSqlConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
@@ -82,6 +82,7 @@ namespace BottApp.Host
 
         }
 
+       
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -99,7 +100,5 @@ namespace BottApp.Host
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
-        
-        
     }
 }

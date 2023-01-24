@@ -5,6 +5,7 @@ using BottApp.Database.User;
 using BottApp.Database.User.UserFlag;
 using BottApp.Database.UserMessage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database
@@ -27,9 +28,9 @@ namespace BottApp.Database
 
 
 
-        public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
+        public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(options)
         {
-            Db = new DatabaseContainer(this, loggerFactory);
+            Db = new DatabaseContainer(this, loggerFactory, scopeFactory);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
