@@ -9,7 +9,6 @@ public class DocumentStatisticModel : AbstractModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-
     public int DocumentId { get; set; }
 
     [ForeignKey("DocumentId")]

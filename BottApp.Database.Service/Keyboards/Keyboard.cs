@@ -14,20 +14,20 @@ public class Keyboard
                 // first row
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData((leftButtonOffset) + " <", nameof(VotesButton.Left)
+                    InlineKeyboardButton.WithCallbackData((leftButtonOffset) + " <", nameof(MenuButton.Left)
                     ),
-                    InlineKeyboardButton.WithCallbackData("> " + (rightButtonOffset), nameof(VotesButton.Right)
+                    InlineKeyboardButton.WithCallbackData("> " + (rightButtonOffset), nameof(MenuButton.Right)
                     ),
                 },
                 // second row
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Like)),
+                    InlineKeyboardButton.WithCallbackData("Like",nameof(MenuButton.Like)),
                 },
                 // third row
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                    InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(MenuButton.Votes)),
                 },
             });
          
@@ -41,14 +41,14 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Голосование 🗳 ",nameof(MenuButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("Голосование 🗳 ",nameof(MenuButton.Votes)),
                // InlineKeyboardButton.WithCallbackData("Сказать✋администратору  ", nameof(MenuButton.Hi)),
                 
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Нужна помощь❕ ", nameof(MenuButton.ToHelp)),
+                InlineKeyboardButton.WithCallbackData("Нужна помощь❕ ", nameof(MenuButton.Help)),
             },
         });
     
@@ -58,18 +58,18 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Выбрать номинацию", nameof(MainVoteButton.ToChooseNomination)),
+                InlineKeyboardButton.WithCallbackData("Выбрать номинацию", nameof(MenuButton.ChooseNomination)),
                 
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Добавить своего кандидата",nameof(MainVoteButton.AddCandidate)),
+                InlineKeyboardButton.WithCallbackData("Добавить своего кандидата",nameof(MenuButton.AddCandidate)),
             },
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(MainVoteButton.Back)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(MenuButton.Back)),
             },
         });
     
@@ -79,18 +79,18 @@ public class Keyboard
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("< ", nameof(VotesButton.Left)),
-                InlineKeyboardButton.WithCallbackData(" >", nameof(VotesButton.Right)),
+                InlineKeyboardButton.WithCallbackData("< ", nameof(MenuButton.Left)),
+                InlineKeyboardButton.WithCallbackData(" >", nameof(MenuButton.Right)),
             },
             // second row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Like",nameof(VotesButton.Like)),
+                InlineKeyboardButton.WithCallbackData("Like ❤️",nameof(MenuButton.Like)),
             },
             // third row
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(MenuButton.Votes)),
             },
         });
     
@@ -137,7 +137,7 @@ public class Keyboard
             
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад",nameof(HelpButton.ToMainMenu)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад",nameof(MenuButton.MainMenu)),
             },
            
         });
@@ -146,6 +146,21 @@ public class Keyboard
         new[]
         {
             KeyboardButton.WithRequestContact("Поделиться контактом")
+        })
+    {
+        ResizeKeyboard = true,
+        OneTimeKeyboard = true
+    };
+    
+    
+    public static InlineKeyboardMarkup RequestPhone = new(
+        new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Отправить телефон", "SendPhoneRequest"),
+            },
+           
         });
         
     public static InlineKeyboardMarkup NominationKeyboard = new(
@@ -153,19 +168,19 @@ public class Keyboard
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый большой", nameof(NominationButton.Biggest)),
+                InlineKeyboardButton.WithCallbackData("Самый маленький", nameof(MenuButton.BiggestNomination)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый маленький", nameof(NominationButton.Smaller)),
+                InlineKeyboardButton.WithCallbackData("Самый пушистый", nameof(MenuButton.SmallerNomination)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(NominationButton.Fastest)),
+                InlineKeyboardButton.WithCallbackData("Самый быстрый ковбой", nameof(MenuButton.FastestNomination)),
             },
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Назад", nameof(VotesButton.ToVotes)),
+                InlineKeyboardButton.WithCallbackData("◀️ Назад", nameof(MenuButton.Votes)),
             },
         });
 

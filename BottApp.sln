@@ -11,11 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Utils", "BottApp.Ut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Host", "BottApp.Host\BottApp.Host.csproj", "{49F08DEC-8BB2-4307-B060-72FFC846B33A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMachine", "StateMachine\StateMachine.csproj", "{26457BF6-0230-46E6-8985-EA860C79BDA7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Database.Service", "BottApp.Database.Service\BottApp.Database.Service.csproj", "{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{F7D3BE74-3B70-461A-88FB-F7FC3F6844F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram.Bot.Examples.WebHook", "Telegram.Bot.Examples.WebHook\Telegram.Bot.Examples.WebHook.csproj", "{75D2E593-FA9A-4A5F-98EC-05BEDB471837}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,18 +37,14 @@ Global
 		{49F08DEC-8BB2-4307-B060-72FFC846B33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F08DEC-8BB2-4307-B060-72FFC846B33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F08DEC-8BB2-4307-B060-72FFC846B33A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26457BF6-0230-46E6-8985-EA860C79BDA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26457BF6-0230-46E6-8985-EA860C79BDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26457BF6-0230-46E6-8985-EA860C79BDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26457BF6-0230-46E6-8985-EA860C79BDA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7D3BE74-3B70-461A-88FB-F7FC3F6844F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7D3BE74-3B70-461A-88FB-F7FC3F6844F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7D3BE74-3B70-461A-88FB-F7FC3F6844F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7D3BE74-3B70-461A-88FB-F7FC3F6844F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

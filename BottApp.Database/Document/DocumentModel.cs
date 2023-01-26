@@ -66,4 +66,21 @@ public class DocumentModel : AbstractModel
             Likes = new List<LikedDocumentModel>()
         };
     }
+
+    public static DocumentModel CreateEmpty(
+        int userId,
+        InNomination? documentNomination,
+        DocumentInPath documentInPath,
+        DateTime createdAt)
+    {
+        return new DocumentModel
+        {
+            UserId = userId,
+            DocumentNomination = documentNomination,
+            DocumentInPath = documentInPath,
+            CreatedAt = createdAt,
+            DocumentStatisticModel = DocumentStatisticModel.CreateEmpty(),
+            Likes = new List<LikedDocumentModel>()
+        };
+    }
 }

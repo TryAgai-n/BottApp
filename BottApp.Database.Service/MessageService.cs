@@ -22,15 +22,15 @@ public class MessageService : IMessageService
 
     public async Task SaveMessage(Message message)
     {
-        var user = await _userRepository.FindOneByUid((int)message.Chat.Id);
-        string type = message.Type.ToString();
+        var user = await _userRepository.GetOneByUid((int)message.Chat.Id);
+        var type = message.Type.ToString();
         await _messageRepository.CreateModel(user.Id, message.Text, type, DateTime.Now);
     }
 
     public async Task SaveInlineMessage(CallbackQuery callbackQuery)
     {
-        var user = await _userRepository.FindOneByUid((int)callbackQuery.Message.Chat.Id);
-        string type = callbackQuery.GetType().ToString();
+        var user = await _userRepository.GetOneByUid((int)callbackQuery.Message.Chat.Id);
+        var type = callbackQuery.GetType().ToString();
         await _messageRepository.CreateModel(user.Id, callbackQuery.Data, type, DateTime.Now);
     }
 
@@ -82,8 +82,6 @@ public class MessageService : IMessageService
             );
         }
     }
-
-
     private string GetTimeEmooji()
     {
         string[] emooji = { "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕐 ", "🕑 ", };
@@ -91,67 +89,16 @@ public class MessageService : IMessageService
         var preparedString = emooji[rand.Next(0, emooji.Length)];
         return preparedString;
     }
-    
-    public async Task MarkMessageToDelete(Message message)
+
+    public async Task TryDeleteMessage(long userUid, int messageId, ITelegramBotClient botClient)
     {
-         _messageList.Add(message);
-    }
-
-    public async Task<bool> TryDeleteAfterReboot(ITelegramBotClient botClient, long UId, int messageId)
-    {
-        var lastIndex = messageId - 1;
-
-        await botClient.DeleteMessageAsync(
-            chatId: UId,
-            messageId: lastIndex);
-
-        return true;
-    }
-
-
-    public async Task DeleteMessages(ITelegramBotClient botClient, long UId, int messageId)
-    {
-    
-
-    
-         
-        
-
-        var temp = _messageList.Where(x => x.Chat.Id == UId).ToList();
-        if (temp.Count > 0)
+        try
         {
-            foreach (var message in temp)
-            {
-                await botClient.DeleteMessageAsync(
-                    chatId: message.Chat.Id,
-                    messageId: message.MessageId);
-                _messageList.Remove(message);
-            }
-            temp.Clear();
+            await botClient.DeleteMessageAsync(userUid, messageId);
         }
-        else
+        catch
         {
-            try
-            {
-                for (var i = 3; i > -3; i--)
-                {
-                    try
-                    {
-                         botClient.DeleteMessageAsync(
-                            chatId: UId,
-                            messageId: messageId+i);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("delete message not found" + e);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Global delete message Exception" + e);
-            }
-          
+            // ignored
         }
     }
 }

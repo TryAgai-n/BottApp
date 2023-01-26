@@ -18,6 +18,8 @@ public interface IDocumentRepository
         DocumentInPath documentInPath,
         InNomination? documentNomination
     );
+    
+    Task<DocumentModel> CreateEmpty(int userId, InNomination nomination, DocumentInPath path, DateTime createAt);
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);
@@ -38,8 +40,10 @@ public interface IDocumentRepository
     Task<bool> CheckSingleDocumentInNominationByUser(UserModel user, InNomination? documentNomination);
     Task<int> GetCountByNomination(InNomination? documentNomination);
     Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10);
-    Task<List<DocumentModel>> ListMostDocumentInVote(int take, bool isByView = false);
-
+    
+    Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Views(int take);
+    Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Likes(int take);
+    
     Task IncrementViewByDocument(DocumentModel model);
     Task IncrementLikeByDocument(DocumentModel model);
 }

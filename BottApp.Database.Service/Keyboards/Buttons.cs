@@ -2,43 +2,20 @@
 
 public enum MenuButton
 {
-    ToVotes,
-    ToHelp,
-    Hi,
-}
-
-public enum MainVoteButton
-{
-    Back,
-    GiveAVote,
     AddCandidate,
-    ToMainMenu,
-    ToChooseNomination,
-    ToHelp,
-}
-
-public enum VotesButton
-{
+    ChooseNomination,
+    Votes,
+    Help,
+    MainMenu,
+    Hi,
+    Back,
     Right,
     Left,
-    Back,
     Like,
-    ToVotes,
-    ToHelp,
+    BiggestNomination,
+    SmallerNomination,
+    FastestNomination,
 }
-public enum NominationButton
-{
-  Biggest,
-  Smaller,
-  Fastest,
-}
-
-public enum HelpButton
-{
-    ToMainMenu,
-    TakeAnswer,
-}
-
 public enum AdminButton
 {
     Approve,

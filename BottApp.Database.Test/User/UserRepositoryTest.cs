@@ -1,5 +1,4 @@
 ﻿using BottApp.Database.User;
-using BottApp.Host.SimpleStateMachine;
 using Xunit;
 
 namespace BottApp.Database.Test.User;
@@ -22,21 +21,21 @@ public class UserRepositoryTest : DbTestCase
         var userByUid = DatabaseContainer.User.GetOneByUid(user.UId).Result;
         Assert.NotNull(userByUid);
         Assert.Equal(3435, userByUid.UId);
-        userByUid.ViewDocumentID = 1;
+        userByUid.ViewDocumentId = 1;
 
 
 
         // var updatedUserPhone = DatabaseContainer.User.UpdateUserPhone(user, "12345").Result;
         user.Phone = "54321";
 
-        var findUser = DatabaseContainer.User.FindOneByUid(3435).Result;
+        var findUser = DatabaseContainer.User.GetOneByUid(3435).Result;
         Assert.NotNull(findUser.Phone);
         Assert.Equal("54321", findUser.Phone);
 
 
      
         
-        Assert.Equal(1, findUser.ViewDocumentID);
+        Assert.Equal(1, findUser.ViewDocumentId);
 
 
 

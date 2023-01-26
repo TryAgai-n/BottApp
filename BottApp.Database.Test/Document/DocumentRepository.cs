@@ -1,6 +1,5 @@
 ﻿using BottApp.Database.Document;
 using BottApp.Database.User;
-using BottApp.Host.SimpleStateMachine;
 using Xunit;
 
 namespace BottApp.Database.Test.Document;
@@ -155,7 +154,7 @@ public class DocumentRepository: DbTestCase
         var docCount = DatabaseContainer.Document.GetCountByNomination(InNomination.Second).Result;
         var docId = DatabaseContainer.Document.GetListByNomination(InNomination.Second,   true).Result;
         
-        Assert.Null(docId);
+        Assert.NotNull(docId);
      //    var listIndex = docID.IndexOf(docID.FirstOrDefault(x => x.Id == currentDocument.Id));
 
         

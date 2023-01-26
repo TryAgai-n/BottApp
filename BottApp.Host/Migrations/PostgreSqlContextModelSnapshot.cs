@@ -58,7 +58,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Document", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Like.LikedDocumentModel", b =>
@@ -82,7 +82,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("LikedDocument");
+                    b.ToTable("LikedDocument", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.Statistic.DocumentStatisticModel", b =>
@@ -110,7 +110,44 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("DocumentId")
                         .IsUnique();
 
-                    b.ToTable("DocumentStatistic");
+                    b.ToTable("DocumentStatistic", (string)null);
+                });
+
+            modelBuilder.Entity("BottApp.Database.User.UserFlag.UserFlagModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsSendCaption")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSendDocument")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSendFirstName")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSendLastName")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSendNomination")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSendPhone")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserFlag", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
@@ -142,7 +179,10 @@ namespace BottApp.Host.Migrations
                     b.Property<long>("UId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("ViewDocumentID")
+                    b.Property<int>("ViewDocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewMessageId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -150,7 +190,7 @@ namespace BottApp.Host.Migrations
                     b.HasIndex("UId")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.UserMessage.MessageModel", b =>
@@ -177,7 +217,7 @@ namespace BottApp.Host.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
@@ -213,6 +253,17 @@ namespace BottApp.Host.Migrations
                     b.Navigation("DocumentModel");
                 });
 
+            modelBuilder.Entity("BottApp.Database.User.UserFlag.UserFlagModel", b =>
+                {
+                    b.HasOne("BottApp.Database.User.UserModel", "UserModel")
+                        .WithOne("UserFlag")
+                        .HasForeignKey("BottApp.Database.User.UserFlag.UserFlagModel", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserModel");
+                });
+
             modelBuilder.Entity("BottApp.Database.UserMessage.MessageModel", b =>
                 {
                     b.HasOne("BottApp.Database.User.UserModel", "UserModel")
@@ -237,6 +288,9 @@ namespace BottApp.Host.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("Messages");
+
+                    b.Navigation("UserFlag")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -2,20 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using BottApp.Database.Document;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BottApp.Database.User
 {
     public class UserRepository : AbstractRepository<UserModel>, IUserRepository
     {
-        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+        private readonly IServiceScopeFactory scopeFactory;
+        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(context, loggerFactory)
         {
-
+            this.scopeFactory = scopeFactory;
         }
+        
         public async Task<UserModel> CreateUser(TelegramProfile telegramProfile)
         {
 
@@ -44,11 +45,21 @@ namespace BottApp.Database.User
             }
             return model;
         }
-
-
-        public async Task<UserModel?> FindOneByUid(long userId)
+        
+        public async Task<UserModel?> FindOneByUid(long uid)
         {
-            return await DbModel.FirstOrDefaultAsync(x => x.UId == userId);
+            return await DbModel.FirstOrDefaultAsync(x => x.UId == uid);
+        }
+        
+        public async Task<UserModel?> FindOneByUidAsNoTracking(long uid)
+        {
+            return await DbModel.AsNoTracking().FirstOrDefaultAsync(x => x.UId == uid);
+        }
+
+        
+        public async Task<UserModel?> FindOneById(int id)
+        {
+            return await DbModel.FirstOrDefaultAsync(x => x.Id == id);
         }
         
 
@@ -82,12 +93,19 @@ namespace BottApp.Database.User
         }
 
 
-        // public async Task<bool> ChangeUserNomination(UserModel model, DocumentNomination nomination)
-        // {
-        //     var user = await GetOneByUid(model.UId);
-        //
-        //     return true;
-        // }
+        public async Task<bool> ChangeViewMessageId(UserModel model, int messageId)
+        {
+            model.ViewMessageId = messageId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
+        }
+        
+        public async Task<bool> ChangeViewDocumentId(UserModel model, int documentId)
+        {
+            model.ViewDocumentId = documentId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
+        }
 
 
         public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
@@ -101,6 +119,23 @@ namespace BottApp.Database.User
             var result = await UpdateModelAsync(user);
 
             return result > 0;
+        }
+
+
+        public async Task<List<UserModel>> FindUserByFirstName(string firstName)
+        {
+            return await DbModel.Where(x => x.FirstName == firstName).ToListAsync();
+        }
+
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

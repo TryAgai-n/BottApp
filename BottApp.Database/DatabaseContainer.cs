@@ -2,7 +2,9 @@
 using BottApp.Database.Document.Like;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
+using BottApp.Database.User.UserFlag;
 using BottApp.Database.UserMessage;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database
@@ -11,19 +13,21 @@ namespace BottApp.Database
     public class DatabaseContainer : IDatabaseContainer
     {
         public IUserRepository User { get; }
-
+        public IUserFlagRepository UserFlag { get;}
         public IMessageRepository Message { get; }
         
         public IDocumentRepository Document { get; }
 
         public IDocumentStatisticRepository DocumentStatistic { get; }
 
-        public ILikedDocumentRepository LikeDocument { get; set; }
+        public ILikedDocumentRepository LikeDocument { get; }
+    
 
 
-        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
+        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory)
         {
-            User = new UserRepository(db, loggerFactory);
+            User = new UserRepository(db, loggerFactory, scopeFactory);
+            UserFlag = new UserFlagRepository(db, loggerFactory);
             Message = new MessageRepository(db, loggerFactory);
             Document = new DocumentRepository(db, loggerFactory);
             DocumentStatistic = new DocumentStatisticRepository(db, loggerFactory);
