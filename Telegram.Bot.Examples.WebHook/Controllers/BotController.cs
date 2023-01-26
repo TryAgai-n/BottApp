@@ -1,21 +1,19 @@
-﻿using BottApp.Database;
-using BottApp.Host.Filters;
 using BottApp.Host.Handlers;
 using Microsoft.AspNetCore.Mvc;
-using Telegram.Bot;
+using Telegram.Bot.Examples.WebHook.Filters;
+using Telegram.Bot.Examples.WebHook.Services;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Controllers.Client;
+namespace Telegram.Bot.Examples.WebHook.Controllers;
 
-public class UserController : ControllerBase
+public class BotController : ControllerBase
 {
     [HttpPost]
     [ValidateTelegramBot]
     public async Task<IActionResult> Post(
         [FromBody] Update update,
-        [FromServices] UpdateHandler handleUpdateService,
-        CancellationToken cancellationToken
-    )
+        [FromServices] UpdateHandlers handleUpdateService,
+        CancellationToken cancellationToken)
     {
         await handleUpdateService.HandleUpdateAsync(update, cancellationToken);
         return Ok();

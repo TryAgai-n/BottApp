@@ -26,8 +26,7 @@ public class UpdateHandler : AbstractUpdateHandler
         _logger = logger;
         _databaseContainer = databaseContainer;
     }
-
-
+    
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
     {
         Task? handler;

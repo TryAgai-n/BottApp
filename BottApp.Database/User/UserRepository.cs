@@ -2,19 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BottApp.Database.Document;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace BottApp.Database.User
 {
-    public class UserRepository : AbstractRepository<UserModel>, IUserRepository, IHostedService
+    public class UserRepository : AbstractRepository<UserModel>, IUserRepository
     {
         private readonly IServiceScopeFactory scopeFactory;
         public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(context, loggerFactory)
@@ -53,14 +48,7 @@ namespace BottApp.Database.User
         
         public async Task<UserModel?> FindOneByUid(long uid)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
-                var model = await dbContext.User.FirstOrDefaultAsync(x => x.UId == uid);
-                await dbContext.DisposeAsync();
-                return model;
-            }
-           
+            return await DbModel.FirstOrDefaultAsync(x => x.UId == uid);
         }
         
         public async Task<UserModel?> FindOneByUidAsNoTracking(long uid)
@@ -106,28 +94,17 @@ namespace BottApp.Database.User
 
 
         public async Task<bool> ChangeViewMessageId(UserModel model, int messageId)
-        { 
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
-                var obj = await dbContext.User.FirstOrDefaultAsync(x => x.Id == model.Id);
-                obj.ViewMessageId = messageId;
-                await dbContext.DisposeAsync();
-                var result = await UpdateModelAsync(obj);
-                return result > 0;
-            }
+        {
+            model.ViewMessageId = messageId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
         }
         
         public async Task<bool> ChangeViewDocumentId(UserModel model, int documentId)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
-                var user = await dbContext.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
-                user.ViewDocumentId = documentId;
-                var result = await UpdateModelAsync(user);
-                return result > 0;
-            }
+            model.ViewDocumentId = documentId;
+            var result = await UpdateModelAsync(model);
+            return result > 0;
         }
 
 

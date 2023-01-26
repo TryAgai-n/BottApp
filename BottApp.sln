@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Host", "BottApp.Hos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Database.Service", "BottApp.Database.Service\BottApp.Database.Service.csproj", "{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram.Bot.Examples.WebHook", "Telegram.Bot.Examples.WebHook\Telegram.Bot.Examples.WebHook.csproj", "{75D2E593-FA9A-4A5F-98EC-05BEDB471837}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D2E593-FA9A-4A5F-98EC-05BEDB471837}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
