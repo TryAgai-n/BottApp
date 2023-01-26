@@ -26,9 +26,9 @@ internal sealed class Fixture : IDisposable
         var guid = Guid.NewGuid().ToString("N");
         var option = new DbContextOptionsBuilder<PostgreSqlContext>()
             .UseNpgsql(
-                "User ID=postgres;Password=123;Host=localhost;Port=5432;Database=bottapp_test_" + guid + ";Pooling=true;",
-                b => b.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name)
-                )
+                "User ID=postgres;Password=123;Host=localhost;Port=5432;Database=bottapp_test_" + guid + ";Pooling=true;")
+                // b => b.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name)
+            
             .Options;
     
         var context = new PostgreSqlContext(option, new NullLoggerFactory(), scopeFactory);

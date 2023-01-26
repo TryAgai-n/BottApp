@@ -9,9 +9,9 @@ using Telegram.Bot.Types;
 
 namespace BottApp.Host.Handlers;
 
-public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
+public class UpdateHandler : AbstractUpdateHandler
 {
-    private readonly ITelegramBotClient _botClient;
+    private readonly ITelegramBotClient _;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IDatabaseContainer _databaseContainer;
 
@@ -22,13 +22,13 @@ public class UpdateHandler : AbstractUpdateHandler, IUpdateHandler
         IHandlerContainer handlerContainer
     ) : base(handlerContainer)
     {
-        _botClient = botClient;
+        _ = botClient;
         _logger = logger;
         _databaseContainer = databaseContainer;
     }
 
 
-    public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
+    public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
     {
         Task? handler;
         var updateMessage = update.Message ?? update.CallbackQuery?.Message;

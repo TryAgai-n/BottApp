@@ -1,107 +1,76 @@
+using System.Runtime.CompilerServices;
 using BottApp.Database;
-using BottApp.Host;
-using Microsoft.AspNetCore;
+using BottApp.Database.Service;
+using BottApp.Host.Controllers.Client;
+using BottApp.Host.Handlers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.CommandLineUtils;
+using Telegram.Bot;
+using Factory = BottApp.Host.Handlers.Factory;
+
+namespace BottApp.Host;
+
 
 public class Program
 {
+    public readonly IServiceCollection _ServiceCollection;
+    public readonly IConfiguration _Configuration;
+    public Program(IConfiguration configuration, IServiceCollection serviceCollection)
+    {
+        _Configuration = configuration;
+        _ServiceCollection = serviceCollection;
+    }
     public static void Main(string[] args)
     {
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
-        var webHost = BuildWebHost(args);
-        var commandLineApplication = new CommandLineApplication(false);
-
-        var catapult = commandLineApplication.Command(
-            "command",
-            config =>
+   
+        
+        var builder = WebApplication.CreateBuilder(args);
+        
+        builder.Services.AddDbContext<PostgreSqlContext>(
+            opt => opt.UseNpgsql("Host=localhost;Port=5432;Database=bottapp_server;Username=postgres;Password=123")
+        );
+        
+        var botConfigurationSection = builder.Configuration.GetSection(BotConfiguration.Configuration);
+        builder.Services.Configure<BotConfiguration>(botConfigurationSection);
+        
+        var botConfiguration = botConfigurationSection.Get<BotConfiguration>();
+        builder.Services.AddHttpClient("telegram_bot_client")
+            .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
             {
-                config.OnExecute(
-                    () =>
-                    {
-                        config.ShowHelp();
-                        return 1;
-                    }
-                );
-                config.HelpOption("-? | -h | --help");
-            }
-        );
-
-        var doMigrate = commandLineApplication.Option(
-            "--ef-migrate",
-            "Apply entity framework migrations and exit",
-            CommandOptionType.NoValue
-        );
-        var verifyMigrate = commandLineApplication.Option(
-            "--ef-migrate-check",
-            "Check the status of entity framework migrations",
-            CommandOptionType.NoValue
-        );
-        var run = commandLineApplication.Option(
-            "--run",
-            "Run api Server",
-            CommandOptionType.NoValue
-        );
-
-        commandLineApplication.HelpOption("-? | -h | --help");
-        commandLineApplication.OnExecute(
-            () =>
-            {
-                ExecuteApp(webHost, doMigrate, verifyMigrate, run);
-                return 0;
-            }
-        );
-        commandLineApplication.Execute(args);
-    }
-
-
-    public static IWebHost BuildWebHost(string[] args)
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
-
-        return WebHost.CreateDefaultBuilder(args)
-            .UseStartup<Startup>()
-            .UseUrls(config.GetSection("Url").Value)
-            .Build();
-    }
-
-
-    private static IWebHost ExecuteApp(
-        IWebHost webHost,
-        CommandOption doMigrate,
-        CommandOption verifyMigrate,
-        CommandOption run
-    )
-    {
-        if (run.HasValue())
-        {
-            InitWebServices(webHost).GetAwaiter().GetResult();
-            return webHost;
-        }
-
-        if (verifyMigrate.HasValue() && doMigrate.HasValue())
-        {
-            Console.WriteLine("ef-migrate and ef-migrate-check are mutually exclusive, select one, and try again");
-            Environment.Exit(2);
-        }
-
+                var botConfig = sp.GetConfiguration<BotConfiguration>();
+                TelegramBotClientOptions options = new(botConfig.BotToken);
+                return new TelegramBotClient(options, httpClient);
+            });
        
-        InitWebServices(webHost).GetAwaiter().GetResult();
-        return webHost;
-    }
-    
-
-
-    private static async Task<int> InitWebServices(IWebHost webHost)
-    {
-        await Task.WhenAll(webHost.RunAsync());
-
-        await Task.WhenAll(webHost.StopAsync());
-        Environment.Exit(0);
-        return 0;
+        builder.Services.AddHostedService<ConfigureWebhook>();
+        builder.Services
+            .AddControllers()
+            .AddNewtonsoftJson();
+        
+       
+        builder.Services.AddScoped<UpdateHandler>();
+        
+        builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+        builder.Services.AddScoped<IHandlerContainer>(
+            x => Factory.Create
+            (
+                x.GetRequiredService<IDatabaseContainer>(),
+                x.GetRequiredService<IServiceContainer>()
+            )
+        );
+        
+        
+        builder.Services.AddScoped<IServiceContainer>(
+            x => Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+        
+      
+        var app = builder.Build();
+        
+        app.MapBotWebhookRoute<UserController>(route: botConfiguration.Route);
+        app.MapControllers();
+        app.Run();
     }
 }
+
+
+

@@ -8,8 +8,6 @@ using BottApp.Host.Handlers.Votes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
-
 namespace BottApp.Host.Handlers.AdminChat
 {
     public class AdminChatHandler : IAdminChatHandler
@@ -237,7 +235,7 @@ namespace BottApp.Host.Handlers.AdminChat
                     await using FileStream fileStream = new(item.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
                     await botClient.SendPhotoAsync(
                         chatId: message.Chat.Id,
-                        photo: new InputOnlineFile(fileStream, "Document" + item.DocumentExtension),
+                        photo: new InputFile(fileStream, "Document" + item.DocumentExtension),
                         caption: $"FindBy {findDocumentBy}\n" +
                                  $"Nomination: {item.DocumentNomination}\n" +
                                  $"ViewCount: {item.DocumentStatisticModel.ViewCount}\n" +
@@ -276,7 +274,7 @@ namespace BottApp.Host.Handlers.AdminChat
             
                 await botClient.SendPhotoAsync(
                     chatId: message.Chat.Id,
-                    photo: new InputOnlineFile(fileStream, "Document" + document.DocumentExtension),
+                    photo: new InputFile(fileStream, "Document" + document.DocumentExtension),
                     caption: $"{document.Caption}",
                     cancellationToken: cancellationToken); 
             }
