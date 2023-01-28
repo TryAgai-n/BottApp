@@ -36,8 +36,8 @@ builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
         builder.Configuration.GetConnectionString("PostgreSqlConnection")));
         
-// builder.Services.AddScoped<IServiceContainer>(x => Database.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
-//         
+// builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+        
 // builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 // builder.Services.AddScoped<IHandlerContainer>(
 //     x => Factory.Create
