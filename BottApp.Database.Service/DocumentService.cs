@@ -55,7 +55,8 @@ public class DocumentService : IDocumentService
 
     public async Task<DocumentModel> CreateEmptyDocumentForVotes(int userId, InNomination nomination)
     {
-        return  await _documentRepository.CreateEmpty(userId, nomination, DocumentInPath.Votes, DateTime.Now);
+        var empty =  await _documentRepository.CreateEmpty(userId, nomination, DocumentInPath.Votes, DateTime.Now);
+        return empty;
     }
 
     public async Task<bool> UploadVoteFile(UserModel user, DocumentModel document, ITelegramBotClient _botClient, Message message)

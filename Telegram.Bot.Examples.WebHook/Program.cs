@@ -8,6 +8,8 @@ using Telegram.Bot.Examples.WebHook.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var botConfigurationSection = builder.Configuration.GetSection(BotConfiguration.Configuration);
 builder.Services.Configure<BotConfiguration>(botConfigurationSection);
 
@@ -30,9 +32,9 @@ builder.Services
     .AddNewtonsoftJson();
 
 
-builder.Services.AddDbContext<PostgreSqlContext>(
+builder.Services.AddDbContextFactory<PostgreSqlContext>(
     opt => opt.UseNpgsql(
-        builder.Configuration.GetConnectionString("PostgreSqlConnection")));
+        builder.Configuration.GetConnectionString("PostgreSqlConnection")),ServiceLifetime.Transient );
         
 builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
         

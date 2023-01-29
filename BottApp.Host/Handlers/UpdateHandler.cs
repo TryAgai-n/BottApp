@@ -62,8 +62,8 @@ public class UpdateHandler : AbstractUpdateHandler
 
 
         
-        // var type = updateMessage.Type.ToString();
-        // await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+        var type = updateMessage.Type.ToString();
+        await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
   
         handler = user.OnState switch
         {
