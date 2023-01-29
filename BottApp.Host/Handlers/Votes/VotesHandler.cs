@@ -12,6 +12,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using InputFile = Microsoft.AspNetCore.Components.Forms.InputFile;
 // using Telegram.Bot.Types.InputFiles;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
@@ -156,16 +157,16 @@ public class VotesHandler : IVotesHandler
                     user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
 
                 await Task.Delay(3000, cancellationToken);
+      
+                var msg = await botClient.SendPhotoAsync(chatId: user.UId, 
+                    photo: new Telegram.Bot.Types.InputFile(fileStream, "Document" + document.DocumentExtension),
+                    caption: $"1 из {documents.Count}\n{document.Caption}",
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
+                );
 
-                // var msg = await botClient.SendPhotoAsync(
-                //     chatId: user.UId, photo: new InputOnlineFile(fileStream, "Document" + document.DocumentExtension),
-                //     caption: $"1 из {documents.Count}\n{document.Caption}",
-                //     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
-                // );
-
-                // await _documentRepository.IncrementViewByDocument(document);
-                // await _userRepository.ChangeViewDocumentId(user, document.Id);
-                // await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                await _documentRepository.IncrementViewByDocument(document);
+                await _userRepository.ChangeViewDocumentId(user, document.Id);
+                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
             }
             if (next)
             {
@@ -186,19 +187,17 @@ public class VotesHandler : IVotesHandler
                 var document = docList[docIndex];
                 
                 await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                //
-                // var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension))
-                // {
-                //     Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
-                // };
+                var stream = new Telegram.Bot.Types.InputFile(fileStream, document.DocumentExtension);
+                var photo = new InputMediaPhoto(stream);
+                photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
                 
-                // await Task.Delay(300, cancellationToken);
-                // await botClient.EditMessageMediaAsync(
-                //     chatId: user.UId, 
-                //     messageId: user.ViewMessageId,
-                //     media: photo,
-                //     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
-                //
+                await Task.Delay(300, cancellationToken);
+                await botClient.EditMessageMediaAsync(
+                    chatId: user.UId, 
+                    messageId: user.ViewMessageId,
+                    media: photo,
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
+                
                 fileStream.Close();
                 
                 await _userRepository.ChangeViewDocumentId(user, document.Id);

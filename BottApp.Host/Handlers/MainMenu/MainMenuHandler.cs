@@ -43,8 +43,10 @@ public class MainMenuHandler : IMainMenuHandler
         {
             MenuButton.Votes => _stateService.StartState(user, OnState.Votes, botClient),
             MenuButton.Help =>  _stateService.StartState(user, OnState.Help, botClient),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => _stateService.StartState(user, OnState.Menu, botClient)
         };
+
+        await button;
     }
 
 

@@ -51,33 +51,33 @@ namespace BottApp.Host.Handlers.Auth
 
             if (message.Text == "/start" && user.ViewMessageId == 0)
             {
-                // var msg1 = await botClient.SendTextMessageAsync(
-                //     chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик☘️️", ParseMode.Markdown, cancellationToken: cancellationToken
-                //     
-                // );
-                //
-                // await _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
-                //
-                // await _userRepository.ChangeViewMessageId(user, msg1.MessageId);
-                //
-                // await Task.Delay(1500);
-                //
-                // msg1 = await botClient.EditMessageTextAsync(
-                //     chatId: msg1.Chat.Id, msg1.MessageId, text: $"{msg1.Text}\n\nДавайте знакомиться!",
-                //     cancellationToken: cancellationToken
-                // );
-                //
-                // await Task.Delay(1500);
-                //
-                // var msg2 = await botClient.SendTextMessageAsync(
-                //     chatId: message.Chat.Id, text: $"Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
-                //     replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
-                // );
-                //
-                // await _messageService.TryDeleteMessage(msg1.Chat.Id, msg1.MessageId, botClient);
-                //
-                // await _userRepository.ChangeViewMessageId(user, msg2.MessageId);
-                // return;
+                var msg1 = await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: "Привет! Я чат бот - Чатик☘️️", cancellationToken: cancellationToken
+                    
+                );
+                
+                await _messageService.TryDeleteMessage(message.Chat.Id, message.MessageId, botClient);
+                
+                await _userRepository.ChangeViewMessageId(user, msg1.MessageId);
+                
+                await Task.Delay(1500);
+                
+                msg1 = await botClient.EditMessageTextAsync(
+                    chatId: msg1.Chat.Id, msg1.MessageId, text: $"{msg1.Text}\n\nДавайте знакомиться!",
+                    cancellationToken: cancellationToken
+                );
+                
+                await Task.Delay(1500);
+                
+                var msg2 = await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id, text: $"Для начала поделитесь телефоном, чтобы я мог идентифицировать вас.",
+                    replyMarkup: Keyboard.RequestLocationAndContactKeyboard, cancellationToken: cancellationToken
+                );
+                
+                await _messageService.TryDeleteMessage(msg1.Chat.Id, msg1.MessageId, botClient);
+                
+                await _userRepository.ChangeViewMessageId(user, msg2.MessageId);
+                return;
             }
 
             try
@@ -128,14 +128,13 @@ namespace BottApp.Host.Handlers.Auth
                         user.FirstName = message.Text;
                         return;
 
-                    // case {FirstName: null} when message.Text is null:
-                    //     
-                    //     await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
-                    //     await Task.Delay(500);
-                    //     msg = await botClient.SendTextMessageAsync(
-                    //         chatId: message.Chat.Id, text: "Отправьте имя *в виде текста*",
-                    //         ParseMode.Markdown
-                    //     );
+                    case {FirstName: null} when message.Text is null:
+                        
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Отправьте имя *в виде текста*"
+                        );
                        
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;
@@ -163,14 +162,13 @@ namespace BottApp.Host.Handlers.Auth
                         await  _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
                         return;
 
-                    // case {LastName: null} when message.Text is null:
-                    //     await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
-                    //     await Task.Delay(500);
-                    //     msg = await botClient.SendTextMessageAsync(
-                    //         chatId: message.Chat.Id, text: "Отправьте фамилию *в виде текста*",
-                    //         ParseMode.Markdown
-                    //         
-                    //     );
+                    case {LastName: null} when message.Text is null:
+                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await Task.Delay(500);
+                        msg = await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id, text: "Отправьте фамилию *в виде текста*"
+                            
+                        );
 
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;

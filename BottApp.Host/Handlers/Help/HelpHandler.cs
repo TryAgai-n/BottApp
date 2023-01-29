@@ -45,7 +45,10 @@ public class HelpHandler : IHelpHandler
         var button = result switch
         {
             MenuButton.MainMenu =>  _stateService.StartState(user, OnState.Menu, botClient),
+            _ => _stateService.StartState(user, OnState.Help, botClient)
         };
+
+        await button;
     }
 
 

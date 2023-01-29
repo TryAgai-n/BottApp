@@ -106,7 +106,7 @@ public class UpdateHandler : AbstractUpdateHandler
             _ => throw new ArgumentOutOfRangeException()
         };
         
-      //  var thread = new Thread(async () => await handler);
+       await handler;
       
 
 

@@ -1,13 +1,10 @@
 using BottApp.Database;
 using BottApp.Host.Handlers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Telegram.Bot;
 using Telegram.Bot.Examples.WebHook;
 using Telegram.Bot.Examples.WebHook.Controllers;
 using Telegram.Bot.Examples.WebHook.Services;
-using Factory = BottApp.Host.Handlers.Factory;
-using IServiceContainer = System.ComponentModel.Design.IServiceContainer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +21,8 @@ builder.Services.AddHttpClient("telegram_bot_client")
                 });
 
 builder.Services.AddScoped<UpdateHandlers>();
-
+builder.Services.AddScoped<UpdateHandler>();
+// builder.Services.AddSingleton<TunnelService>();
 builder.Services.AddHostedService<ConfigureWebhook>();
 
 builder.Services
@@ -36,16 +34,16 @@ builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
         builder.Configuration.GetConnectionString("PostgreSqlConnection")));
         
-// builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
         
-// builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
-// builder.Services.AddScoped<IHandlerContainer>(
-//     x => Factory.Create
-//     (
-//         x.GetRequiredService<IDatabaseContainer>(),
-//         x.GetRequiredService<BottApp.Database.Service.IServiceContainer>()
-//     )
-// );
+builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+builder.Services.AddScoped<IHandlerContainer>(
+    x => Factory.Create
+    (
+        x.GetRequiredService<IDatabaseContainer>(),
+        x.GetRequiredService<BottApp.Database.Service.IServiceContainer>()
+    )
+);
 
 var app = builder.Build();
 

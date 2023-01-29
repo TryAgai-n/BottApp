@@ -62,7 +62,6 @@ public class CandidateUploadHandler : ICandidateUploadHandler
 
         async Task UploadCandidate(InNomination nomination)
         {
-          //  await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
             Message? msg;
             if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, nomination))
             {

@@ -1,3 +1,4 @@
+using BottApp.Database;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -10,11 +11,13 @@ public class UpdateHandlers
 {
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandlers> _logger;
-
-    public UpdateHandlers(ITelegramBotClient botClient, ILogger<UpdateHandlers> logger)
+    private readonly IDatabaseContainer _databaseContainer;
+    
+    public UpdateHandlers(ITelegramBotClient botClient, ILogger<UpdateHandlers> logger, IDatabaseContainer databaseContainer)
     {
         _botClient = botClient;
         _logger = logger;
+        _databaseContainer = databaseContainer;
     }
 
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -35,6 +38,27 @@ public class UpdateHandlers
 
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
     {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         var handler = update switch
         {
             // UpdateType.Unknown:
@@ -63,7 +87,7 @@ public class UpdateHandlers
         var action = messageText.Split(' ')[0] switch
         {
             "/inline_keyboard" => SendInlineKeyboard(_botClient, message, cancellationToken),
-            "/keyboard" => SendReplyKeyboard(_botClient, message, cancellationToken),
+            "/CheckDB" => SendReplyKeyboard(_botClient, message, cancellationToken, _databaseContainer),
             "/remove" => RemoveKeyboard(_botClient, message, cancellationToken),
             "/photo" => SendFile(_botClient, message, cancellationToken),
             "/request" => RequestContactAndLocation(_botClient, message, cancellationToken),
@@ -109,7 +133,7 @@ public class UpdateHandlers
                 cancellationToken: cancellationToken);
         }
 
-        static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, IDatabaseContainer _databasecontainer)
         {
             ReplyKeyboardMarkup replyKeyboardMarkup = new(
                 new[]
@@ -121,9 +145,11 @@ public class UpdateHandlers
                 ResizeKeyboard = true
             };
 
+            var user = await _databasecontainer.User.FindOneByUid(message.Chat.Id);
+            
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "Choose",
+                text: $"U're {user.FirstName}",
                 replyMarkup: replyKeyboardMarkup,
                 cancellationToken: cancellationToken);
         }
@@ -175,7 +201,7 @@ public class UpdateHandlers
         {
             const string usage = "Usage:\n" +
                                  "/inline_keyboard - send inline keyboard\n" +
-                                 "/keyboard    - send custom keyboard\n" +
+                                 "/CheckDB     - send custom keyboard\n" +
                                  "/remove      - remove custom keyboard\n" +
                                  "/photo       - send a photo\n" +
                                  "/request     - request location or contact\n" +
