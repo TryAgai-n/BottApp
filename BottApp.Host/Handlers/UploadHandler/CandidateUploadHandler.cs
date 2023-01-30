@@ -60,6 +60,8 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             _ => throw new ArgumentOutOfRangeException()
         };
 
+        await button;
+
         async Task UploadCandidate(InNomination nomination)
         {
             Message? msg;
@@ -80,7 +82,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             }
             
-            var document = await _documentService.CreateEmptyDocumentForVotes(user.Id, nomination);
+            var document = await _documentService.CreateDocument(user.Id, nomination);
             await _userRepository.ChangeViewDocumentId(user, document.Id);
 
              msg = await botClient.EditMessageTextAsync(
@@ -123,9 +125,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await Task.Delay(500, cancellationToken);
                     
                     document.Caption = message.Text;
-             
-                   
-                    
+
                     await botClient.EditMessageTextAsync(
                         user.UId,
                         user.ViewMessageId,

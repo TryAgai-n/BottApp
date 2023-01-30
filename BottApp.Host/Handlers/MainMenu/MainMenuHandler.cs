@@ -77,7 +77,7 @@ public class MainMenuHandler : IMainMenuHandler
         );
         await Task.Delay(1000);
         await botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
-        await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
+        // await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
     }
     public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {

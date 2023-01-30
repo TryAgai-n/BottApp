@@ -25,22 +25,22 @@ public class DocumentModel : AbstractModel
     public string? DocumentExtension { get; set; }
 
     public string? Path { get; set; }
-    
+
     public string? Caption { get; set; }
-    
+
     [DataType(DataType.Date)]
     public DateTime CreatedAt { get; set; }
-    
+
     [Required]
     public DocumentInPath DocumentInPath { get; set; }
-    
+
     public InNomination? DocumentNomination { get; set; }
-    
+
     public DocumentStatisticModel DocumentStatisticModel { get; set; }
-    
+
     public List<LikedDocumentModel>? Likes { get; set; }
 
-    
+
     public static DocumentModel CreateModel(
         int userId,
         string? documentType,
@@ -67,11 +67,13 @@ public class DocumentModel : AbstractModel
         };
     }
 
-    public static DocumentModel CreateEmpty(
+
+    public static DocumentModel CreateModel(
         int userId,
         InNomination? documentNomination,
         DocumentInPath documentInPath,
-        DateTime createdAt)
+        DateTime createdAt
+    )
     {
         return new DocumentModel
         {

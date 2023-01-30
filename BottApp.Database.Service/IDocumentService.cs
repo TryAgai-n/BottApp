@@ -10,7 +10,7 @@ public interface IDocumentService
 {
     Task UploadFile(Message message, ITelegramBotClient _botClient);
     
-    Task<DocumentModel> CreateEmptyDocumentForVotes(int userId, InNomination nomination);
+    Task<DocumentModel> CreateDocument(int userId, InNomination nomination);
 
     Task<bool> UploadVoteFile(UserModel user, DocumentModel document, ITelegramBotClient _botClient, Message message);
 }
