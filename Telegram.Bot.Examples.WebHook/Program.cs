@@ -32,9 +32,9 @@ builder.Services
     .AddNewtonsoftJson();
 
 
-builder.Services.AddDbContextFactory<PostgreSqlContext>(
+builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
-        builder.Configuration.GetConnectionString("PostgreSqlConnection")),ServiceLifetime.Transient );
+        builder.Configuration.GetConnectionString("PostgreSqlConnection") ));
         
 builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
         

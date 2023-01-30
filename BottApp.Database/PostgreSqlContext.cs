@@ -28,9 +28,9 @@ namespace BottApp.Database
 
 
 
-        public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(options)
+        public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
         {
-            Db = new DatabaseContainer(this, loggerFactory, scopeFactory);
+            Db = new DatabaseContainer(this, loggerFactory);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -24,9 +24,9 @@ namespace BottApp.Database
     
 
 
-        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory)
+        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
         {
-            User = new UserRepository(db, loggerFactory, scopeFactory);
+            User = new UserRepository(db, loggerFactory);
             UserFlag = new UserFlagRepository(db, loggerFactory);
             Message = new MessageRepository(db, loggerFactory);
             Document = new DocumentRepository(db, loggerFactory);

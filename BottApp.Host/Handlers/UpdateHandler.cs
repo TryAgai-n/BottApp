@@ -71,7 +71,7 @@ public class UpdateHandler : AbstractUpdateHandler
             {
                 {Message:       { } message}       => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user),
                 {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
-                _                                  => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                _                                  => _handlerContainer.AuthHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             },
             
             OnState.Menu => update switch
