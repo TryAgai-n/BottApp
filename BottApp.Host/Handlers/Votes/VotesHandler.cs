@@ -1,19 +1,14 @@
-using System.Runtime.CompilerServices;
-using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Document.Like;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Services;
 using BottApp.Host.Services.OnStateStart;
-using Microsoft.AspNetCore.Components.Forms;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using InputFile = Microsoft.AspNetCore.Components.Forms.InputFile;
-// using Telegram.Bot.Types.InputFiles;
+using InputFile = Telegram.Bot.Types.InputFile;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.Votes;
@@ -156,10 +151,8 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendChatActionAsync(
                     user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
 
-                await Task.Delay(3000, cancellationToken);
-      
                 var msg = await botClient.SendPhotoAsync(chatId: user.UId, 
-                    photo: new Telegram.Bot.Types.InputFile(fileStream, "Document" + document.DocumentExtension),
+                    photo: new InputFile(fileStream, "Document" + document.DocumentExtension),
                     caption: $"1 из {documents.Count}\n{document.Caption}",
                     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
                 );
@@ -187,7 +180,7 @@ public class VotesHandler : IVotesHandler
                 var document = docList[docIndex];
                 
                 await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                var stream = new Telegram.Bot.Types.InputFile(fileStream, document.DocumentExtension);
+                var stream = new InputFile(fileStream, document.DocumentExtension);
                 var photo = new InputMediaPhoto(stream);
                 photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
                 

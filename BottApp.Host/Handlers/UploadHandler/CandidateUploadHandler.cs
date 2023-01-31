@@ -1,11 +1,11 @@
 ﻿using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.User;
-using BottApp.Host.Services;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using InputFile = Telegram.Bot.Types.InputFile;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.UploadHandler;
@@ -125,6 +125,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await Task.Delay(500, cancellationToken);
                     
                     document.Caption = message.Text;
+                    await _documentRepository.UpdateDocument(document);
 
                     await botClient.EditMessageTextAsync(
                         user.UId,
@@ -178,7 +179,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             throw;
         }
         finally
-        {
+        { 
             await botClient.DeleteMessageAsync(user.UId, message.MessageId);
         }
         

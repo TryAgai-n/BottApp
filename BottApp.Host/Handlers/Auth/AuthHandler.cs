@@ -92,9 +92,6 @@ namespace BottApp.Host.Handlers.Auth
                             chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте свое имя",
                             cancellationToken: cancellationToken
                         );
-                        
-                       
-                       
                         await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         return;
@@ -126,6 +123,7 @@ namespace BottApp.Host.Handlers.Auth
                         
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         user.FirstName = message.Text;
+                        await _userRepository.UpdateUser(user);
                         return;
 
                     case {FirstName: null} when message.Text is null:
@@ -141,12 +139,14 @@ namespace BottApp.Host.Handlers.Auth
 
                     case {LastName: null} when message.Text is not null:
                         user.LastName = message.Text;
-                        var profile = new Profile(user.FirstName, user.LastName);
+                        await _userRepository.UpdateUser(user);
+                        
+                     //   var profile = new Profile(user.FirstName, user.LastName);
                         
                         await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
                         await Task.Delay(500);
                       
-                        await _userRepository.UpdateUserFullName(user, profile);
+                     //   await _userRepository.UpdateUserFullName(user, profile);
 
                         await SendUserFormToAdmin(botClient, message, user);
 
@@ -190,39 +190,53 @@ namespace BottApp.Host.Handlers.Auth
             }
             finally
             {
-                await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                try
+                {
+                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                }
+                catch
+                {
+                    //ignored
+                }
+               
             }
         }
 
         private async Task SendUserFormToAdmin(ITelegramBotClient botClient, Message? message, UserModel user)
         {
-            // InputOnlineFile? photo = null;
-            FileStream? fileStream = null;
+            try
+            {
+                var getPhotoAsync = await botClient.GetUserProfilePhotosAsync(message.Chat.Id);
+                var photo = getPhotoAsync.Photos[0][0].FileId;
+                
+                await botClient.SendPhotoAsync(
+                    AdminSettings.AdminChatId,
+                    photo: new InputFileId(photo),
+                    caption:
+                    $"ID {user.Id} UID {user.UId} \n" +
+                    $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
+                    $"Имя: {user.FirstName} \n" +
+                    $"Фамилия: {user.LastName} \n" +
+                    $"Моб.тел. {user.Phone} \n" +
+                    $"Хочет авторизоваться в системе",
+                    replyMarkup: Keyboard.ApproveDeclineKeyboard);
+            }
+            catch
+            {
+                await botClient.SendTextMessageAsync(
+                    AdminSettings.AdminChatId,
+                    $"ID {user.Id} UID {user.UId} \n" +
+                    $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
+                    $"Имя: {user.FirstName} \n" +
+                    $"Фамилия: {user.LastName} \n" +
+                    $"Моб.тел. {user.Phone} \n" +
+                    $"Хочет авторизоваться в системе",
+                    replyMarkup: Keyboard.ApproveDeclineKeyboard);
+            }
+            
 
-            var getPhotoAsync = botClient.GetUserProfilePhotosAsync(message.Chat.Id);
-         
-            if (getPhotoAsync.Result.TotalCount > 0)
-            {
-                // photo = getPhotoAsync.Result.Photos[0][0].FileId;
-            }
-            else
-            {
-                const string filePath = @"Files/BOT_NO_IMAGE.jpg"; 
-                fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            }
+           
             
-            // await botClient.SendPhotoAsync(
-                // AdminSettings.AdminChatId,photo??fileStream,
-                // $"ID {user.Id} UID {user.UId} \n" +
-                // $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
-                // $"Имя: {user.FirstName} \n" +
-                // $"Фамилия: {user.LastName} \n" +
-                // $"Моб.тел. {user.Phone} \n" +
-                // $"Хочет авторизоваться в системе",
-                // replyMarkup: Keyboard.ApproveDeclineKeyboard
-            // );
-            
-            fileStream?.Close();
         }
 
 

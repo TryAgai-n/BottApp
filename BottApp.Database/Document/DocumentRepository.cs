@@ -174,10 +174,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<bool> SetModerate(int documentId, bool isModerate)
     {
-        var model = await DbModel
-            .Where(x => x.Id == documentId)
-            .Include(x => x.DocumentStatisticModel)
-            .FirstOrDefaultAsync();
+        var model = await GetOneByDocumentId(documentId);
 
         if (model is null)
         {
@@ -239,5 +236,12 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         model.DocumentStatisticModel.LikeCount++;
         await UpdateModelAsync(model);
+    }
+
+    public async Task<bool> UpdateDocument(DocumentModel? model)
+    {
+        if (model is null) return false;
+        await UpdateModelAsync(model);
+        return true;
     }
 }

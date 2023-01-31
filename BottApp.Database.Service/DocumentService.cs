@@ -60,11 +60,11 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> UploadVoteFile(UserModel user, DocumentModel document, ITelegramBotClient _botClient, Message message)
     {  
+        var fileInfo = await _botClient.GetFileAsync(message.Photo[^1].FileId);
+        var filePath = fileInfo.FilePath;
         if (message.Photo == null) return false;
         
         var documentType = message.Type.ToString();
-        var fileInfo = await _botClient.GetFileAsync(message.Photo[^1].FileId);
-        var filePath = fileInfo.FilePath;
         var extension = Path.GetExtension(filePath);
         var rootPath = Directory.GetCurrentDirectory() + VotePath ;
         var newPath = Path.Combine(rootPath, user.TelegramFirstName + "___" + user.UId, documentType, extension);
@@ -78,22 +78,34 @@ public class DocumentService : IDocumentService
         
         document.Path = destinationFilePath;
         document.DocumentExtension = extension;
-        document.DocumentType = message.Type.ToString();
+        document.DocumentType = documentType;
+        
+        await _documentRepository.UpdateDocument(document);
+        
+        await using FileStream createNewDocument = System.IO.File.OpenWrite(destinationFilePath);
+        await _botClient.DownloadFileAsync(filePath, createNewDocument);
+        createNewDocument.Close();
+        
+        
+        
+        await using FileStream fileStream = new(destinationFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        
+        
+        var photo = new InputFile(fileStream, "Document");
+        
+        var caption = $"ID: {document.Id} \n" +
+                      $"Описание: {document.Caption}\n" +
+                      $"Номинация: {document.DocumentNomination}\n" +
+                      $"Отправил пользователь ID {user.Id}, UID {user.UId} @{message.Chat.Username}";
         
         await _botClient.SendPhotoAsync(
-            AdminSettings.AdminChatId,
-            message.Photo[^1].FileId,
-            $"ID: {document.Id} \n" +
-            $"Описание: {document.Caption}\n" +
-            $"Номинация: {document.DocumentNomination}\n" +
-            $"Отправил пользователь ID {user.Id}, UID {user.UId} @{message.Chat.Username}",
+            chatId: AdminSettings.AdminChatId,
+            photo: photo,
+            caption: caption,
             replyMarkup: Keyboard.ApproveDeclineDocumetKeyboard
         );
-        
-        await using FileStream fileStream = System.IO.File.OpenWrite(destinationFilePath);
-        await _botClient.DownloadFileAsync(filePath, fileStream);
+     
         fileStream.Close();
-
         return true;
     }
 }

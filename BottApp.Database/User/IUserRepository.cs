@@ -23,6 +23,8 @@ namespace BottApp.Database.User
         Task<bool> ChangeViewMessageId(UserModel model, int messageId);
         
         Task<bool> ChangeViewDocumentId(UserModel model, int documentId);
-        
+
+        Task<bool> UpdateUser(UserModel user);
+
     }
 }

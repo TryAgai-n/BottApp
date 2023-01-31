@@ -46,4 +46,6 @@ public interface IDocumentRepository
     
     Task IncrementViewByDocument(DocumentModel model);
     Task IncrementLikeByDocument(DocumentModel model);
+
+    Task<bool> UpdateDocument(DocumentModel? model);
 }

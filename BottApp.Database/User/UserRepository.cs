@@ -105,6 +105,13 @@ namespace BottApp.Database.User
             return result > 0;
         }
 
+        public async Task<bool> UpdateUser(UserModel user)
+        {
+            if (user is null) return false;
+                await UpdateModelAsync(user);
+                return true;
+        }
+
 
         public async Task<bool> ChangeOnStateByUID(long uid, OnState onState)
         {

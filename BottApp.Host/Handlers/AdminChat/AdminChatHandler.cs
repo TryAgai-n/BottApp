@@ -8,6 +8,7 @@ using BottApp.Host.Handlers.Votes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 namespace BottApp.Host.Handlers.AdminChat
 {
     public class AdminChatHandler : IAdminChatHandler
@@ -28,78 +29,39 @@ namespace BottApp.Host.Handlers.AdminChat
        
         public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, UserModel user)
         {
-            string prepString;
-            
-            switch (prepString = message.Text.ToLower())
+            var prepString = message.Text.ToLower();
+
+            var task = prepString switch
             {
-                case not null when prepString.Contains("/start"):
-                    await botClient.SendTextMessageAsync
-                    (
-                        chatId: message.Chat.Id,
-                        text: $"Поздравялю, {message.From.FirstName}, вы - админ\n"+
-                              "Для вывода всех активных команд нажимайте /help",
-                        cancellationToken: cancellationToken
-                    );
-                    break;
-                
-                case not null when prepString.Contains("/view_statistic_"):
-                    await GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
-                    break;
-                
-                case not null when prepString.Contains("/like_statistic_" ):
-                    await GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes);
-                    break; 
-                
-                case not null when prepString.Contains( "/find_user_by_firstname"):
-                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.FirstName);
-                    break;
-                
-                case not null when prepString.Contains( "/find_user_by_lastname"):
-                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.LastName);
-                    break;
-                
-                case not null when prepString.Contains( "/find_user_by_id"):
-                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.Id);
-                    break;
-                
-                case not null when prepString.Contains( "/find_user_by_uid"):
-                    await FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.UId);
-                    break;
-                
-                case not null when prepString.Contains("/send_document_"):
-                    await SendDocument(botClient, message, cancellationToken, prepString);
-                    break; 
-                
-                case not null when prepString.Contains("/send_top_by_like" ):
-                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes);
-                    break; 
-                
-                case not null when prepString.Contains("/send_top_by_view") :
-                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
-                    break; 
-                
-                case not null when prepString.Contains("/send_top_by_view") :
-                    await SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views);
-                    break; 
-                
-                case not null when prepString.Contains("/add_to_vote_on") :
-                    VoteTurnSwitch.UploadCandidateIsOn = true;
-                    break; 
-                
-                case not null when prepString.Contains("/add_to_vote_off") :
-                     VoteTurnSwitch.UploadCandidateIsOn = false;
-                    break; 
-                
-                case not null when prepString.Contains("/vote_on") :
-                    VoteTurnSwitch.VoteIsOn = true;
-                    break; 
-                
-                case not null when prepString.Contains("/vote_off") :
-                    VoteTurnSwitch.VoteIsOn = false;
-                    break; 
-                
-                case not null when prepString.Contains( "/help"):
-                    await botClient.SendTextMessageAsync(
+                {} when prepString.Contains("/start") => SendStart(botClient, message),
+                {} when prepString.Contains("/help") => SendHelp(botClient, message),
+                {} when prepString.Contains("/view_statistic_") => GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Views),
+                {} when prepString.Contains("/like_statistic_") => GetVoteStatistic(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes),
+                {} when prepString.Contains("/find_user_by_firstname") => FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.FirstName),
+                {} when prepString.Contains("/find_user_by_lastname") => FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.LastName),
+                {} when prepString.Contains("/find_user_by_id") => FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.Id),
+                {} when prepString.Contains("/find_user_by_uid") => FindUserByParam(botClient, message, cancellationToken, prepString, FindUserBy.UId),
+                {} when prepString.Contains("/send_document_") => SendDocument(botClient, message, cancellationToken, prepString),
+                {} when prepString.Contains("/send_top_by_like") => SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Likes),
+                {} when prepString.Contains("/send_top_by_view") => SendTopDocument(botClient, message, cancellationToken, prepString, FindDocumentBy.Views),
+                // "/add_to_vote_on" => VoteTurnSwitch.UploadCandidateIsOn = true,
+                // "/add_to_vote_off" => VoteTurnSwitch.UploadCandidateIsOn = false,
+                // "/vote_on" => VoteTurnSwitch.VoteIsOn = true,
+                // "/vote_off" => VoteTurnSwitch.VoteIsOn = false,
+                }; 
+            await task;
+        }
+
+        async Task<Message> SendStart(ITelegramBotClient botClient, Message message)
+        {
+            return await botClient.SendTextMessageAsync
+            (chatId: message.Chat.Id,
+                text: $"Поздравялю, {message.From.FirstName}, вы - админ\n" +
+                      "Для вывода всех активных команд нажимайте /help");
+        }  
+        async Task<Message> SendHelp(ITelegramBotClient botClient, Message message)
+        {
+         return await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
                         text: "/start\n\n" +
                               "/view_statistic_3\n" +
@@ -139,14 +101,8 @@ namespace BottApp.Host.Handlers.AdminChat
                               "Включает возможность голосования\n\n"+
                               
                               "/vote_off\n"+
-                              "Выключает возможность голосования\n\n", 
-                        
-                        cancellationToken: cancellationToken
-                    );
-                    break;
-            }
-            
-            
+                              "Выключает возможность голосования\n\n"
+                              );
         }
         
         private async Task FindUserByParam(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, FindUserBy findUserBy)
@@ -307,7 +263,7 @@ namespace BottApp.Host.Handlers.AdminChat
                               $"  ID  {item.Id}" +
                               $"  View {item.DocumentStatisticModel.ViewCount}" +
                               $"  Like {item.DocumentStatisticModel.LikeCount}\n" +
-                              $"||/send_document_{item.Id}||\n");
+                              $"||/send\\_document\\_{item.Id}||\n");
                 }
                 sb.Append('\n');
                 i = 1;
@@ -330,30 +286,17 @@ namespace BottApp.Host.Handlers.AdminChat
             UserModel user
         )
         {
-            switch (callbackQuery.Data)
+            Enum.TryParse<AdminButton>(callbackQuery.Data, out var result);
+            var button = result switch
             {
-                case nameof(AdminButton.Approve):
-                    await Approve(botClient, callbackQuery, cancellationToken);
-                    break;
-                
-                case nameof(AdminButton.Decline):
-                    await Decline(botClient, callbackQuery, cancellationToken);
-                    break;
-                
-                case nameof(AdminButton.DocumentApprove):
-                    await ApproveDocument(botClient, callbackQuery, cancellationToken);
-                    break;
-                
-                case nameof(AdminButton.DocumentDecline):
-                    await DeclineDocument(botClient, callbackQuery, cancellationToken);
-                    break;
-                
-                case nameof(AdminButton.SendOk): 
-                    break;
-                
-                default: await _messageService.TryEditInlineMessage(botClient, callbackQuery, cancellationToken);
-                    break;
-            }
+                AdminButton.Approve => Approve(botClient, callbackQuery, cancellationToken),
+                AdminButton.Decline => Decline(botClient, callbackQuery, cancellationToken),
+                AdminButton.DocumentApprove => ApproveDocument(botClient, callbackQuery, cancellationToken),
+                AdminButton.DocumentDecline => DeclineDocument(botClient, callbackQuery, cancellationToken),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            await button;
         }
         
         private async Task ApproveDocument(
@@ -370,8 +313,7 @@ namespace BottApp.Host.Handlers.AdminChat
             (
                 chatId: callbackQuery.Message.Chat.Id,
                 messageId: callbackQuery.Message.MessageId,
-                caption: $"{callbackQuery.Message.Caption}\n\n*ПРИНЯТА* @{callbackQuery.From.Username}",
-                ParseMode.Markdown,
+                caption: $"{callbackQuery.Message.Caption}\n\nПРИНЯТА @{callbackQuery.From.Username}",
                 replyMarkup: Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
@@ -414,7 +356,8 @@ namespace BottApp.Host.Handlers.AdminChat
                 replyMarkup:  Keyboard.Ok,
                 cancellationToken: cancellationToken
             );
-            
+            user.isAuthorized = true;
+            await _userRepository.UpdateUser(user);
             await _userRepository.ChangeOnState(user, OnState.Menu);
             await _messageService.TryDeleteMessage(AdminSettings.AdminChatId, callbackQuery.Message.MessageId, botClient);
             

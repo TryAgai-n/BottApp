@@ -62,13 +62,16 @@ public class MainMenuHandler : IMainMenuHandler
         
         Message? msg;
         
-        if (message.Text.Contains("/restart"))
+        if (message.Text.Contains("/start"))
         {
+            await _stateService.StartState(user, OnState.Menu, botClient);
+            
              msg = await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id, text: "Перезагружено\nМеню: Голосование", replyMarkup: Keyboard.MainKeyboard
             );
-
-            await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+             
+             await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
+             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
             return;
         }
         
@@ -77,7 +80,7 @@ public class MainMenuHandler : IMainMenuHandler
         );
         await Task.Delay(1000);
         await botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
-        // await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
+        await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
     }
     public Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {
