@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database.Document;
@@ -13,9 +11,7 @@ namespace BottApp.Database.Document;
 public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRepository
 {
 
-    public DocumentRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
-    {
-    }
+    public DocumentRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory) { }
 
 
     private IQueryable<DocumentModel> PrepareDocumentPath(DocumentInPath documentInPath)
@@ -41,11 +37,10 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         InNomination? documentNomination
     )
     {
-        var model = DocumentModel.CreateModel(
-            userId, documentType, documentExtension, createdAt, path, caption, documentInPath, documentNomination
-        );
+        var model = DocumentModel.CreateModel(userId, documentType, documentExtension, createdAt, path, caption, documentInPath, documentNomination);
 
         var result = await CreateModelAsync(model);
+
         if (result == null)
         {
             throw new Exception("Document model is not created");
@@ -54,11 +49,18 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return result;
     }
 
-    public async Task<DocumentModel> CreateEmpty(int userId, InNomination nomination, DocumentInPath path, DateTime createAt)
+
+    public async Task<DocumentModel> CreateModel(
+        int userId,
+        InNomination nomination,
+        DocumentInPath path,
+        DateTime createAt
+    )
     {
-        var model = DocumentModel.CreateEmpty(userId, nomination, path, createAt);
+        var model = DocumentModel.CreateModel(userId, nomination, path, createAt);
 
         var result = await CreateModelAsync(model);
+
         if (result == null)
         {
             throw new Exception("Empty document model is not created");
@@ -70,10 +72,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<DocumentModel> GetOneByDocumentId(int documentId)
     {
-        var model = await DbModel
-            .Where(x => x.Id == documentId)
-            .Include(x => x.DocumentStatisticModel)
-            .FirstAsync();
+        var model = await DbModel.Where(x => x.Id == documentId).Include(x => x.DocumentStatisticModel).FirstAsync();
 
         if (model == null)
         {
@@ -86,9 +85,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath)
     {
-        var model = await PrepareDocumentPath(documentInPath)
-            .Include(x => x.DocumentStatisticModel)
-            .FirstAsync();
+        var model = await PrepareDocumentPath(documentInPath).Include(x => x.DocumentStatisticModel).FirstAsync();
 
         if (model == null)
         {
@@ -123,6 +120,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .ToListAsync();
     }
 
+
     public async Task<List<DocumentModel>> ListDocumentsByNomination(
         InNomination? documentNomination,
         int skip,
@@ -138,11 +136,12 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
             .Take(take)
             .ToListAsync();
     }
-    
+
+
     public Task<List<DocumentModel?>> GetListByNomination(InNomination? documentNomination, bool isModerate = true)
     {
         return PrepareDocumentNomination(documentNomination)
-            .Where(x => isModerate? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
+            .Where(x => isModerate ? x.DocumentStatisticModel.IsModerated : !x.DocumentStatisticModel.IsModerated)
             .Include(x => x.DocumentStatisticModel)
             .OrderBy(x => x.Id)
             .ToListAsync();
@@ -167,31 +166,31 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     {
         var result = await PrepareDocumentNomination(documentNomination)
             .FirstOrDefaultAsync(x => x.UserModel.Id == user.Id);
-        
-        // return result != null;
+
+
         return false;
     }
 
 
     public async Task<bool> SetModerate(int documentId, bool isModerate)
     {
-        var model = await DbModel.Where(x => x.Id == documentId)
-            .Include(x => x.DocumentStatisticModel)
-            .FirstOrDefaultAsync();
-        
-        if (model is null) return false;
-        
+        var model = await GetOneByDocumentId(documentId);
+
+        if (model is null)
+        {
+            return false;
+        }
+
         model.DocumentStatisticModel.IsModerated = isModerate;
-        
+
         await UpdateModelAsync(model);
         return true;
     }
-    
+
 
     public async Task<List<DocumentModel>> ListMostViewedDocuments(int skip = 0, int take = 10)
     {
-        return DbModel
-            .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
+        return DbModel.OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
             .Include(x => x.DocumentStatisticModel)
             .Skip(skip)
             .Take(take)
@@ -202,7 +201,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Views(int take)
     {
         return DbModel
-            .Where(x=> x.Path != null)
+            .Where(x => x.Path != null)
             .Include(x => x.DocumentStatisticModel)
             .OrderByDescending(x => x.DocumentStatisticModel.ViewCount)
             .ToList()
@@ -215,8 +214,7 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
 
     public async Task<List<DocumentModel>> List_Most_Document_In_Vote_By_Likes(int take)
     {
-        return DbModel
-            .Where(x=> x.Path != null)
+        return DbModel.Where(x => x.Path != null)
             .Include(x => x.DocumentStatisticModel)
             .OrderByDescending(x => x.DocumentStatisticModel.LikeCount)
             .ToList()
@@ -232,10 +230,18 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         model.DocumentStatisticModel.ViewCount++;
         await UpdateModelAsync(model);
     }
-    
+
+
     public async Task IncrementLikeByDocument(DocumentModel model)
     {
         model.DocumentStatisticModel.LikeCount++;
         await UpdateModelAsync(model);
+    }
+
+    public async Task<bool> UpdateDocument(DocumentModel? model)
+    {
+        if (model is null) return false;
+        await UpdateModelAsync(model);
+        return true;
     }
 }

@@ -24,6 +24,6 @@ appsettings.json
 #Test ignore
 /.vs/BottApp/v17/
 BottApp.Host/wwwroot/*
-BottApp.Host/DATA/*
+**/DATA
 
 *.HEIC

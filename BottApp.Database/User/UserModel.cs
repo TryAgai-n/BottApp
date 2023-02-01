@@ -34,6 +34,7 @@ public class UserModel : AbstractModel
     public List<DocumentModel> Documents { get; set; }
     public UserFlagModel UserFlag { get; set; }
 
+    public bool isAuthorized { get; set; }
     public int ViewDocumentId { get; set; }
     public int ViewMessageId { get; set; }
     

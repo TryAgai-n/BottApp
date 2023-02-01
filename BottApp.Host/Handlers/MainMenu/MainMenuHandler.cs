@@ -43,8 +43,10 @@ public class MainMenuHandler : IMainMenuHandler
         {
             MenuButton.Votes => _stateService.StartState(user, OnState.Votes, botClient),
             MenuButton.Help =>  _stateService.StartState(user, OnState.Help, botClient),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => _stateService.StartState(user, OnState.Menu, botClient)
         };
+
+        await button;
     }
 
 
@@ -60,13 +62,16 @@ public class MainMenuHandler : IMainMenuHandler
         
         Message? msg;
         
-        if (message.Text.Contains("/restart"))
+        if (message.Text.Contains("/start"))
         {
+            await _stateService.StartState(user, OnState.Menu, botClient);
+            
              msg = await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id, text: "Перезагружено\nМеню: Голосование", replyMarkup: Keyboard.MainKeyboard
             );
-
-            await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+             
+             await botClient.DeleteMessageAsync(message.Chat.Id, message.MessageId);
+             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
             return;
         }
         

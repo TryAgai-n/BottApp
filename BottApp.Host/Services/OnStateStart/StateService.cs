@@ -21,15 +21,23 @@ public class StateService
 
     public async Task StartState(UserModel user, OnState state, ITelegramBotClient bot)
     {
-        await _userRepository.ChangeOnState(user, state);
-        var result = state switch
+        try
         {
-            OnState.Menu => MenuStart(bot, user),
-            OnState.Help => HelpStart(bot, user),
-            OnState.Votes => VotesStart(bot, user),
-            OnState.UploadCandidate => UploadCandidateStart(bot, user)
-        };
-        await result;
+            await _userRepository.ChangeOnState(user, state);
+            var result = state switch
+            {
+                OnState.Menu => MenuStart(bot, user),
+                OnState.Help => HelpStart(bot, user),
+                OnState.Votes => VotesStart(bot, user),
+                OnState.UploadCandidate => UploadCandidateStart(bot, user)
+            };
+        
+            await result;
+        }
+        catch (Exception e)
+        {
+            //ignored
+        }
     }
 
 

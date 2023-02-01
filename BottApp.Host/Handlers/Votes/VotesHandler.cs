@@ -1,18 +1,14 @@
-using System.Runtime.CompilerServices;
-using BottApp.Database;
 using BottApp.Database.Document;
 using BottApp.Database.Document.Like;
 using BottApp.Database.Service;
 using BottApp.Database.Service.Keyboards;
 using BottApp.Database.User;
-using BottApp.Host.Services;
 using BottApp.Host.Services.OnStateStart;
-using Microsoft.AspNetCore.Components.Forms;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-// using Telegram.Bot.Types.InputFiles;
+using InputFile = Telegram.Bot.Types.InputFile;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.Votes;
@@ -155,17 +151,15 @@ public class VotesHandler : IVotesHandler
                 await botClient.SendChatActionAsync(
                     user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
 
-                await Task.Delay(3000, cancellationToken);
+                var msg = await botClient.SendPhotoAsync(chatId: user.UId, 
+                    photo: new InputFile(fileStream, "Document" + document.DocumentExtension),
+                    caption: $"1 из {documents.Count}\n{document.Caption}",
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
+                );
 
-                // var msg = await botClient.SendPhotoAsync(
-                //     chatId: user.UId, photo: new InputOnlineFile(fileStream, "Document" + document.DocumentExtension),
-                //     caption: $"1 из {documents.Count}\n{document.Caption}",
-                //     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
-                // );
-
-                // await _documentRepository.IncrementViewByDocument(document);
-                // await _userRepository.ChangeViewDocumentId(user, document.Id);
-                // await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                await _documentRepository.IncrementViewByDocument(document);
+                await _userRepository.ChangeViewDocumentId(user, document.Id);
+                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
             }
             if (next)
             {
@@ -186,19 +180,17 @@ public class VotesHandler : IVotesHandler
                 var document = docList[docIndex];
                 
                 await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                //
-                // var photo = new InputMediaPhoto(new InputMedia(fileStream, document.DocumentExtension))
-                // {
-                //     Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}"
-                // };
+                var stream = new InputFile(fileStream, document.DocumentExtension);
+                var photo = new InputMediaPhoto(stream);
+                photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
                 
-                // await Task.Delay(300, cancellationToken);
-                // await botClient.EditMessageMediaAsync(
-                //     chatId: user.UId, 
-                //     messageId: user.ViewMessageId,
-                //     media: photo,
-                //     replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
-                //
+                await Task.Delay(300, cancellationToken);
+                await botClient.EditMessageMediaAsync(
+                    chatId: user.UId, 
+                    messageId: user.ViewMessageId,
+                    media: photo,
+                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
+                
                 fileStream.Close();
                 
                 await _userRepository.ChangeViewDocumentId(user, document.Id);

@@ -2,6 +2,7 @@ using BottApp.Database;
 using BottApp.Database.Service;
 using BottApp.Database.User;
 using BottApp.Database.UserMessage;
+using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -44,6 +45,7 @@ public class UpdateHandler : AbstractUpdateHandler
                 {CallbackQuery: { } callbackQuery} => _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken,null),
                 _                                  => _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
+             await handler;
             return;
         }
 
@@ -62,8 +64,14 @@ public class UpdateHandler : AbstractUpdateHandler
 
 
         
-        // var type = updateMessage.Type.ToString();
-        // await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+        var type = updateMessage.Type.ToString();
+        await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
+
+        if (updateMessage.Text is "/start" && user.isAuthorized)
+        {
+            await _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, updateMessage, cancellationToken, user);
+            return;
+        }
   
         handler = user.OnState switch
         {
@@ -71,7 +79,7 @@ public class UpdateHandler : AbstractUpdateHandler
             {
                 {Message:       { } message}       => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user),
                 {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
-                _                                  => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                _                                  => _handlerContainer.AuthHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
             },
             
             OnState.Menu => update switch
@@ -106,7 +114,7 @@ public class UpdateHandler : AbstractUpdateHandler
             _ => throw new ArgumentOutOfRangeException()
         };
         
-      //  var thread = new Thread(async () => await handler);
+       await handler;
       
 
 

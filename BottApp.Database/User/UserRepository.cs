@@ -11,10 +11,8 @@ namespace BottApp.Database.User
 {
     public class UserRepository : AbstractRepository<UserModel>, IUserRepository
     {
-        private readonly IServiceScopeFactory scopeFactory;
-        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory) : base(context, loggerFactory)
+        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
         {
-            this.scopeFactory = scopeFactory;
         }
         
         public async Task<UserModel> CreateUser(TelegramProfile telegramProfile)
@@ -105,6 +103,13 @@ namespace BottApp.Database.User
             model.ViewDocumentId = documentId;
             var result = await UpdateModelAsync(model);
             return result > 0;
+        }
+
+        public async Task<bool> UpdateUser(UserModel user)
+        {
+            if (user is null) return false;
+                await UpdateModelAsync(user);
+                return true;
         }
 
 

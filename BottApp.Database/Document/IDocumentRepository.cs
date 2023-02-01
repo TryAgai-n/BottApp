@@ -19,7 +19,7 @@ public interface IDocumentRepository
         InNomination? documentNomination
     );
     
-    Task<DocumentModel> CreateEmpty(int userId, InNomination nomination, DocumentInPath path, DateTime createAt);
+    Task<DocumentModel> CreateModel(int userId, InNomination nomination, DocumentInPath path, DateTime createAt);
 
 
     Task<DocumentModel> GetOneByDocumentId(int documentId);
@@ -46,4 +46,6 @@ public interface IDocumentRepository
     
     Task IncrementViewByDocument(DocumentModel model);
     Task IncrementLikeByDocument(DocumentModel model);
+
+    Task<bool> UpdateDocument(DocumentModel? model);
 }

@@ -1,11 +1,11 @@
 ﻿using BottApp.Database.Document;
 using BottApp.Database.Service;
 using BottApp.Database.User;
-using BottApp.Host.Services;
 using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using InputFile = Telegram.Bot.Types.InputFile;
 using MenuButton = BottApp.Database.Service.Keyboards.MenuButton;
 
 namespace BottApp.Host.Handlers.UploadHandler;
@@ -60,9 +60,10 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             _ => throw new ArgumentOutOfRangeException()
         };
 
+        await button;
+
         async Task UploadCandidate(InNomination nomination)
         {
-          //  await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
             Message? msg;
             if (await _documentRepository.CheckSingleDocumentInNominationByUser(user, nomination))
             {
@@ -81,7 +82,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                 return;
             }
             
-            var document = await _documentService.CreateEmptyDocumentForVotes(user.Id, nomination);
+            var document = await _documentService.CreateDocument(user.Id, nomination);
             await _userRepository.ChangeViewDocumentId(user, document.Id);
 
              msg = await botClient.EditMessageTextAsync(
@@ -124,9 +125,8 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                     await Task.Delay(500, cancellationToken);
                     
                     document.Caption = message.Text;
-             
-                   
-                    
+                    await _documentRepository.UpdateDocument(document);
+
                     await botClient.EditMessageTextAsync(
                         user.UId,
                         user.ViewMessageId,
@@ -179,7 +179,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             throw;
         }
         finally
-        {
+        { 
             await botClient.DeleteMessageAsync(user.UId, message.MessageId);
         }
         
