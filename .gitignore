@@ -21,9 +21,8 @@ appsettings.json
 /Temp/*
 /Logs/*
 
-#Test ignore
+# Test ignore
 /.vs/BottApp/v17/
 BottApp.Host/wwwroot/*
-**/DATA
-
-*.HEIC
+*/DATA
+/DATA/*
