@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Host", "BottApp.Hos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Database.Service", "BottApp.Database.Service\BottApp.Database.Service.csproj", "{A68B36C0-F7DE-4022-9B44-B2AD2DF1681C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram.Bot.Examples.WebHook", "Telegram.Bot.Examples.WebHook\Telegram.Bot.Examples.WebHook.csproj", "{75D2E593-FA9A-4A5F-98EC-05BEDB471837}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottApp.Host.Webhook", "BottApp.Host.Webhook\BottApp.Host.Webhook.csproj", "{75D2E593-FA9A-4A5F-98EC-05BEDB471837}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
