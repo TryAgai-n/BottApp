@@ -24,7 +24,6 @@ builder.Services.AddHttpClient("telegram_bot_client")
 
 builder.Services.AddScoped<UpdateHandlers>();
 builder.Services.AddScoped<UpdateHandler>();
-// builder.Services.AddSingleton<TunnelService>();
 builder.Services.AddHostedService<ConfigureWebhook>();
 
 builder.Services
@@ -36,7 +35,11 @@ builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
         builder.Configuration.GetConnectionString("PostgreSqlConnection") ));
         
-builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(x => BottApp.Database.Service.Factory.Create(x.GetRequiredService<IDatabaseContainer>()));
+builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(
+    x => BottApp.Database.Service.Factory.Create
+    (
+        x.GetRequiredService<IDatabaseContainer>())
+    );
         
 builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
 builder.Services.AddScoped<IHandlerContainer>(

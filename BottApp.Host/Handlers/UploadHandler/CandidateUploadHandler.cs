@@ -57,7 +57,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
             MenuButton.SmallerNomination => UploadCandidate(InNomination.Second),
             MenuButton.FastestNomination => UploadCandidate(InNomination.Third),
             MenuButton.Votes =>  _stateService.StartState(user, OnState.Votes, botClient),
-            _ => throw new ArgumentOutOfRangeException()
+            _ =>  _stateService.StartState(user, OnState.Votes, botClient),
         };
 
         await button;
@@ -163,7 +163,7 @@ public class CandidateUploadHandler : ICandidateUploadHandler
                         cancellationToken: cancellationToken
                     );
                     
-                    await Task.Delay(2000, cancellationToken);
+                    await Task.Delay(4000, cancellationToken);
                 
                     
                     await _userRepository.ChangeViewMessageId(user, msg.MessageId);

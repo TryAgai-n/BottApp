@@ -96,9 +96,10 @@ public class MessageService : IMessageService
         {
             await botClient.DeleteMessageAsync(userUid, messageId);
         }
-        catch
+        catch(Exception e)
         {
-            // ignored
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Message {messageId} for user {userUid} can't delete " + e);
         }
     }
 }

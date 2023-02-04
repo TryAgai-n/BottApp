@@ -25,7 +25,6 @@ public class BotController : ControllerBase
             Console.WriteLine($"\n\n{e} \n\n");
             return Ok();
         }
-        
         return Ok();
     }
 }

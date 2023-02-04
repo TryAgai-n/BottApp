@@ -107,6 +107,8 @@ namespace BottApp.Host.Handlers.AdminChat
         
         private async Task FindUserByParam(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken, string prepString, FindUserBy findUserBy)
         {
+            UserModel? user;
+
             switch (findUserBy)
             {
                 case FindUserBy.FirstName:
@@ -120,54 +122,46 @@ namespace BottApp.Host.Handlers.AdminChat
                 
                 
                 case FindUserBy.Id:
-                    try
-                    {
+                  
                         int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
-                        await _userRepository.FindOneById(id);
-                    }
-                    catch (Exception e)
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "No user by current ID\n", cancellationToken: cancellationToken
-                        );
-                    }
-                    finally
-                    {
-                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
-                        var user = await _userRepository.FindOneById(id);
+                        user = await _userRepository.FindOneById(id);
+
+                        if (user is null)
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: message.Chat.Id, text: "No user by current ID\n", cancellationToken: cancellationToken
+                            );
+                            return;
+                        }
+                      
+                    
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
-                            text: $"{user.FirstName} {user.LastName}\n" +
-                                  $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
+                            text: $"{user.FirstName} {user.LastName}\n" + $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
                             cancellationToken: cancellationToken
                         );
-                    }
-                    break;
+                        
+                        break;
                 
                 case FindUserBy.UId:
-                    try
-                    {
+                    
                         int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var uid);
-                        await _userRepository.FindOneByUid(uid);
-                    }
-                    catch (Exception e)
-                    {
+                         user = await _userRepository.FindOneByUid(uid);
+                   
+                        if (user is null)
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: message.Chat.Id, text: "No user by current UID\n", cancellationToken: cancellationToken
+                            );
+                            return;
+                        }
+
                         await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "No user by current UID\n", cancellationToken: cancellationToken
-                        );
-                    }
-                    finally
-                    {
-                        int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var uid);
-                        var user = await _userRepository.FindOneByUid(uid);
-                        await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, 
-                            text: $"{user.FirstName} {user.LastName}\n" +
-                                  $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
+                            chatId: message.Chat.Id,
+                            text: $"{user.FirstName} {user.LastName}\n" + $"Tel. {user.Phone}. ID {user.Id}. UID {user.UId}",
                             cancellationToken: cancellationToken
                         );
-                    }
-                    break;
+                        break;
             }
         }
         

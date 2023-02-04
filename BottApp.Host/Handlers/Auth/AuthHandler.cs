@@ -86,7 +86,9 @@ namespace BottApp.Host.Handlers.Auth
                 switch (user)
                 {
                     case {Phone : null} when message.Contact is not null:
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
+                        
                         await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, text: "Cпасибо!\nТеперь отправьте свое имя",
@@ -94,11 +96,14 @@ namespace BottApp.Host.Handlers.Auth
                         );
                         await _userRepository.UpdateUserPhone(user, message.Contact.PhoneNumber);
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     case {Phone : null} when message.Contact is null:
-                        
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
+
                         await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
                             message.Chat.Id, "Отправьте телефон по кнопке *\"Поделиться контактом\"*",
@@ -106,14 +111,13 @@ namespace BottApp.Host.Handlers.Auth
                             replyMarkup: Keyboard.RequestLocationAndContactKeyboard
                         );
                         
-                       
-                      
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     case {FirstName: null} when message.Text is not null:
                         
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                         await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id, text: $"Cпасибо!\nТеперь отправьте фамилию"
@@ -124,17 +128,19 @@ namespace BottApp.Host.Handlers.Auth
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
                         user.FirstName = message.Text;
                         await _userRepository.UpdateUser(user);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     case {FirstName: null} when message.Text is null:
                         
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                         await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "Отправьте имя *в виде текста*"
+                            chatId: message.Chat.Id, text: "Отправьте имя в виде текста"
                         );
                        
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     case {LastName: null} when message.Text is not null:
@@ -143,7 +149,7 @@ namespace BottApp.Host.Handlers.Auth
                         
                      //   var profile = new Profile(user.FirstName, user.LastName);
                         
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                         await Task.Delay(500);
                       
                      //   await _userRepository.UpdateUserFullName(user, profile);
@@ -155,22 +161,24 @@ namespace BottApp.Host.Handlers.Auth
                             text: "Отлично!\nПередал заявку на модерацию.\nОжидайте уведомление :)"
                         );
                         
-                        await botClient.DeleteMessageAsync(user.UId, message.MessageId);
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                         
                         await Task.Delay(3000);
                         
                         await  _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     case {LastName: null} when message.Text is null:
-                        await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId);
+                        await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                         await Task.Delay(500);
                         msg = await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id, text: "Отправьте фамилию *в виде текста*"
+                            chatId: message.Chat.Id, text: "Отправьте фамилию в виде текста"
                             
                         );
 
                         await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
 
                     default:
@@ -178,27 +186,16 @@ namespace BottApp.Host.Handlers.Auth
                             chatId: message.Chat.Id, text: "Ваши данные на проверке, не переживайте!"
                         );
 
-                        await Task.Delay(3000);
+                        await Task.Delay(4000);
                         await _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
                         return;
                 }
             }
             catch (Exception e)
             {
+                await _messageService.TryDeleteMessage(user.UId, user.ViewMessageId, botClient);
                 Console.WriteLine(e);
                 throw;
-            }
-            finally
-            {
-                try
-                {
-                    await botClient.DeleteMessageAsync(user.UId, message.MessageId);
-                }
-                catch
-                {
-                    //ignored
-                }
-               
             }
         }
 
@@ -223,8 +220,12 @@ namespace BottApp.Host.Handlers.Auth
             }
             catch
             {
-                await botClient.SendTextMessageAsync(
+                const string noImagePath = "Files/BOT_NO_IMAGE.jpg";
+                await using FileStream fileStream = new(noImagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                await botClient.SendPhotoAsync(
                     AdminSettings.AdminChatId,
+                    photo: new InputFile(fileStream),
+                    caption:
                     $"ID {user.Id} UID {user.UId} \n" +
                     $"Пользователь @{message.Chat.Username ?? "Нет публичного имени"} \n" +
                     $"Имя: {user.FirstName} \n" +
