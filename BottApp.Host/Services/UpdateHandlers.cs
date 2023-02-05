@@ -1,11 +1,12 @@
 using BottApp.Database;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Telegram.Bot.Examples.WebHook.Services;
+namespace BottApp.Host.Services;
 
 public class UpdateHandlers
 {

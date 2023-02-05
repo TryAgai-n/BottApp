@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 
-namespace Telegram.Bot.Examples.WebHook.Filters;
+namespace BottApp.Host.Filters;
 
 /// <summary>
 /// Check for "X-Telegram-Bot-Api-Secret-Token"

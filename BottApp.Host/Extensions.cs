@@ -1,6 +1,9 @@
 using Microsoft.Extensions.Options;
 
+namespace BottApp.Host;
+
 public static class Extensions
+
 {
     public static T GetConfiguration<T>(this IServiceProvider serviceProvider)
         where T : class

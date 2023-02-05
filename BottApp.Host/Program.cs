@@ -1,148 +1,59 @@
-using System.Runtime.CompilerServices;
 using BottApp.Database;
 using BottApp.Host;
-using Microsoft.AspNetCore;
+using BottApp.Host.Controllers;
+using BottApp.Host.Handlers;
+using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.CommandLineUtils;
+using Telegram.Bot;
 
-public class Program
-{
-    public static void Main(string[] args)
+var builder = WebApplication.CreateBuilder(args);
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+var botConfigurationSection = builder.Configuration.GetSection(BotConfiguration.Configuration);
+builder.Services.Configure<BotConfiguration>(botConfigurationSection);
+
+var botConfiguration = botConfigurationSection.Get<BotConfiguration>();
+builder.Services.AddHttpClient("telegram_bot_client")
+    .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
     {
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        var botConfig = sp.GetConfiguration<BotConfiguration>();
+        TelegramBotClientOptions options = new(botConfig.BotToken);
+        return new TelegramBotClient(options, httpClient);
+    });
+
+builder.Services.AddScoped<UpdateHandlers>();
+builder.Services.AddScoped<UpdateHandler>();
+builder.Services.AddHostedService<ConfigureWebhook>();
+
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson();
+
+
+builder.Services.AddDbContext<PostgreSqlContext>(
+    opt => opt.UseNpgsql(
+        builder.Configuration.GetConnectionString("PostgreSqlConnection") ));
         
-        var webHost = BuildWebHost(args);
-        var commandLineApplication = new CommandLineApplication(false);
-
-        var catapult = commandLineApplication.Command(
-            "command",
-            config =>
-            {
-                config.OnExecute(
-                    () =>
-                    {
-                        config.ShowHelp();
-                        return 1;
-                    }
-                );
-                config.HelpOption("-? | -h | --help");
-            }
-        );
-
-        var doMigrate = commandLineApplication.Option(
-            "--ef-migrate",
-            "Apply entity framework migrations and exit",
-            CommandOptionType.NoValue
-        );
-        var verifyMigrate = commandLineApplication.Option(
-            "--ef-migrate-check",
-            "Check the status of entity framework migrations",
-            CommandOptionType.NoValue
-        );
-        var run = commandLineApplication.Option(
-            "--run",
-            "Run api Server",
-            CommandOptionType.NoValue
-        );
-
-        commandLineApplication.HelpOption("-? | -h | --help");
-        commandLineApplication.OnExecute(
-            () =>
-            {
-                ExecuteApp(webHost, doMigrate, verifyMigrate, run);
-                return 0;
-            }
-        );
-        commandLineApplication.Execute(args);
-    }
-
-
-    public static IWebHost BuildWebHost(string[] args)
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
-
-        return WebHost.CreateDefaultBuilder(args)
-            .UseStartup<Startup>()
-            .UseUrls(config.GetSection("Url").Value)
-            .Build();
-    }
-
-
-    private static IWebHost ExecuteApp(
-        IWebHost webHost,
-        CommandOption doMigrate,
-        CommandOption verifyMigrate,
-        CommandOption run
+builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(
+    x => BottApp.Database.Service.Factory.Create
+    (
+        x.GetRequiredService<IDatabaseContainer>())
+);
+        
+builder.Services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+builder.Services.AddScoped<IHandlerContainer>(
+    x => Factory.Create
+    (
+        x.GetRequiredService<IDatabaseContainer>(),
+        x.GetRequiredService<BottApp.Database.Service.IServiceContainer>()
     )
-    {
-        if (run.HasValue())
-        {
-            InitWebServices(webHost).GetAwaiter().GetResult();
-            return webHost;
-        }
+);
 
-        if (verifyMigrate.HasValue() && doMigrate.HasValue())
-        {
-            Console.WriteLine("ef-migrate and ef-migrate-check are mutually exclusive, select one, and try again");
-            Environment.Exit(2);
-        }
+var app = builder.Build();
 
-        var serviceScopeFactory = (IServiceScopeFactory) webHost.Services.GetService(typeof(IServiceScopeFactory));
-        using (var scope = serviceScopeFactory.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            using (var context = services.GetRequiredService<PostgreSqlContext>())
-            {
-                if (verifyMigrate.HasValue())
-                {
-                    Console.WriteLine("Validating status of Entity Framework migrations");
-                    _verifyMigrate(context);
-                    Environment.Exit(3);
-                }
+app.MapBotWebhookRoute<BotController>(route: botConfiguration.Route);
+app.MapControllers();
+app.Run();
 
-                if (doMigrate.HasValue())
-                {
-                    Console.WriteLine("Applyting Entity Framework migrations");
-                    context.Database.Migrate();
-                    Console.WriteLine("All done, closing app");
-                    Environment.Exit(0);
-                }
-            }
-        }
-
-        InitWebServices(webHost).GetAwaiter().GetResult();
-        return webHost;
-    }
-
-
-    private static void _verifyMigrate(PostgreSqlContext context)
-    {
-        var pendingMigrations = context.Database.GetPendingMigrations();
-        var migrations = pendingMigrations as IList<string> ?? pendingMigrations.ToList();
-        if (!migrations.Any())
-        {
-            Console.WriteLine("No pending migratons");
-            Environment.Exit(0);
-        }
-
-        Console.WriteLine("Pending migratons {0}", migrations.Count());
-        foreach (var migration in migrations)
-        {
-            Console.WriteLine($"\t{migration}");
-        }
-    }
-
-
-    private static async Task<int> InitWebServices(IWebHost webHost)
-    {
-        await Task.WhenAll(webHost.RunAsync());
-
-        Console.Read();
-        await Task.WhenAll(webHost.StopAsync());
-        Environment.Exit(0);
-        return 0;
-    }
-}
+namespace BottApp.Host { }

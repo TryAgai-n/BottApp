@@ -1,9 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
+using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace Telegram.Bot.Examples.WebHook.Services;
+namespace BottApp.Host.Services;
 
 public class ConfigureWebhook : IHostedService
 {

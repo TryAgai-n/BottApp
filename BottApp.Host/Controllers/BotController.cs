@@ -1,10 +1,9 @@
+using BottApp.Host.Filters;
 using BottApp.Host.Handlers;
 using Microsoft.AspNetCore.Mvc;
-using Telegram.Bot.Examples.WebHook.Filters;
-using Telegram.Bot.Examples.WebHook.Services;
 using Telegram.Bot.Types;
 
-namespace Telegram.Bot.Examples.WebHook.Controllers;
+namespace BottApp.Host.Controllers;
 
 public class BotController : ControllerBase
 {
