@@ -188,6 +188,7 @@ namespace BottApp.Host.Handlers.Auth
 
                         await Task.Delay(4000);
                         await _messageService.TryDeleteMessage(message.Chat.Id, msg.MessageId, botClient);
+                        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
                         return;
                 }
             }

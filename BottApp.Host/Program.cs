@@ -1,10 +1,12 @@
 using BottApp.Database;
+using BottApp.Database.Service;
 using BottApp.Host;
 using BottApp.Host.Controllers;
 using BottApp.Host.Handlers;
 using BottApp.Host.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
+using Factory = BottApp.Host.Handlers.Factory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddHttpClient("telegram_bot_client")
         return new TelegramBotClient(options, httpClient);
     });
 
+AdminSettings.AdminChatId = Convert.ToInt64(builder.Configuration.GetSection("AdminSettings:AdminChatId").Value);
+
 builder.Services.AddScoped<UpdateHandlers>();
 builder.Services.AddScoped<UpdateHandler>();
 builder.Services.AddHostedService<ConfigureWebhook>();
@@ -35,7 +39,7 @@ builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
         builder.Configuration.GetConnectionString("PostgreSqlConnection") ));
         
-builder.Services.AddScoped<BottApp.Database.Service.IServiceContainer>(
+builder.Services.AddScoped<IServiceContainer>(
     x => BottApp.Database.Service.Factory.Create
     (
         x.GetRequiredService<IDatabaseContainer>())
@@ -46,7 +50,7 @@ builder.Services.AddScoped<IHandlerContainer>(
     x => Factory.Create
     (
         x.GetRequiredService<IDatabaseContainer>(),
-        x.GetRequiredService<BottApp.Database.Service.IServiceContainer>()
+        x.GetRequiredService<IServiceContainer>()
     )
 );
 
@@ -55,5 +59,3 @@ var app = builder.Build();
 app.MapBotWebhookRoute<BotController>(route: botConfiguration.Route);
 app.MapControllers();
 app.Run();
-
-namespace BottApp.Host { }

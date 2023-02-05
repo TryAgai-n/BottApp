@@ -30,7 +30,7 @@ public class ConfigureWebhook : IHostedService
         await TryRunNgrok();
         var webhookAddress = await GetNgrokPublicUrl() + _botConfig.Route;
         
-        // _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
+        _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
         await botClient.SetWebhookAsync(
             url: webhookAddress,
             allowedUpdates: Array.Empty<UpdateType>(),
