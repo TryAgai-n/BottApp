@@ -19,12 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Files\tux.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\BottApp.Database.Service\BottApp.Database.Service.csproj" />
     <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
     <ProjectReference Include="..\BottApp.Host\BottApp.Host.csproj" />

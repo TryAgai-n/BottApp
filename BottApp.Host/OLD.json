@@ -1,0 +1,18 @@
+{
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "BotConfiguration": {
+    "BotToken": "5601343711:AAH6cM03nZkSf0LdHr7YJLYlnk2DHdM5bqo",
+    "HostAddress": "Automatically",
+    "Route": "/bot",
+    "SecretToken": "2KobEsiW00oLrDCt9W4Um5UhV6G_6S6uEEx5H3zKuLBJb3amj"
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "PostgreSqlConnection": "User ID=postgres;Password=123;Host=localhost;Port=5432;Database=bottapp_server;Pooling=true;"
+  }
+}
