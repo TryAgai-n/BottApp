@@ -143,7 +143,8 @@ public class VotesHandler : IVotesHandler
                     return;
                 }
 
-                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var rootPath = Directory.GetCurrentDirectory();
+                await using FileStream fileStream = new(rootPath+document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
                 await botClient.DeleteMessageAsync(
                     chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
@@ -179,7 +180,9 @@ public class VotesHandler : IVotesHandler
             
                 var document = docList[docIndex];
                 
-                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var rootPath = Directory.GetCurrentDirectory();
+                await using FileStream fileStream = new(rootPath+document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                
                 var stream = new InputFile(fileStream, document.DocumentExtension);
                 var photo = new InputMediaPhoto(stream);
                 photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";

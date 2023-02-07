@@ -10,7 +10,7 @@ public class DocumentService : IDocumentService
 {
     private readonly IUserRepository _userRepository;
     private readonly IDocumentRepository _documentRepository;
-    private const string VotePath = "/DATA/Votes";
+    private const string VotePath = "/DATA/Votes/";
 
     public DocumentService(IUserRepository userRepository, IDocumentRepository documentRepository)
     {
@@ -66,31 +66,32 @@ public class DocumentService : IDocumentService
         
         var documentType = message.Type.ToString();
         var extension = Path.GetExtension(filePath);
-        var rootPath = Directory.GetCurrentDirectory() + VotePath ;
-        var newPath = Path.Combine(rootPath, user.TelegramFirstName + "___" + user.UId, documentType, extension);
-
-        if (!Directory.Exists(newPath))
-        {
-            Directory.CreateDirectory(newPath);
-        }
-
-        var destinationFilePath = newPath + $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
         
-        document.Path = destinationFilePath;
+        var rootPath = Directory.GetCurrentDirectory();
+        var userFolder = Path.Combine(user.TelegramFirstName + "___" + user.UId, documentType, extension);
+        var userFile = $"/{user.TelegramFirstName}__{Guid.NewGuid().ToString("N")}__{user.UId}__{extension}";
+        var OSfilePath = rootPath + VotePath + userFolder + userFile;
+
+        if (!Directory.Exists(rootPath + VotePath + userFolder))
+        {
+            Directory.CreateDirectory(rootPath + VotePath + userFolder);
+        }
+        
+       
+        var pathOnDb = VotePath + userFolder + userFile;
+        
+        document.Path = pathOnDb;
         document.DocumentExtension = extension;
         document.DocumentType = documentType;
         
         await _documentRepository.UpdateDocument(document);
         
-        await using FileStream createNewDocument = System.IO.File.OpenWrite(destinationFilePath);
+        await using FileStream createNewDocument = System.IO.File.OpenWrite(OSfilePath);
         await _botClient.DownloadFileAsync(filePath, createNewDocument);
         createNewDocument.Close();
         
         
-        
-        await using FileStream fileStream = new(destinationFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        
-        
+        await using FileStream fileStream = new(OSfilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var photo = new InputFile(fileStream, "Document");
         
         var caption = $"ID: {document.Id} \n" +
