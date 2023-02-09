@@ -77,7 +77,7 @@ public class HelpHandler : IHelpHandler
         
        await _messageService.TryDeleteMessage(user.UId, message.MessageId, botClient);
        
-       await Task.Delay(2000, cancellationToken);
+       await Task.Delay(5000, cancellationToken);
        
        await _stateService.StartState(user, OnState.Menu, botClient);
     }

@@ -1,9 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
+using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace Telegram.Bot.Examples.WebHook.Services;
+namespace BottApp.Host.Services;
 
 public class ConfigureWebhook : IHostedService
 {
@@ -29,7 +30,7 @@ public class ConfigureWebhook : IHostedService
         await TryRunNgrok();
         var webhookAddress = await GetNgrokPublicUrl() + _botConfig.Route;
         
-        // _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
+        _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
         await botClient.SetWebhookAsync(
             url: webhookAddress,
             allowedUpdates: Array.Empty<UpdateType>(),

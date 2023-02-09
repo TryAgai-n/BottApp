@@ -1,0 +1,22 @@
+{
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "BotConfiguration": {
+    "BotToken": "bot_token",
+    "HostAddress": "Automatically",
+    "Route": "/bot",
+    "SecretToken": "Ngrok_token"
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "PostgreSqlConnection": ""
+  },
+  "AdminSettings": {
+    "AdminChatId" : ""
+  }
+}

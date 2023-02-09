@@ -1,59 +1,58 @@
-# Telegram.Bot Polling Example
+
+# ASP.NET Core Webhook Example
 
 ## About
 
-This example demonstrates simple Telegram Bot using long polling 
-([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
+This project is a simple ASP.NET Core application, which provides webhook endpoint for the Telegram Bot.
 
-This example utilize [Worker Service](https://docs.microsoft.com/en-us/dotnet/core/extensions/workers)
-template for hosting Bot application. This approach gives you such benefits as:
+You can find useful information on setting up webhook for your bot in official docs:
 
-- cross-platform hosting;
-- configuration;
-- dependency injection (DI);
-- logging;
+- [Marvin's Marvellous Guide to All Things Webhook](https://core.telegram.org/bots/webhooks)
+- [Getting updates](https://core.telegram.org/bots/api#getting-updates)
+- [setWebhook](https://core.telegram.org/bots/api#setwebhook)
+- [getWebhookInfo](https://core.telegram.org/bots/api#getwebhookinfo)
 
-
-## Prerequisites
+## Setup
 
 Please make sure you have .NET 6 or newer installed. You can download .NET runtime from the [official site.](https://dotnet.microsoft.com/download)
+This is a short description how you can test your bot locally. The description presumes that you already have a bot and it’s token. If not, please create one. You’ll find several explanations on the internet how to do this.
 
-You have to add [Telegram.Bot](https://www.nuget.org/packages/Telegram.Bot/) 
-nuget package to your project to be able to use polling:
+### Bot configuration
 
-```shell
-dotnet add package Telegram.Bot
-```
-
-Make sure that your .csproj contains these items (versions may vary):
-
-```xml
-<ItemGroup>
-  <PackageReference Include="Telegram.Bot" Version="18.0.0" />
-</ItemGroup>
-```
-
-## Configuration
-
-You should provide your Telegram Bot token with one of the available providers.
-Read futher on [Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0).
-We provide plaecehoder for bot configuration in `appsettings*.json`. You have to replace {BOT_TOKEN} with actual Bot token:
+You have to specify your Bot token in **appsettings.json**. Replace **{BotToken}** in **appsettings.json** with actual Bot token. Also you have to specify endpoint, to which Telegram will send new updates with `HostAddress` parameter:
 
 ```json
 "BotConfiguration": {
-  "BotToken": "{BOT_TOKEN}"
+    "BotToken": "{BotToken}",
+    "HostAddress": "https://mydomain.com"
 }
 ```
 
-Watch [Configuration in .NET 6](https://www.youtube.com/watch?v=6Fg54CEBVno&t=170s) talk for deep dive into .NET Configuration.
+you can specify separate development configuration with **appsettings.Development.json**.
 
+## Ngrok
 
-## Run Bot As Windows Service
+Ngrok gives you the opportunity to access your local machine from a temporary subdomain provided by ngrok. This domain can later send to the telegram API as URL for the webhook.
+Install ngrok from this page: [ngrok - download](https://ngrok.com/download) or via homebrew cask:
 
-Follow [Create a Windows Service using `BackgroundService`](https://docs.microsoft.com/en-us/dotnet/core/extensions/windows-service)
-article to host your bot as a Windows Service.
+```shell
+brew install --cask ngrok
+```
 
-## Run Bot Daemon On Linux
+and start ngrok on port 8443.
 
-Follow [.NET Core and systemd](https://devblogs.microsoft.com/dotnet/net-core-and-systemd/) blog post to run your
-bot as a Linux `systemd` daemon.
+```shell
+ngrok http 8443 
+```
+
+Telegram API only supports the ports 443, 80, 88 or 8443. Feel free to change the port in the config of the project.
+
+### Set Webhook
+
+From ngrok you get an URL to your local server. It’s important to use the `https` one. You can manually set webhook with  [setWebhook](https://core.telegram.org/bots/api#setwebhook) API call, providing this URL as form-data (key: url, value: `https://yoursubdomain.ngrok.io/api/update`).
+
+### Run Bot
+
+Now you can start the Bot in a local instance. Check if the port of the application matches the port on which ngrok is running.
+
+Now your bot should answer with the text from every message you send to it.

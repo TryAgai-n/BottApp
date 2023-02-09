@@ -1,4 +1,3 @@
-using BottApp.Host.Configs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
@@ -21,7 +20,7 @@ public class ValidateTelegramBotAttribute : TypeFilterAttribute
     {
         private readonly string _secretToken;
 
-        public ValidateTelegramBotFilter(IOptions<BotConfig> options)
+        public ValidateTelegramBotFilter(IOptions<BotConfiguration> options)
         {
             var botConfiguration = options.Value;
             _secretToken = botConfiguration.SecretToken;
