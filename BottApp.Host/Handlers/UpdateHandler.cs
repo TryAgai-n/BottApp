@@ -1,136 +1,96 @@
 using BottApp.Database;
 using BottApp.Database.Service;
 using BottApp.Database.User;
-using BottApp.Database.UserMessage;
-using BottApp.Host.Services.OnStateStart;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
-namespace BottApp.Host.Handlers;
-
-public class UpdateHandler : AbstractUpdateHandler
+namespace BottApp.Host.Handlers
 {
-    private readonly ITelegramBotClient _;
-    private readonly ILogger<UpdateHandler> _logger;
-    private readonly IDatabaseContainer _databaseContainer;
-
-    public UpdateHandler(
-        ITelegramBotClient botClient,
-        ILogger<UpdateHandler> logger,
-        IDatabaseContainer databaseContainer,
-        IHandlerContainer handlerContainer
-    ) : base(handlerContainer)
+    public class UpdateHandler : AbstractUpdateHandler
     {
-        _ = botClient;
-        _logger = logger;
-        _databaseContainer = databaseContainer;
-    }
-    
-    public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
-    {
-        Task? handler;
-        var updateMessage = update.Message ?? update.CallbackQuery?.Message;
-        
-        if(updateMessage is null)
-            return;
+        private readonly ITelegramBotClient _botClient;
+        private readonly ILogger<UpdateHandler> _logger;
+        private readonly IDatabaseContainer _databaseContainer;
 
-        if (updateMessage.Chat.Id == AdminSettings.AdminChatId)
+
+        public UpdateHandler(
+            ITelegramBotClient botClient,
+            ILogger<UpdateHandler> logger,
+            IDatabaseContainer databaseContainer,
+            IHandlerContainer handlerContainer
+        ) : base(handlerContainer)
         {
-             handler = update switch
+            _botClient = botClient;
+            _logger = logger;
+            _databaseContainer = databaseContainer;
+        }
+        
+        public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
+        {
+            var updateMessage = update.Message ?? update.CallbackQuery?.Message;
+
+            if (updateMessage is null)
+                return;
+            
+            if (updateMessage.Chat.Id == AdminSettings.AdminChatId)
             {
-                {Message:       { } message}       => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken, null),
-                {EditedMessage: { } message}       => _handlerContainer.AdminChatHandler.BotOnMessageReceived(_, message, cancellationToken,null),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.AdminChatHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken,null),
-                _                                  => _handlerContainer.AdminChatHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
+                await HandleAdminChatUpdateAsync(update, cancellationToken);
+                return;
+            }
+            await HandleUserChatUpdateAsync(update, cancellationToken, updateMessage);
+        }
+        
+        private async Task HandleAdminChatUpdateAsync(Update update, CancellationToken cancellationToken)
+        {
+            IHandler handler = _handlerContainer.AdminChatHandler;
+            var action = update switch
+            {
+                {Message:       { } message} => handler.BotOnMessageReceived(_botClient, message, cancellationToken, null),
+                {EditedMessage: { } message} => handler.BotOnMessageReceived(_botClient, message, cancellationToken, null),
+                {CallbackQuery: { } callbackQuery} => handler.BotOnCallbackQueryReceived(_botClient, callbackQuery, cancellationToken, null),
+                    _ => handler.UnknownUpdateHandlerAsync(update, cancellationToken)
             };
-             await handler;
-            return;
+            await action;
         }
 
 
-        var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id);
-        if (user is null)
+        private async Task HandleUserChatUpdateAsync(Update update, CancellationToken cancellationToken, Message updateMessage)
         {
-            var telegramProfile = new TelegramProfile(
-                updateMessage.Chat.Id,
-                updateMessage.Chat.FirstName,
-                updateMessage.Chat.LastName,
-                null);
+            var user = await _databaseContainer.User.FindOneByUid(updateMessage.Chat.Id) 
+                       ?? 
+                       await _databaseContainer.User.CreateUser(
+                           new TelegramProfile(
+                               updateMessage.Chat.Id, 
+                               updateMessage.Chat.FirstName,
+                               updateMessage.Chat.LastName, null));
+
+            await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, updateMessage.Type.ToString(), DateTime.Now);
+
+            if (updateMessage.Text == "/start" && user.isAuthorized)
+            {
+                await _handlerContainer.MainMenuHandler.BotOnMessageReceived(_botClient, updateMessage, cancellationToken, user);
+                return;
+            }
             
-           user = await _databaseContainer.User.CreateUser(telegramProfile);
+            IHandler handler = user.OnState switch
+            {
+                OnState.Auth => _handlerContainer.AuthHandler,
+                OnState.Menu => _handlerContainer.MainMenuHandler,
+                OnState.Help => _handlerContainer.HelpHandler,
+                OnState.Votes => _handlerContainer.VotesHandler,
+                OnState.UploadCandidate => _handlerContainer.CandidateUploadHandler,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            var action = update switch
+            {
+                {Message:       { } message}       => handler.BotOnMessageReceived(_botClient, message, cancellationToken, user),
+                {EditedMessage: { } message}       => handler.BotOnMessageReceived(_botClient, message, cancellationToken, user),
+                {CallbackQuery: { } callbackQuery} => handler.BotOnCallbackQueryReceived(_botClient, callbackQuery, cancellationToken, user),
+                _                                  => handler.UnknownUpdateHandlerAsync(update, cancellationToken)
+            };
+            await action;
         }
-
-
-        
-        var type = updateMessage.Type.ToString();
-        await _databaseContainer.Message.CreateModel(user.Id, updateMessage.Text, type, DateTime.Now);
-
-        if (updateMessage.Text is "/start" && user.isAuthorized)
-        {
-            await _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, updateMessage, cancellationToken, user);
-            return;
-        }
-  
-        handler = user.OnState switch
-        {
-            OnState.Auth => update switch
-            {
-                {Message:       { } message}       => _handlerContainer.AuthHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.AuthHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
-                _                                  => _handlerContainer.AuthHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            },
-            
-            OnState.Menu => update switch
-            {
-                {Message:       { } message}       => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {EditedMessage: { } message}       => _handlerContainer.MainMenuHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.MainMenuHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                _                                  => _handlerContainer.MainMenuHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            },
-            OnState.Votes => update switch
-            {
-                {Message:       { } message}       => _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {EditedMessage: { } message}       => _handlerContainer.VotesHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.VotesHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user), 
-                _                                  => _handlerContainer.VotesHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            },
-            OnState.UploadCandidate => update switch
-            {
-                {Message:       { } message}       => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {EditedMessage: { } message}       => _handlerContainer.CandidateUploadHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.CandidateUploadHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                _                                  => _handlerContainer.CandidateUploadHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            },
-            OnState.Help => update switch
-            {
-                {Message:       { } message}       => _handlerContainer.HelpHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {EditedMessage: { } message}       => _handlerContainer.HelpHandler.BotOnMessageReceived(_, message, cancellationToken, user),
-                {CallbackQuery: { } callbackQuery} => _handlerContainer.HelpHandler.BotOnCallbackQueryReceived(_, callbackQuery, cancellationToken, user),
-                _                                  => _handlerContainer.HelpHandler.UnknownUpdateHandlerAsync(update, cancellationToken)
-            },
-            
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        
-       await handler;
-      
-
-
-    }
-
-
-    public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
-    {
-        var ErrorMessage = exception switch
-        {
-            ApiRequestException apiRequestException =>
-                $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-            _ => exception.ToString()
-        };
-        
-        if (exception is RequestException)
-            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }
 }
+
