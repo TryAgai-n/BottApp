@@ -79,7 +79,7 @@ public class VotesHandler : IVotesHandler
              {
                  await botClient.EditMessageTextAsync(
                      chatId: user.UId, messageId: user.ViewMessageId,
-                     text: "There are no candidates in the current nomination :(\nBecome the first to add your own!",
+                     text: "В текущей номинации нет кандидатов\nПредлагаю вам стать первым!",
                      cancellationToken: cancellationToken
                  );
 
@@ -130,7 +130,7 @@ public class VotesHandler : IVotesHandler
              await _documentRepository.IncrementViewByDocument(document);
              await _userRepository.ChangeViewDocumentId(user, document.Id);
          }
-           
+
      }
 
     #region VOTE_REGION
@@ -153,13 +153,13 @@ public class VotesHandler : IVotesHandler
 
             await Task.Delay(1500, cancellationToken);
 
-            await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
+            await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId, cancellationToken: cancellationToken);
             return;
         }
         
-        var model = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
+        var document = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
 
-        await _documentRepository.IncrementLikeByDocument(model);
+        await _documentRepository.IncrementLikeByDocument(document);
         await _likedDocumentRepository.CreateModel(user.Id, user.ViewDocumentId, true);
         
         msg = await botClient.SendTextMessageAsync(
@@ -169,7 +169,7 @@ public class VotesHandler : IVotesHandler
         
         await Task.Delay(1500, cancellationToken);
         
-        await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId);
+        await botClient.DeleteMessageAsync(chatId: callbackQuery.Message.Chat.Id, msg.MessageId, cancellationToken: cancellationToken);
     }
 
 
@@ -193,7 +193,7 @@ public class VotesHandler : IVotesHandler
            text: "Добавить своего кандидата пока нельзя",
            cancellationToken: cancellationToken);
         
-       await Task.Delay(2000);
+       await Task.Delay(3000);
         
        await botClient.EditMessageTextAsync(
            chatId: user.UId,
@@ -225,7 +225,7 @@ public class VotesHandler : IVotesHandler
             text: "Голосование закрыто, подсчитываем результаты :)",
             cancellationToken: cancellationToken);
         
-        await Task.Delay(2000);
+        await Task.Delay(3000);
         
         await botClient.EditMessageTextAsync(
             chatId: user.UId,

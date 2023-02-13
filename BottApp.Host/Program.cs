@@ -34,11 +34,13 @@ builder.Services
     .AddControllers()
     .AddNewtonsoftJson();
 
+var typeOfContent = typeof(Program);
 
 builder.Services.AddDbContext<PostgreSqlContext>(
     opt => opt.UseNpgsql(
-        builder.Configuration.GetConnectionString("PostgreSqlConnection") ));
-        
+        builder.Configuration.GetConnectionString("PostgreSqlConnection"),
+        b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)));
+
 builder.Services.AddScoped<IServiceContainer>(
     x => BottApp.Database.Service.Factory.Create
     (

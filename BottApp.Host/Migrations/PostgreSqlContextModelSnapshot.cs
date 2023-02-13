@@ -150,43 +150,6 @@ namespace BottApp.Host.Migrations
                     b.ToTable("UserFlag", (string)null);
                 });
 
-            modelBuilder.Entity("BottApp.Database.User.UserFlag.UserFlagModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsSendCaption")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSendDocument")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSendFirstName")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSendLastName")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSendNomination")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSendPhone")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserFlag");
-                });
-
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
                 {
                     b.Property<int>("Id")
