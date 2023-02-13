@@ -21,7 +21,7 @@ public interface IDocumentRepository
     
     Task<DocumentModel> CreateModel(int userId, InNomination nomination, DocumentInPath path, DateTime createAt);
 
-
+    Task<DocumentModel> FindFirstDocumentByNomination(InNomination? documentNomination);
     Task<DocumentModel> GetOneByDocumentId(int documentId);
     
     Task<DocumentModel> GetFirstDocumentByPath(DocumentInPath documentInPath);

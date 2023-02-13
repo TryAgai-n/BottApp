@@ -219,8 +219,8 @@ namespace BottApp.Host.Handlers.AdminChat
             {
                 int.TryParse(string.Join("", prepString.Where(char.IsDigit)), out var id);
                 var document = await _documentRepository.GetOneByDocumentId(id);
-                
-                await using FileStream fileStream = new(document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var filePath = Directory.GetCurrentDirectory() + document.Path;
+                await using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             
                 await botClient.SendPhotoAsync(
                     chatId: message.Chat.Id,

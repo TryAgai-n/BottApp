@@ -52,24 +52,86 @@ public class VotesHandler : IVotesHandler
     )
     {
         Enum.TryParse<MenuButton>(callbackQuery.Data, out var result);
+
         var button = result switch
         {
             MenuButton.Back              => _stateService.StartState(user, OnState.Menu, botClient),
-            MenuButton.AddCandidate      => AddCandiate(botClient, callbackQuery, cancellationToken, user),
+            MenuButton.AddCandidate      => AddCandidate(botClient, callbackQuery, cancellationToken, user),
             MenuButton.ChooseNomination  => ChooseNomination(botClient, callbackQuery, cancellationToken, user),
             MenuButton.Votes             => BackToVotes(botClient, callbackQuery, cancellationToken, user),
-            MenuButton.Right             => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, 1, false, true),
-            MenuButton.Left              => ViewCandidates(botClient, callbackQuery, cancellationToken, null, user, -1, false, true),
             MenuButton.Like              => AddLike(botClient, callbackQuery, cancellationToken, user),
-            MenuButton.BiggestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.First, user, 0, true, false),
-            MenuButton.SmallerNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Second, user, 0, true, false),
-            MenuButton.FastestNomination => ViewCandidates(botClient, callbackQuery, cancellationToken, InNomination.Third, user, 0, true, false),
+            MenuButton.BiggestNomination => ViewCandidates(botClient, user, 0, cancellationToken, InNomination.First),
+            MenuButton.SmallerNomination => ViewCandidates(botClient, user, 0, cancellationToken, InNomination.Second),
+            MenuButton.FastestNomination => ViewCandidates(botClient, user, 0, cancellationToken, InNomination.Third),
+            MenuButton.Right             => ViewCandidates(botClient, user, 1, cancellationToken, null),
+            MenuButton.Left              => ViewCandidates(botClient, user, -1, cancellationToken, null),
             _                            => _stateService.StartState(user, OnState.Menu, botClient),
         };
         
         await button;
     }
+  private async Task ViewCandidates(ITelegramBotClient botClient, UserModel user, int skip, CancellationToken cancellationToken, InNomination? nomination)
+     {
+         if (nomination is not null)
+         {
+             var document = await _documentRepository.FindFirstDocumentByNomination(nomination);
+             if (document is null)
+             {
+                 await botClient.EditMessageTextAsync(
+                     chatId: user.UId, messageId: user.ViewMessageId,
+                     text: "There are no candidates in the current nomination :(\nBecome the first to add your own!",
+                     cancellationToken: cancellationToken
+                 );
 
+                 await Task.Delay(3000, cancellationToken);
+
+                 await _stateService.StartState(user, OnState.UploadCandidate, botClient);
+                 return;
+             }
+             
+             await botClient.DeleteMessageAsync(user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
+             
+             var count = await _documentRepository.GetCountByNomination(nomination);
+             var filePath = Directory.GetCurrentDirectory() + document.Path;
+             await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+             var stream = new InputFile(fileStream, document.DocumentExtension);
+             var caption =  $"1 of {count}\n{document.Caption}";
+
+             var msg = await botClient.SendPhotoAsync(user.UId, stream, caption: caption, replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
+             await _userRepository.ChangeViewDocumentId(user, document.Id);
+             await _userRepository.ChangeViewMessageId(user, msg.MessageId);
+             return;
+         } 
+         else
+         {
+             var currentDocument = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
+             var documentList = await _documentRepository.GetListByNomination(currentDocument.DocumentNomination, true);
+             var currentIndex = documentList.IndexOf(currentDocument);
+             currentIndex += skip;
+
+             if (currentIndex < 0)
+                 currentIndex = documentList.Count - 1;
+             else if (currentIndex >= documentList.Count)
+                 currentIndex = 0;
+             
+
+             var document = documentList[currentIndex];
+             var filePath = Directory.GetCurrentDirectory() + document.Path;
+
+             await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+             var stream = new InputFile(fileStream, document.DocumentExtension);
+             var photo = new InputMediaPhoto(stream) {Caption = $"{currentIndex + 1} of {documentList.Count}\n{document.Caption}"};
+
+             await botClient.EditMessageMediaAsync(
+                 chatId: user.UId, messageId: user.ViewMessageId, media: photo, replyMarkup: Keyboard.VotesKeyboard,
+                 cancellationToken: cancellationToken
+             );
+
+             await _documentRepository.IncrementViewByDocument(document);
+             await _userRepository.ChangeViewDocumentId(user, document.Id);
+         }
+           
+     }
 
     #region VOTE_REGION
 
@@ -111,110 +173,9 @@ public class VotesHandler : IVotesHandler
     }
 
 
-   private async Task ViewCandidates(
-        ITelegramBotClient botClient,
-        CallbackQuery callbackQuery,
-        CancellationToken cancellationToken,
-        InNomination? nomination,
-        UserModel user,
-        int skip,
-        bool first,
-        bool next
-    )
-    {
-        try  
-        {
-            if (first)
-            {
-                var documents = await _documentRepository.GetListByNomination(nomination, true);
-                var document = documents.FirstOrDefault();
+   
 
-                if (document is null)
-                {
-                    await botClient.EditMessageTextAsync(
-                        chatId: user.UId, messageId: user.ViewMessageId,
-                        text: "В текущей номинации нет кандидатов :(\nПредлагаю стать первым и добавить своего!",
-                        cancellationToken: cancellationToken
-                    );
-
-                    await Task.Delay(3000, cancellationToken);
-
-                    await _stateService.StartState(user, OnState.UploadCandidate, botClient);
-                    return;
-                }
-
-                var rootPath = Directory.GetCurrentDirectory();
-                await using FileStream fileStream = new(rootPath+document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                await botClient.DeleteMessageAsync(
-                    chatId: user.UId, user.ViewMessageId, cancellationToken: cancellationToken);
-
-                await botClient.SendChatActionAsync(
-                    user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
-
-                var msg = await botClient.SendPhotoAsync(chatId: user.UId, 
-                    photo: new InputFile(fileStream, "Document" + document.DocumentExtension),
-                    caption: $"1 из {documents.Count}\n{document.Caption}",
-                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken
-                );
-
-                await _documentRepository.IncrementViewByDocument(document);
-                await _userRepository.ChangeViewDocumentId(user, document.Id);
-                await _userRepository.ChangeViewMessageId(user, msg.MessageId);
-            }
-            if (next)
-            {
-                await botClient.SendChatActionAsync(user.UId, ChatAction.UploadPhoto, cancellationToken: cancellationToken);
-        
-                var documentModel = await _documentRepository.GetOneByDocumentId(user.ViewDocumentId);
-                var docList = await _documentRepository.GetListByNomination(documentModel.DocumentNomination, true);
-                
-                var docIndex =  docList.IndexOf(documentModel);
-                docIndex += skip;
-            
-                if (docIndex < 0)
-                    docIndex = docList.Count-1;
-
-                if (docIndex > docList.Count-1)
-                    docIndex = 0;
-            
-                var document = docList[docIndex];
-                
-                var rootPath = Directory.GetCurrentDirectory();
-                await using FileStream fileStream = new(rootPath+document.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                
-                var stream = new InputFile(fileStream, document.DocumentExtension);
-                var photo = new InputMediaPhoto(stream);
-                photo.Caption = $"{docIndex + 1} из {docList.Count}\n{document.Caption}";
-                
-                await Task.Delay(300, cancellationToken);
-                await botClient.EditMessageMediaAsync(
-                    chatId: user.UId, 
-                    messageId: user.ViewMessageId,
-                    media: photo,
-                    replyMarkup: Keyboard.VotesKeyboard, cancellationToken: cancellationToken);
-                
-                fileStream.Close();
-                
-                await _userRepository.ChangeViewDocumentId(user, document.Id);
-                
-                await _documentRepository.IncrementViewByDocument(document);
-            
-            }
-        }
-        catch (Exception e)                                                      
-        {                                                                        
-            Console.BackgroundColor = ConsoleColor.Red;                          
-            Console.ForegroundColor = ConsoleColor.Black;                        
-            Console.WriteLine("\n\nException\n\n" + e);    
-            Console.ResetColor();                                                
-            throw;                                                               
-        }                                                                        
-
-       
-    }
-
-    private async Task AddCandiate(
+    private async Task AddCandidate(
        ITelegramBotClient botClient,
        CallbackQuery? callbackQuery,
        CancellationToken cancellationToken,

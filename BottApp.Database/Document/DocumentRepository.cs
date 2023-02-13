@@ -95,7 +95,15 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         return model;
     }
 
+    public async Task<DocumentModel> FindFirstDocumentByNomination(InNomination? documentNomination)
+    {
+        var model = await PrepareDocumentNomination(documentNomination)
+            .OrderBy(x => x.Id)
+            .Include(x => x.DocumentStatisticModel)
+            .FirstOrDefaultAsync();
 
+        return model;
+    }
     public async Task<DocumentModel> GetFirstDocumentByNomination(InNomination? documentNomination)
     {
         var model = await PrepareDocumentNomination(documentNomination)
