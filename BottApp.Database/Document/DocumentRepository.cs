@@ -9,7 +9,7 @@ namespace BottApp.Database.Document;
 
 public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRepository
 {
-    public DocumentRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+    public DocumentRepository(PostgresContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
     

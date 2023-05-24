@@ -11,9 +11,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BottApp.Host.Migrations
 {
-    [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20221107145920_initDocument")]
-    partial class initDocument
+    [DbContext(typeof(PostgresContext))]
+    [Migration("20221107145210_initMessage")]
+    partial class initMessage
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,36 +23,6 @@ namespace BottApp.Host.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DocumentExtension")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DocumentType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Document");
-                });
 
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
                 {
@@ -106,17 +76,6 @@ namespace BottApp.Host.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("BottApp.Database.Document.DocumentModel", b =>
-                {
-                    b.HasOne("BottApp.Database.User.UserModel", "UserModel")
-                        .WithMany("Documents")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserModel");
-                });
-
             modelBuilder.Entity("BottApp.Database.Message.MessageModel", b =>
                 {
                     b.HasOne("BottApp.Database.User.UserModel", "UserModel")
@@ -130,8 +89,6 @@ namespace BottApp.Host.Migrations
 
             modelBuilder.Entity("BottApp.Database.User.UserModel", b =>
                 {
-                    b.Navigation("Documents");
-
                     b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618

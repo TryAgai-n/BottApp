@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BottApp.Host.Migrations
 {
-    [DbContext(typeof(PostgreSqlContext))]
+    [DbContext(typeof(PostgresContext))]
     [Migration("20221117083818_addUserOnState")]
     partial class addUserOnState
     {

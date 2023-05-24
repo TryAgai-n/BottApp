@@ -3,6 +3,7 @@ using System;
 using BottApp.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,10 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BottApp.Host.Migrations
 {
-    [DbContext(typeof(PostgreSqlContext))]
-    partial class PostgreSqlContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(PostgresContext))]
+    [Migration("20221110091918_likedDocument")]
+    partial class likedDocument
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,9 +37,6 @@ namespace BottApp.Host.Migrations
 
                     b.Property<string>("DocumentExtension")
                         .HasColumnType("text");
-
-                    b.Property<int>("DocumentInPath")
-                        .HasColumnType("integer");
 
                     b.Property<string>("DocumentType")
                         .HasColumnType("text");
@@ -141,9 +140,6 @@ namespace BottApp.Host.Migrations
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
-
-                    b.Property<int>("OnState")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Phone")
                         .HasColumnType("text");

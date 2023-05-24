@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BottApp.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database.Message;
 
 public class MessageRepository : AbstractRepository<MessageModel>, IMessageRepository
 {
-    public MessageRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+    public MessageRepository(PostgresContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
 

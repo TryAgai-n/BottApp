@@ -10,7 +10,7 @@ namespace BottApp.Database.Document.Statistic;
 
 public class DocumentStatisticRepository : AbstractRepository<DocumentStatisticModel>, IDocumentStatisticRepository
 {
-    public DocumentStatisticRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+    public DocumentStatisticRepository(PostgresContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
     

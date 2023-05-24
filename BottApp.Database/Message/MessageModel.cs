@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.User;
-using BottApp.Utils;
 
 namespace BottApp.Database.Message;
 

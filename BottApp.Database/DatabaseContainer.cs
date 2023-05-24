@@ -18,7 +18,7 @@ namespace BottApp.Database
         public IDocumentStatisticRepository DocumentStatistic { get; }
 
 
-        public DatabaseContainer(PostgreSqlContext db, ILoggerFactory loggerFactory)
+        public DatabaseContainer(PostgresContext db, ILoggerFactory loggerFactory)
         {
             User = new UserRepository(db, loggerFactory);
             Message = new MessageRepository(db, loggerFactory);

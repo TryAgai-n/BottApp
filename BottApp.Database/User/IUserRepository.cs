@@ -9,6 +9,8 @@ namespace BottApp.Database.User
 
         Task<UserModel> GetOneByUid(long uid);
 
+        Task<UserModel> GetOneById(int id);
+
         Task<UserModel?> FindOneByUid(long userId);
 
         Task<bool> UpdateUserPhone(UserModel model, string phone);

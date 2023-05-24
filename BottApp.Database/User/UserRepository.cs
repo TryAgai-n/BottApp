@@ -11,7 +11,7 @@ namespace BottApp.Database.User
 {
     public class UserRepository : AbstractRepository<UserModel>, IUserRepository
     {
-        public UserRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+        public UserRepository(PostgresContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
         {
 
         }
@@ -28,11 +28,21 @@ namespace BottApp.Database.User
             {
                 throw new Exception("User is not created. Db error");
             }
-
-
+            
             return result;
         }
 
+        
+        public async Task<UserModel> GetOneById(int id)
+        {
+            var model = await DbModel.Where(x => x.Id == id).FirstAsync();
+            if(model == null)
+            {
+                throw new Exception($"User with Id: {id} is not found");
+            }
+            return model;
+        }
+        
 
         public async Task<UserModel> GetOneByUid(long uid)
         {

@@ -1,8 +1,8 @@
-// using BottApp.Host.Configs;
+// using BottApp.BotHost.Configs;
 // using Telegram.Bot;
 // using Telegram.Bot.Types.Enums;
 //
-// namespace BottApp.Host.Services;
+// namespace BottApp.BotHost.Services;
 //
 // public class ConfigureWebhook : IHostedService
 // {

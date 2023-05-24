@@ -6,13 +6,13 @@ namespace BottApp.Database.Test;
 
 internal sealed class Fixture : IDisposable
 {
-    private PostgreSqlContext _postgreSqlContext;
+    private PostgresContext _postgresContext;
     public DatabaseContainer DatabaseContainer;
 
-    public Fixture(PostgreSqlContext postgreSqlContext)
+    public Fixture(PostgresContext postgresContext)
     {
-        _postgreSqlContext = postgreSqlContext;
-        DatabaseContainer = postgreSqlContext.Db;
+        _postgresContext = postgresContext;
+        DatabaseContainer = postgresContext.Db;
     }
 
 
@@ -21,14 +21,14 @@ internal sealed class Fixture : IDisposable
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         var guid = Guid.NewGuid().ToString("N");
-        var option = new DbContextOptionsBuilder<PostgreSqlContext>()
+        var option = new DbContextOptionsBuilder<PostgresContext>()
             .UseNpgsql(
                 "User ID=postgres;Password=123;Host=localhost;Port=5432;Database=bottapp_test_" + guid + ";Pooling=true;",
                 b => b.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name)
                 )
             .Options;
 
-        var context = new PostgreSqlContext(option, new NullLoggerFactory());
+        var context = new PostgresContext(option, new NullLoggerFactory());
 
         context.Database.Migrate();
         
@@ -37,13 +37,13 @@ internal sealed class Fixture : IDisposable
 
     public void Dispose()
     {
-        if (_postgreSqlContext == null)
+        if (_postgresContext == null)
         {
             return;
         }
         
-        _postgreSqlContext.Database.EnsureDeleted();
+        _postgresContext.Database.EnsureDeleted();
 
-        _postgreSqlContext?.Dispose();
+        _postgresContext?.Dispose();
     }
 }

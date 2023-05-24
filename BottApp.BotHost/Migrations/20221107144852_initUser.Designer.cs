@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BottApp.Host.Migrations
 {
-    [DbContext(typeof(PostgreSqlContext))]
+    [DbContext(typeof(PostgresContext))]
     [Migration("20221107144852_initUser")]
     partial class initUser
     {

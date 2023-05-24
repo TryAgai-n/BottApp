@@ -14,12 +14,12 @@ namespace BottApp.Database
     {
         protected readonly DbSet<T> DbModel;
 
-        protected readonly PostgreSqlContext Context;
+        protected readonly PostgresContext Context;
 
         protected readonly ILogger<T> Logger;
 
 
-        protected AbstractRepository(PostgreSqlContext context, ILoggerFactory loggerFactory)
+        protected AbstractRepository(PostgresContext context, ILoggerFactory loggerFactory)
         {
             Context = context;
             DbModel = context.Set<T>();

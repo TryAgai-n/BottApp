@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database
 {
-    public class PostgreSqlContext : DbContext
+    public class PostgresContext : DbContext
     {
         public readonly DatabaseContainer Db;
 
@@ -24,7 +24,7 @@ namespace BottApp.Database
 
 
 
-        public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)
+        public PostgresContext(DbContextOptions<PostgresContext> options, ILoggerFactory loggerFactory) : base(options)
         {
             Db = new DatabaseContainer(this, loggerFactory);
         }

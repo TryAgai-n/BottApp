@@ -93,7 +93,7 @@ public class Program
         using (var scope = serviceScopeFactory.CreateScope())
         {
             var services = scope.ServiceProvider;
-            using (var context = services.GetRequiredService<PostgreSqlContext>())
+            using (var context = services.GetRequiredService<PostgresContext>())
             {
                 if (verifyMigrate.HasValue())
                 {
@@ -117,7 +117,7 @@ public class Program
     }
 
 
-    private static void _verifyMigrate(PostgreSqlContext context)
+    private static void _verifyMigrate(PostgresContext context)
     {
         var pendingMigrations = context.Database.GetPendingMigrations();
         var migrations = pendingMigrations as IList<string> ?? pendingMigrations.ToList();
