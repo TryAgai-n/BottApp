@@ -15,38 +15,19 @@ public class DocumentModel : AbstractModel
     public int UserId { get; set; }
     public UserModel UserModel { get; set; }
     public string DocumentExtension { get; set; }
-    public string Path { get; set; }
+    public string PathFullQuality { get; set; }
+    public string PathHalfQuality { get; set; }
     public DateTime CreatedAt { get; set; }
     public DocumentStatus DocumentStatus { get; set; }
     
     // public DocumentStatisticModel DocumentStatisticModel { get; set; }
     // public List<LikedDocumentModel> Likes { get; set; }
-    
+
     public static DocumentModel CreateModel(
         int userId,
-        string? documentType,
-        string? documentExtension,
-        DateTime createdAt,
-        string? path,
-        DocumentStatus documentStatus
-    )
-    {
-        return new DocumentModel
-        {
-            UserId = userId,
-            DocumentExtension = documentExtension,
-            CreatedAt = createdAt,
-            Path = path,
-            DocumentStatus = documentStatus,
-            // DocumentStatisticModel = DocumentStatisticModel.CreateEmpty(),
-            // Likes = new List<LikedDocumentModel>()
-        };
-    }
-    
-    public static DocumentModel CreateModel(
-        int userId,
-        string? documentExtension,
-        string? path,
+        string documentExtension,
+        string pathFullQuality,
+        string pathHalfQuality,
         DocumentStatus documentStatus
     )
     {
@@ -55,7 +36,8 @@ public class DocumentModel : AbstractModel
             UserId = userId,
             DocumentExtension = documentExtension,
             CreatedAt = DateTime.UtcNow,
-            Path = path,
+            PathFullQuality = pathFullQuality,
+            PathHalfQuality = pathHalfQuality,
             DocumentStatus = documentStatus,
         };
     }

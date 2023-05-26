@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace BottApp.Database
 {
-    public abstract class AbstractModel
-    {
-    }
+    public abstract class AbstractModel { }
 }
+

@@ -1,4 +1,5 @@
 using BottApp.Database;
+using BottApp.Host.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -17,6 +18,18 @@ namespace BottApp.Host
         
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin", builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BottApp Api", Version = "v1" });
@@ -32,6 +45,7 @@ namespace BottApp.Host
             );
             
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+            services.AddScoped<IDocumentService, DocumentService>();
             services.AddControllers();
         }
         
@@ -43,7 +57,8 @@ namespace BottApp.Host
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BottApp Api v1"));
             }
-
+            
+            app.UseCors("AllowOrigin");
             app.UseRouting();
          
             app.UseAuthentication();
