@@ -26,13 +26,13 @@ namespace BottApp.Host
 
             services.AddDbContext<PostgresContext>(
                 options => options.UseNpgsql(
-                    Configuration.GetConnectionString("PostgresConnection") ?? throw new InvalidOperationException(),
+                    Configuration.GetConnectionString("PostgresConnection"),
                     b => b.MigrationsAssembly(typeOfContent.Assembly.GetName().Name)
                 )
             );
             
-            services.AddControllers();
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
+            services.AddControllers();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

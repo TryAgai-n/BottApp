@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BottApp.Database.Document;
-using BottApp.Database.Message;
-using Microsoft.EntityFrameworkCore;
 
 namespace BottApp.Database.User;
 
@@ -14,29 +11,26 @@ public class UserModel : AbstractModel
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     
-    [Required]
-    public long UId { get; set; }
-    public string? FirstName { get; set; }
-    public string? Phone { get; set; }
+    public string FirstName { get; set; }
     
-    [Required]
-    public OnState OnState { get; set; }
-
-    public List<MessageModel> Messages { get; set; }
+    public string LastName { get; set; }
     
-    public List<DocumentModel> Documents { get; set; }
+    public string Phone { get; set; }
+    
+    public string Password { get; set; }
+
+    public List<DocumentModel> Documents;
 
 
-    public static UserModel Create(long uid, string? firstName, string? phone)
+
+    public static UserModel Create(string firstName, string lastName, string phone, string password)
     {
         return new UserModel
         {
-            UId = uid,
             FirstName = firstName,
+            LastName = lastName,
             Phone = phone,
-            OnState = OnState.Auth,
-            Messages = new List<MessageModel>(),
-            Documents = new List<DocumentModel>()
+            Password = password,
         };
     }
 }

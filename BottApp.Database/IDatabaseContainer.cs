@@ -2,12 +2,15 @@
 using BottApp.Database.Document;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
+using BottApp.Database.WebUser;
 
 namespace BottApp.Database
 {
     public interface IDatabaseContainer
     {
-        IUserRepository User { get; }
+        IUserBotRepository UserBot { get; }
+        
+        IUserWebRepository UserWeb { get; }
         
         IMessageRepository Message { get; }
         

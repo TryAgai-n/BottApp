@@ -8,12 +8,10 @@ public class Pagination
             Limit = limit;
         }
 
-
-        public int Page { get;}
+    public int Page { get;}
 
         public int Limit { get; }
-
-
+        
         public int GetSkip()
         {
             return Page * Limit;

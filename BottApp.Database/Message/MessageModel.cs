@@ -14,7 +14,7 @@ public class MessageModel : AbstractModel
     public int UserId { get; set; }
     
     [ForeignKey("UserId")]
-    public UserModel UserModel { get; set; }
+    public UserBotModel UserBotModel { get; set; }
     
     
     public string? Description { get; set; }

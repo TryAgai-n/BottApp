@@ -1,15 +1,13 @@
-using Microsoft.AspNetCore;
 
 namespace BottApp.Host;
 
-internal static class Program
+static internal class Program
 {
     public static void Main(string[] args)
     {
-        CreateWebHostBuilder(args).Build().Run();
+        CreateHostBuilder(args).Build().Run();
     }
-
-    private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-        WebHost.CreateDefaultBuilder(args)
-            .UseStartup<Startup>();
+        
+    private static IHostBuilder CreateHostBuilder(string[] args) =>  Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
 }

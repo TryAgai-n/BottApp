@@ -9,10 +9,10 @@ namespace BottApp.Host.Controllers;
 [Route("api/[controller]/[action]")]
 public abstract class AbstractClientController: ControllerBase
 {
-    public readonly IDatabaseContainer _DatabaseContainer;
+    protected readonly IDatabaseContainer DatabaseContainer;
 
     protected AbstractClientController(IDatabaseContainer databaseContainer)
     {
-        _DatabaseContainer = databaseContainer;
+        DatabaseContainer = databaseContainer;
     }
 }
