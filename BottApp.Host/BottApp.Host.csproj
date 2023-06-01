@@ -22,4 +22,8 @@
       <ProjectReference Include="..\BottApp.Database\BottApp.Database.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>

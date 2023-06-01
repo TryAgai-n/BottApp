@@ -5,19 +5,14 @@
 namespace BottApp.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class init2 : Migration
+    public partial class userLogin : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Path",
-                table: "Document",
-                newName: "PathHalfQuality");
-
             migrationBuilder.AddColumn<string>(
-                name: "PathFullQuality",
-                table: "Document",
+                name: "Login",
+                table: "User",
                 type: "text",
                 nullable: false,
                 defaultValue: "");
@@ -27,13 +22,8 @@ namespace BottApp.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PathFullQuality",
-                table: "Document");
-
-            migrationBuilder.RenameColumn(
-                name: "PathHalfQuality",
-                table: "Document",
-                newName: "Path");
+                name: "Login",
+                table: "User");
         }
     }
 }

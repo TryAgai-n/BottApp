@@ -1,5 +1,6 @@
 using BottApp.Database;
 using BottApp.Host.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -24,9 +25,10 @@ namespace BottApp.Host
                 options.AddPolicy("AllowOrigin", builder =>
                 {
                     builder
-                        .AllowAnyOrigin()
+                        .WithOrigins("http://localhost:4200","http://localhost:5000", "http://192.168.10.250:5010", "http://vote.my:5010")
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
             
@@ -47,6 +49,19 @@ namespace BottApp.Host
             services.AddScoped<IDatabaseContainer, DatabaseContainer>();
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddControllers();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = "UserCookies";
+                    options.Cookie.Path = "/";
+                    options.Cookie.Domain = "localhost";
+                    options.Cookie.HttpOnly = false;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                    
+                });
+            
+            
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -57,6 +72,10 @@ namespace BottApp.Host
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BottApp Api v1"));
             }
+            
+            app.UseStaticFiles();
+            
+            app.UseCookiePolicy();
             
             app.UseCors("AllowOrigin");
             app.UseRouting();

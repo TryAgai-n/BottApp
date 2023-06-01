@@ -16,43 +16,8 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
     { }
 
 
-    public async Task<DocumentModel> CreateModel(int userId, IFormFile photo, DocumentStatus documentStatus)
+    public async Task<DocumentModel> CreateModel(DocumentModel model)
     {
-        var projectDirectory = Directory.GetCurrentDirectory();
-        var dataDirectory = Path.Combine(projectDirectory, "Data");
-        var currentDate = DateTime.Now.ToString("dd.MM.yyyy");
-        
-        var documentExtension = Path.GetExtension(photo.FileName);
-
-        var filePathFullQuality = Path.Combine(dataDirectory, $"{userId}\\Full\\FULL.{currentDate}.{Guid.NewGuid()}{documentExtension}");
-        var filePathHalfQuality = Path.Combine(dataDirectory, $"{userId}\\Half\\HALF.{currentDate}.{Guid.NewGuid()}{documentExtension}");
-        
-        var directoryFullPath = Path.GetDirectoryName(filePathFullQuality);
-        
-        if (!Directory.Exists(directoryFullPath))
-        {
-            Directory.CreateDirectory(directoryFullPath);
-        }
-        
-        var directoryHalfPath = Path.GetDirectoryName(filePathHalfQuality);
-        
-        if (!Directory.Exists(filePathHalfQuality))
-        {
-            Directory.CreateDirectory(directoryHalfPath);
-        }
-
-        await using (var stream = new FileStream(filePathFullQuality, FileMode.Create))
-        {
-            await photo.CopyToAsync(stream);
-        }
-        
-        await CompressFile(filePathHalfQuality, filePathFullQuality);
-
-        var relativeFullPath = Path.GetRelativePath(projectDirectory, filePathFullQuality);
-        var relativeHalfPath = Path.GetRelativePath(projectDirectory, filePathHalfQuality);
-
-        var model = DocumentModel.CreateModel(userId, documentExtension, relativeFullPath, relativeHalfPath, documentStatus);
-
         var result = await CreateModelAsync(model);
 
         if (result == null)
@@ -61,16 +26,6 @@ public class DocumentRepository : AbstractRepository<DocumentModel>, IDocumentRe
         }
 
         return result;
-    }
-    
-    private async Task CompressFile(string compressedFilePath, string fullQualityFilePath)
-    {
-        
-        using var image = new MagickImage(fullQualityFilePath);
-        image.Format = image.Format;
-        image.Quality = 30;
-        await image.WriteAsync(compressedFilePath);
-
     }
 
 

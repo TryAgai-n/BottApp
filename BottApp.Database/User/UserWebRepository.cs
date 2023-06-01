@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BottApp.Database.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BottApp.Database.WebUser;
+namespace BottApp.Database.User;
 
 public class UserWebRepository : AbstractRepository<UserModel>, IUserWebRepository
 {
     
     public UserWebRepository(PostgresContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory) { }
 
-    public async Task<UserModel> CreateUser(string firstName, string lastName, string phone, string password)
+    public async Task<UserModel> CreateUser(string login, string firstName, string lastName, string phone, string password)
     {
-        var model = UserModel.Create(firstName, lastName, phone, password);
+        var model = UserModel.Create(login, firstName, lastName, phone, password);
         
         var result = await CreateModelAsync(model);
         
@@ -34,6 +33,25 @@ public class UserWebRepository : AbstractRepository<UserModel>, IUserWebReposito
         if (model is null)
         {
             throw new Exception($"User with Id: {id} is not found");
+        }
+
+        return model;
+    }
+    
+    public async Task<UserModel> FindOneByLogin(string login)
+    {
+        var model = await DbModel.Where(x => x.Login == login).FirstAsync();
+
+        return model;
+    }
+    
+    public async Task<UserModel> GetOneByPhone(string phone)
+    {
+        var model = await DbModel.Where(x => x.Phone == phone).FirstAsync();
+
+        if (model is null)
+        {
+            throw new Exception($"User with phone: {phone} is not found");
         }
 
         return model;

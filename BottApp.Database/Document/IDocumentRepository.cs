@@ -7,11 +7,7 @@ namespace BottApp.Database.Document;
 
 public interface IDocumentRepository
 {
-    Task<DocumentModel> CreateModel(
-        int userId,
-        IFormFile photo,
-        DocumentStatus documentStatus
-    );
+    Task<DocumentModel> CreateModel(DocumentModel model);
 
     Task<List<DocumentModel>> ListDocumentsByStatus(DocumentStatus documentStatus, int skip, int take);
 

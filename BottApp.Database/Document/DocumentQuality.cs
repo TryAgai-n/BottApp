@@ -2,6 +2,8 @@
 
 public enum DocumentQuality
 {
-    Full,
-    Half
+    High,
+    Medium,
+    Low,
+    UltraLow,
 }

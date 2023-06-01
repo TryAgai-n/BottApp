@@ -3,7 +3,6 @@ using BottApp.Database.Message;
 using BottApp.Database.Document;
 using BottApp.Database.Document.Statistic;
 using BottApp.Database.User;
-using BottApp.Database.WebUser;
 using Microsoft.Extensions.Logging;
 
 namespace BottApp.Database

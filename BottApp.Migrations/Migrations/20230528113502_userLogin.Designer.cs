@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BottApp.Migrations.Migrations
 {
     [DbContext(typeof(PostgresContext))]
-    [Migration("20230526111352_init2")]
-    partial class init2
+    [Migration("20230528113502_userLogin")]
+    partial class userLogin
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,11 +43,7 @@ namespace BottApp.Migrations.Migrations
                     b.Property<int>("DocumentStatus")
                         .HasColumnType("integer");
 
-                    b.Property<string>("PathFullQuality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PathHalfQuality")
+                    b.Property<string>("Path")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -77,6 +73,10 @@ namespace BottApp.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
@@ -84,6 +84,9 @@ namespace BottApp.Migrations.Migrations
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("UserRole")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

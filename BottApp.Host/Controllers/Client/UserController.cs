@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
+using System.Security.Claims;
 using BottApp.Client.User;
 using BottApp.Database;
-using BottApp.Database.User;
-using BottApp.Database.WebUser;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,22 +16,57 @@ public class UserController : AbstractClientController
    
    [AllowAnonymous]
    [HttpPost]
-   public async Task<IActionResult> UserById(RequestUser user)
+   public async Task<IActionResult> Register(RequestRegisterUser requestRegisterUser)
    {
       if (!ModelState.IsValid)
       {
          return BadRequest();
       }
       
-      var response = await DatabaseContainer.UserWeb.GetOneById(user.Id);
-      return Ok(response);
+      await DatabaseContainer.UserWeb.CreateUser(
+         requestRegisterUser.Login,
+         requestRegisterUser.FirstName,
+         requestRegisterUser.LastName,
+         requestRegisterUser.Phone,
+         requestRegisterUser.Password);
+      
+                
+      return Ok();
    }
-   
+
+
    [AllowAnonymous]
    [HttpPost]
-   public async Task<IActionResult> CreateUser(UserModel user)
+   public async Task<IActionResult> Login([FromBody] RequestLoginUser requestLoginUser)
    {
-      await DatabaseContainer.UserWeb.CreateUser(user.FirstName, user.LastName, user.Phone, user.Password);
+      if (!ModelState.IsValid)
+      {
+         return BadRequest();
+      }
+      
+      var user = await DatabaseContainer.UserWeb.FindOneByLogin(requestLoginUser.Login);
+
+      if (user is null)
+      {
+         return BadRequest();
+      }
+
+      if (user.Password != requestLoginUser.Password)
+      {
+         return Forbid();
+      }
+
+      var claims = new[]
+      {
+         new Claim("UserId",        user.Id.ToString()),
+         new Claim(ClaimTypes.Name, user.FirstName),
+         new Claim(ClaimTypes.Role, user.UserRole.ToString())
+      };
+        
+      var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+      var principal = new ClaimsPrincipal(identity);
+        
+      await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
       return Ok();
    }
 }
